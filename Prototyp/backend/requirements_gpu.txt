@@ -1,0 +1,25 @@
+# GPU-enhanced requirements for RAG service
+# Install these for GPU acceleration support
+
+# Core dependencies (same as requirements.txt)
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+sentence-transformers==2.2.2
+faiss-cpu==1.7.4
+numpy==1.24.3
+pydantic==2.5.0
+
+# GPU acceleration dependencies
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# For NVIDIA GPU support, install CUDA version:
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# For Intel GPU support (experimental):
+# intel-extension-for-pytorch
+
+# For AMD GPU support (experimental):
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.4.2
