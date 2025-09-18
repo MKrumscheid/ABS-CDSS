@@ -81,3 +81,145 @@ class RAGResponse(BaseModel):
     total_chunks_searched: int
     execution_time_ms: float
     metadata: Optional[Dict[str, Any]] = None  # For warnings and additional info
+
+# ==== FHIR Patient Models ====
+class PatientSearchQuery(BaseModel):
+    """Model for patient search requests"""
+    search_type: Literal["id", "name_birthdate"]
+    # For ID search
+    patient_id: Optional[str] = None
+    # For name + birthdate search
+    given_name: Optional[str] = None
+    family_name: Optional[str] = None
+    birth_date: Optional[str] = None  # Format: YYYY-MM-DD
+
+class PatientSearchResult(BaseModel):
+    """Model for patient search results"""
+    patient_id: str
+    name: str
+    gender: str
+    birth_date: Optional[str] = None
+    age: Optional[int] = None
+
+class LabValue(BaseModel):
+    """Model for laboratory values"""
+    name: str
+    value: str
+    unit: str = ""
+    code: Optional[str] = None
+
+class PatientDetailData(BaseModel):
+    """Detailed patient data for display"""
+    patient_id: str
+    name: str
+    gender: str
+    age: Optional[int] = None
+    birth_date: Optional[str] = None
+    height: Optional[float] = None  # in cm
+    weight: Optional[float] = None  # in kg
+    bmi: Optional[float] = None
+    pregnancy_status: str = "Nicht Schwanger"
+    conditions: List[str] = []  # Pre-existing conditions
+    allergies: List[str] = []
+    medications: List[str] = []
+    lab_values: List[LabValue] = []
+
+# ==== Therapy Recommendation Models ====
+
+class ActiveIngredient(BaseModel):
+    """Model for active pharmaceutical ingredients in therapy recommendations"""
+    name: str  # e.g., "Amoxicillin", "Clavulansäure"
+    strength: str  # e.g., "1000mg", "125mg"
+
+class MedicationRecommendation(BaseModel):
+    """Model for individual medication recommendations with dosing bounds"""
+    # Active ingredients (1-3 per medication, combined with "/")
+    active_ingredients: List[ActiveIngredient] = Field(..., min_items=1, max_items=3)
+    
+    # Frequency bounds (e.g., "3x täglich" or "3-4x täglich")
+    frequency_lower_bound: int = Field(..., ge=1, le=6)  # Minimum times per day
+    frequency_upper_bound: Optional[int] = Field(None, ge=1, le=6)  # Maximum times per day (if range)
+    frequency_unit: str = Field(default="täglich")  # "täglich", "alle 8h", etc.
+    
+    # Duration bounds (e.g., "5 Tage" or "5-7 Tage")
+    duration_lower_bound: int = Field(..., ge=1)  # Minimum duration
+    duration_upper_bound: Optional[int] = Field(None, ge=1)  # Maximum duration (if range)
+    duration_unit: str = Field(default="Tage")  # "Tage", "Wochen", etc.
+    
+    # Route of administration
+    route: str = Field(default="p.o.")  # "p.o.", "i.v.", "i.m.", etc.
+    
+    # Additional notes for this specific medication
+    notes: Optional[str] = None
+
+class ClinicalGuidance(BaseModel):
+    """Model for additional clinical guidance and safety information"""
+    # Monitoring parameters
+    monitoring_parameters: List[str] = []  # e.g., ["Kreatinin", "Leberwerte", "Herzfrequenz"]
+    
+    # Relevant side effects for this case
+    relevant_side_effects: List[str] = []  # e.g., ["Gastrointestinale Beschwerden", "Hautausschlag"]
+    
+    # Drug interactions (only if patient takes interacting medications)
+    drug_interactions: List[str] = []  # e.g., ["Warfarin: INR-Kontrolle erforderlich"]
+    
+    # Pregnancy considerations (only if patient is pregnant)
+    pregnancy_considerations: Optional[str] = None  # e.g., "Kontraindiziert in der Schwangerschaft"
+    
+    # De-escalation information
+    deescalation_info: Optional[str] = None  # e.g., "Nach Erregernachweis auf gezieltes Antibiotikum umstellen"
+    
+    # Therapy focus information
+    therapy_focus_info: Optional[str] = None  # e.g., "Bei Besserung auf orale Therapie umstellen"
+
+class SourceCitation(BaseModel):
+    """Model for source citations with guideline and page information"""
+    guideline_id: str  # e.g., "020-020l_S3_Behandlung-von-erwachsenen-Patienten-mit-ambulant-erworbener-Pneumonie"
+    guideline_title: Optional[str] = None  # Human-readable title
+    page_number: Optional[int] = None  # Page number if available
+    section: Optional[str] = None  # Section name if available
+    relevance_score: float = Field(..., ge=0.0, le=1.0)  # How relevant this source is to the recommendation
+
+class TherapyRecommendation(BaseModel):
+    """Model for complete therapy recommendation response"""
+    # List of 1-5 recommended therapy options
+    therapy_options: List[MedicationRecommendation] = Field(..., min_items=1, max_items=5)
+    
+    # Clinical guidance and safety information
+    clinical_guidance: ClinicalGuidance
+    
+    # Source citations that support these recommendations
+    source_citations: List[SourceCitation]
+    
+    # General reasoning for the therapy choice
+    therapy_rationale: str  # Explanation why these therapies were chosen
+    
+    # Confidence level in recommendations
+    confidence_level: str = Field(..., pattern="^(Hoch|Mittel|Niedrig)$")  # "Hoch", "Mittel", "Niedrig"
+    
+    # Warnings or special considerations
+    warnings: List[str] = []  # e.g., ["Niereninsuffizienz beachten", "Allergien berücksichtigt"]
+    
+    # LLM prompt information for debugging (optional fields)
+    system_prompt: Optional[str] = None
+    user_prompt: Optional[str] = None
+    llm_model: Optional[str] = None
+
+class TherapyRecommendationRequest(BaseModel):
+    """Model for therapy recommendation request"""
+    clinical_query: ClinicalQuery
+    patient_id: str
+    max_therapy_options: int = Field(default=3, ge=1, le=5)
+    include_alternative_options: bool = Field(default=True)
+
+# ==== LLM Configuration ====
+class LLMConfiguration(BaseModel):
+    """Model for LLM configuration settings"""
+    endpoint: str = Field(default="https://api.novita.ai/v3/openai/chat/completions", 
+                         description="LLM API endpoint URL")
+    model: str = Field(default="openai/gpt-oss-20b", 
+                      description="Model name to use")
+    max_tokens: int = Field(default=32000, ge=1000, le=50000, 
+                           description="Maximum tokens for response")
+    temperature: float = Field(default=0.6, ge=0.0, le=1.0, 
+                              description="Temperature for response generation")

@@ -34,10 +34,12 @@ mkdir backend\data 2>nul
 mkdir backend\data\embeddings 2>nul
 mkdir backend\data\guidelines 2>nul
 
-echo ✅ 2/4 - Installiere Python Dependencies...
+echo ✅ 2/4 - Installiere Python Dependencies (inkl. FHIR Support)...
 cd backend
 echo.
 echo Verwende --user Installation für bessere Kompatibilität...
+echo.
+echo Installiere FHIR.resources und weitere Dependencies...
 echo.
 
 REM Try user installation first
@@ -117,7 +119,12 @@ echo 3. Leitlinien hochladen:
 echo    - Beispiele in example_data/ verfügbar
 echo    - Verwenden Sie die Upload-Funktion in der UI
 echo.
-echo 4. RAG-Tests durchführen:
+echo 4. FHIR Patienten suchen:
+echo    - Neuer Patienten-Tab verfügbar
+echo    - Suche nach ID oder Name+Geburtsdatum
+echo    - HAPI FHIR Server: https://hapi.fhir.org/baseR4
+echo.
+echo 5. RAG-Tests durchführen:
 echo    - Wählen Sie klinische Parameter
 echo    - Testen Sie verschiedene Queries
 echo.

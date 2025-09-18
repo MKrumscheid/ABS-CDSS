@@ -5,6 +5,49 @@ import "./App.css";
 const API_BASE =
   process.env.NODE_ENV === "production" ? "" : "http://localhost:8000";
 
+// Helper functions for date conversion
+const convertToAmericanDate = (europeanDate) => {
+  // Convert DD.MM.YYYY or DD/MM/YYYY to YYYY-MM-DD
+  if (!europeanDate) return "";
+
+  // Handle different separators
+  let parts;
+  if (europeanDate.includes(".")) {
+    parts = europeanDate.split(".");
+  } else if (europeanDate.includes("/")) {
+    parts = europeanDate.split("/");
+  } else if (europeanDate.includes("-") && europeanDate.length === 10) {
+    // Already in YYYY-MM-DD format
+    return europeanDate;
+  } else {
+    return europeanDate; // Return as-is if format not recognized
+  }
+
+  if (parts.length === 3) {
+    const day = parts[0].padStart(2, "0");
+    const month = parts[1].padStart(2, "0");
+    const year = parts[2];
+    return `${year}-${month}-${day}`;
+  }
+
+  return europeanDate;
+};
+
+const convertToEuropeanDate = (americanDate) => {
+  // Convert YYYY-MM-DD to DD.MM.YYYY
+  if (!americanDate) return "";
+
+  const parts = americanDate.split("-");
+  if (parts.length === 3) {
+    const year = parts[0];
+    const month = parts[1];
+    const day = parts[2];
+    return `${day}.${month}.${year}`;
+  }
+
+  return americanDate;
+};
+
 function App() {
   const [activeTab, setActiveTab] = useState("upload");
   const [uploadStatus, setUploadStatus] = useState("");
@@ -14,6 +57,19 @@ function App() {
   const [guidelines, setGuidelines] = useState([]);
   const [deleteStatus, setDeleteStatus] = useState("");
   const [queryTestResults, setQueryTestResults] = useState(null);
+
+  // Patient search states
+  const [patientSearchType, setPatientSearchType] = useState("id"); // "id" or "name_birthdate"
+  const [patientSearchForm, setPatientSearchForm] = useState({
+    patient_id: "",
+    given_name: "",
+    family_name: "",
+    birth_date: "",
+  });
+  const [patientSearchResults, setPatientSearchResults] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [patientSearchLoading, setPatientSearchLoading] = useState(false);
+  const [patientDetailsLoading, setPatientDetailsLoading] = useState(false);
 
   // Available indications - easily extensible
   const availableIndicationOptions = [
@@ -30,6 +86,29 @@ function App() {
       label: "AECOPD (Akute Exazerbation der COPD)",
     },
   ];
+
+  // Therapy recommendation states
+  const [therapyForm, setTherapyForm] = useState({
+    indication: "CAP",
+    severity: "MITTELSCHWER",
+    infection_site: "",
+    risk_factors: [],
+    suspected_pathogens: "",
+    free_text: "",
+    patient_id: "",
+  });
+  const [therapyResults, setTherapyResults] = useState(null);
+
+  // LLM Configuration states
+  const [llmConfig, setLlmConfig] = useState({
+    endpoint: "https://api.novita.ai/v3/openai/chat/completions",
+    model: "openai/gpt-oss-20b",
+    max_tokens: 32000,
+    temperature: 0.6,
+  });
+  const [llmConfigSaved, setLlmConfigSaved] = useState(false);
+  const [therapyLoading, setTherapyLoading] = useState(false);
+  const [llmDebugExpanded, setLlmDebugExpanded] = useState(false);
 
   // Form states
   const [uploadFile, setUploadFile] = useState(null);
@@ -49,17 +128,17 @@ function App() {
   useEffect(() => {
     loadStats();
     loadGuidelines();
-    
+
     // Close dropdown when clicking outside
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.position-relative')) {
+      if (!event.target.closest(".position-relative")) {
         setIndicationDropdownOpen(false);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -188,7 +267,9 @@ function App() {
       console.log("➕ Adding indication, new selection:", newSelection);
       setSelectedIndications(newSelection);
     } else {
-      const newSelection = selectedIndications.filter((ind) => ind !== indication);
+      const newSelection = selectedIndications.filter(
+        (ind) => ind !== indication
+      );
       console.log("➖ Removing indication, new selection:", newSelection);
       setSelectedIndications(newSelection);
     }
@@ -200,6 +281,84 @@ function App() {
     setSelectedIndications([]); // Keine Vorauswahl nach Reset
     setIndicationSearch(""); // Auch die Suchleiste zurücksetzen
     setIndicationDropdownOpen(false); // Dropdown schließen
+  };
+
+  // Patient search functions
+  const handlePatientSearch = async (e) => {
+    e.preventDefault();
+    setPatientSearchLoading(true);
+    setPatientSearchResults([]);
+    setSelectedPatient(null);
+
+    try {
+      const searchPayload = {
+        search_type: patientSearchType,
+        ...(patientSearchType === "id"
+          ? { patient_id: patientSearchForm.patient_id }
+          : {
+              given_name: patientSearchForm.given_name,
+              family_name: patientSearchForm.family_name,
+              birth_date: convertToAmericanDate(patientSearchForm.birth_date),
+            }),
+      };
+
+      const response = await axios.post(
+        `${API_BASE}/patients/search`,
+        searchPayload
+      );
+
+      if (response.data.success) {
+        setPatientSearchResults(response.data.patients);
+        if (response.data.patients.length === 0) {
+          alert("Keine Patienten gefunden.");
+        }
+      } else {
+        alert(`Fehler bei der Patientensuche: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("Patient search error:", error);
+      alert(
+        `Fehler bei der Patientensuche: ${
+          error.response?.data?.detail || error.message
+        }`
+      );
+    } finally {
+      setPatientSearchLoading(false);
+    }
+  };
+
+  const handlePatientSelect = async (patientId) => {
+    setPatientDetailsLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE}/patients/${patientId}`);
+
+      if (response.data.success) {
+        setSelectedPatient(response.data.patient);
+      } else {
+        alert(`Fehler beim Laden der Patientendaten: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("Patient details error:", error);
+      alert(
+        `Fehler beim Laden der Patientendaten: ${
+          error.response?.data?.detail || error.message
+        }`
+      );
+    } finally {
+      setPatientDetailsLoading(false);
+    }
+  };
+
+  const resetPatientSearch = () => {
+    setPatientSearchForm({
+      patient_id: "",
+      given_name: "",
+      family_name: "",
+      birth_date: "",
+    });
+    setPatientSearchResults([]);
+    setSelectedPatient(null);
+    setPatientDetailsLoading(false);
   };
 
   const handleFileUpload = async (e) => {
@@ -365,6 +524,95 @@ function App() {
     }));
   };
 
+  // Therapy recommendation functions
+  const handleTherapyRiskFactorChange = (factor, checked) => {
+    setTherapyForm((prev) => ({
+      ...prev,
+      risk_factors: checked
+        ? [...prev.risk_factors, factor]
+        : prev.risk_factors.filter((f) => f !== factor),
+    }));
+  };
+
+  const handleTherapyRecommendation = async (e) => {
+    e.preventDefault();
+    setTherapyLoading(true);
+    setTherapyResults(null);
+
+    // Map form values to backend format
+    const therapyPayload = {
+      indication:
+        therapyForm.indication === "CAP"
+          ? "AMBULANT_ERWORBENE_PNEUMONIE"
+          : therapyForm.indication === "HAP"
+          ? "NOSOKOMIAL_ERWORBENE_PNEUMONIE"
+          : "AKUTE_EXAZERBATION_COPD",
+      severity: therapyForm.severity,
+      infection_site: therapyForm.infection_site || null,
+      risk_factors: therapyForm.risk_factors.map((factor) => factor),
+      suspected_pathogens: therapyForm.suspected_pathogens
+        ? therapyForm.suspected_pathogens
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s)
+        : [],
+      free_text: therapyForm.free_text || null,
+      patient_id: therapyForm.patient_id || null,
+    };
+
+    try {
+      console.log("Sending therapy recommendation payload:", therapyPayload);
+      const response = await axios.post(
+        `${API_BASE}/therapy/recommend`,
+        therapyPayload
+      );
+      setTherapyResults(response.data);
+    } catch (error) {
+      console.error("Therapy recommendation error:", error);
+
+      let errorMessage = error.message;
+      if (error.response?.data?.detail) {
+        if (Array.isArray(error.response.data.detail)) {
+          errorMessage = error.response.data.detail
+            .map((err) => `${err.loc.join(".")}: ${err.msg}`)
+            .join("; ");
+        } else {
+          errorMessage = error.response.data.detail;
+        }
+      }
+
+      setTherapyResults({
+        error: errorMessage,
+      });
+    } finally {
+      setTherapyLoading(false);
+    }
+  };
+
+  // LLM Configuration functions
+  const handleLlmConfigChange = (field, value) => {
+    setLlmConfig((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    setLlmConfigSaved(false);
+  };
+
+  const saveLlmConfig = async () => {
+    try {
+      const response = await axios.post(
+        `${API_BASE}/therapy/config`,
+        llmConfig
+      );
+      console.log("LLM config saved:", response.data);
+      setLlmConfigSaved(true);
+      setTimeout(() => setLlmConfigSaved(false), 3000); // Clear message after 3 seconds
+    } catch (error) {
+      console.error("Error saving LLM config:", error);
+      alert("Fehler beim Speichern der LLM-Konfiguration: " + error.message);
+    }
+  };
+
   return (
     <div className="App">
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -453,6 +701,22 @@ function App() {
           </li>
           <li className="nav-item">
             <button
+              className={`nav-link ${activeTab === "patients" ? "active" : ""}`}
+              onClick={() => setActiveTab("patients")}
+            >
+              👤 Patienten
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "therapy" ? "active" : ""}`}
+              onClick={() => setActiveTab("therapy")}
+            >
+              💊 Therapie Empfehlungen
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
               className={`nav-link ${
                 activeTab === "query-test" ? "active" : ""
               }`}
@@ -467,6 +731,14 @@ function App() {
               onClick={() => setActiveTab("search")}
             >
               🔍 RAG Search Test
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "settings" ? "active" : ""}`}
+              onClick={() => setActiveTab("settings")}
+            >
+              ⚙️ Einstellungen
             </button>
           </li>
         </ul>
@@ -534,48 +806,80 @@ function App() {
                     <button
                       type="button"
                       className="btn btn-outline-secondary btn-sm position-absolute"
-                      style={{ right: "5px", top: "50%", transform: "translateY(-50%)" }}
-                      onClick={() => setIndicationDropdownOpen(!indicationDropdownOpen)}
+                      style={{
+                        right: "5px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                      }}
+                      onClick={() =>
+                        setIndicationDropdownOpen(!indicationDropdownOpen)
+                      }
                     >
                       ▼
                     </button>
-                    
+
                     {indicationDropdownOpen && (
-                      <div className="card position-absolute w-100 mt-1" style={{ zIndex: 1000 }}>
-                        <div className="card-body p-2" style={{ maxHeight: "200px", overflowY: "auto" }}>
+                      <div
+                        className="card position-absolute w-100 mt-1"
+                        style={{ zIndex: 1000 }}
+                      >
+                        <div
+                          className="card-body p-2"
+                          style={{ maxHeight: "200px", overflowY: "auto" }}
+                        >
                           {/* Select All Option */}
                           <div className="form-check mb-2 border-bottom pb-2">
                             <input
                               className="form-check-input"
                               type="checkbox"
                               id="select-all-indications"
-                              checked={selectedIndications.length === availableIndicationOptions.length}
+                              checked={
+                                selectedIndications.length ===
+                                availableIndicationOptions.length
+                              }
                               onChange={(e) => {
                                 if (e.target.checked) {
-                                  setSelectedIndications(availableIndicationOptions.map(ind => ind.value));
+                                  setSelectedIndications(
+                                    availableIndicationOptions.map(
+                                      (ind) => ind.value
+                                    )
+                                  );
                                 } else {
                                   setSelectedIndications([]);
                                 }
                               }}
                             />
-                            <label className="form-check-label fw-bold" htmlFor="select-all-indications">
+                            <label
+                              className="form-check-label fw-bold"
+                              htmlFor="select-all-indications"
+                            >
                               🔘 Alle auswählen
                             </label>
                           </div>
-                          
+
                           {/* Filtered Indications */}
                           {availableIndicationOptions
-                            .filter(indication => 
-                              indication.label.toLowerCase().includes(indicationSearch.toLowerCase()) ||
-                              indication.value.toLowerCase().includes(indicationSearch.toLowerCase())
+                            .filter(
+                              (indication) =>
+                                indication.label
+                                  .toLowerCase()
+                                  .includes(indicationSearch.toLowerCase()) ||
+                                indication.value
+                                  .toLowerCase()
+                                  .includes(indicationSearch.toLowerCase())
                             )
                             .map((indication) => (
-                              <div key={indication.value} className="form-check">
+                              <div
+                                key={indication.value}
+                                className="form-check"
+                              >
                                 <input
                                   className="form-check-input"
                                   type="checkbox"
                                   id={`indication-${indication.value}`}
-                                  checked={selectedIndications.includes(indication.value)}
+                                  checked={selectedIndications.includes(
+                                    indication.value
+                                  )}
                                   onChange={(e) =>
                                     handleIndicationChange(
                                       indication.value,
@@ -583,18 +887,25 @@ function App() {
                                     )
                                   }
                                 />
-                                <label className="form-check-label" htmlFor={`indication-${indication.value}`}>
+                                <label
+                                  className="form-check-label"
+                                  htmlFor={`indication-${indication.value}`}
+                                >
                                   {indication.label}
                                 </label>
                               </div>
                             ))}
-                          
+
                           {/* No results message */}
-                          {availableIndicationOptions
-                            .filter(indication => 
-                              indication.label.toLowerCase().includes(indicationSearch.toLowerCase()) ||
-                              indication.value.toLowerCase().includes(indicationSearch.toLowerCase())
-                            ).length === 0 && (
+                          {availableIndicationOptions.filter(
+                            (indication) =>
+                              indication.label
+                                .toLowerCase()
+                                .includes(indicationSearch.toLowerCase()) ||
+                              indication.value
+                                .toLowerCase()
+                                .includes(indicationSearch.toLowerCase())
+                          ).length === 0 && (
                             <div className="text-muted text-center py-2">
                               Keine Indikationen gefunden
                             </div>
@@ -603,16 +914,21 @@ function App() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Selected indications display */}
                   {selectedIndications.length > 0 && (
                     <div className="mt-2">
                       <small className="text-muted">✅ Ausgewählt: </small>
                       <div className="d-flex flex-wrap gap-1 mt-1">
                         {selectedIndications.map((indicationValue) => {
-                          const indication = availableIndicationOptions.find(ind => ind.value === indicationValue);
+                          const indication = availableIndicationOptions.find(
+                            (ind) => ind.value === indicationValue
+                          );
                           return (
-                            <span key={indicationValue} className="badge bg-success">
+                            <span
+                              key={indicationValue}
+                              className="badge bg-success"
+                            >
                               {indication ? indication.label : indicationValue}
                               <button
                                 type="button"
@@ -620,7 +936,9 @@ function App() {
                                 style={{ fontSize: "0.6em" }}
                                 onClick={() => {
                                   setSelectedIndications(
-                                    selectedIndications.filter((ind) => ind !== indicationValue)
+                                    selectedIndications.filter(
+                                      (ind) => ind !== indicationValue
+                                    )
                                   );
                                 }}
                               ></button>
@@ -765,6 +1083,1087 @@ function App() {
                   </table>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Patients Tab */}
+        {activeTab === "patients" && (
+          <div className="row">
+            <div className="col-md-4">
+              <div className="card">
+                <div className="card-header">
+                  <h5>👤 Patientensuche</h5>
+                </div>
+                <div className="card-body">
+                  <form onSubmit={handlePatientSearch}>
+                    <div className="mb-3">
+                      <label className="form-label">Suchtyp</label>
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="searchType"
+                          id="searchById"
+                          value="id"
+                          checked={patientSearchType === "id"}
+                          onChange={(e) => setPatientSearchType(e.target.value)}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="searchById"
+                        >
+                          Suche nach Patienten-ID
+                        </label>
+                      </div>
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="searchType"
+                          id="searchByName"
+                          value="name_birthdate"
+                          checked={patientSearchType === "name_birthdate"}
+                          onChange={(e) => setPatientSearchType(e.target.value)}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="searchByName"
+                        >
+                          Suche nach Name + Geburtsdatum
+                        </label>
+                      </div>
+                    </div>
+
+                    {patientSearchType === "id" && (
+                      <div className="mb-3">
+                        <label htmlFor="patientId" className="form-label">
+                          Patienten-ID
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="patientId"
+                          value={patientSearchForm.patient_id}
+                          onChange={(e) =>
+                            setPatientSearchForm((prev) => ({
+                              ...prev,
+                              patient_id: e.target.value,
+                            }))
+                          }
+                          placeholder="z.B. cfsb1758022576326"
+                          required
+                        />
+                      </div>
+                    )}
+
+                    {patientSearchType === "name_birthdate" && (
+                      <>
+                        <div className="mb-3">
+                          <label htmlFor="givenName" className="form-label">
+                            Vorname
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="givenName"
+                            value={patientSearchForm.given_name}
+                            onChange={(e) =>
+                              setPatientSearchForm((prev) => ({
+                                ...prev,
+                                given_name: e.target.value,
+                              }))
+                            }
+                            placeholder="z.B. Dieter"
+                            required
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <label htmlFor="familyName" className="form-label">
+                            Nachname
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="familyName"
+                            value={patientSearchForm.family_name}
+                            onChange={(e) =>
+                              setPatientSearchForm((prev) => ({
+                                ...prev,
+                                family_name: e.target.value,
+                              }))
+                            }
+                            placeholder="z.B. Diabetes"
+                            required
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <label htmlFor="birthDate" className="form-label">
+                            Geburtsdatum
+                          </label>
+                          <input
+                            type="date"
+                            className="form-control"
+                            id="birthDate"
+                            value={patientSearchForm.birth_date}
+                            onChange={(e) =>
+                              setPatientSearchForm((prev) => ({
+                                ...prev,
+                                birth_date: e.target.value,
+                              }))
+                            }
+                            required
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    <div className="d-grid gap-2">
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={patientSearchLoading}
+                      >
+                        {patientSearchLoading ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2"></span>
+                            Suche läuft...
+                          </>
+                        ) : (
+                          "🔍 Patienten suchen"
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={resetPatientSearch}
+                      >
+                        🔄 Zurücksetzen
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Patient Search Results */}
+                  {patientSearchResults.length > 0 && (
+                    <div className="mt-4">
+                      <h6>Suchergebnisse ({patientSearchResults.length})</h6>
+                      <div className="list-group">
+                        {patientSearchResults.map((patient) => (
+                          <button
+                            key={patient.patient_id}
+                            type="button"
+                            className="list-group-item list-group-item-action"
+                            onClick={() =>
+                              handlePatientSelect(patient.patient_id)
+                            }
+                            disabled={patientDetailsLoading}
+                          >
+                            <div className="d-flex w-100 justify-content-between">
+                              <h6 className="mb-1">{patient.name}</h6>
+                              <small>ID: {patient.patient_id}</small>
+                            </div>
+                            <p className="mb-1">
+                              {patient.gender}
+                              {patient.age && ` • ${patient.age} Jahre`}
+                            </p>
+                            {patient.birth_date && (
+                              <small>
+                                Geboren:{" "}
+                                {convertToEuropeanDate(patient.birth_date)}
+                              </small>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-8">
+              <div className="card">
+                <div className="card-header">
+                  <h5>📋 Patientendaten</h5>
+                </div>
+                <div className="card-body">
+                  {!selectedPatient && !patientDetailsLoading && (
+                    <div className="text-center text-muted py-4">
+                      <p>
+                        Wählen Sie einen Patienten aus der Suchliste aus, um die
+                        Daten anzuzeigen.
+                      </p>
+                    </div>
+                  )}
+
+                  {patientDetailsLoading && (
+                    <div className="text-center py-4">
+                      <div
+                        className="spinner-border text-primary"
+                        role="status"
+                      >
+                        <span className="visually-hidden">
+                          Lade Patientendaten...
+                        </span>
+                      </div>
+                      <p className="mt-2 text-muted">
+                        Patientendaten werden geladen...
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedPatient && !patientDetailsLoading && (
+                    <div>
+                      {loading && (
+                        <div className="text-center mb-3">
+                          <div className="spinner-border" role="status">
+                            <span className="visually-hidden">Lädt...</span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="row">
+                        {/* Basic Info */}
+                        <div className="col-md-6">
+                          <div className="card mb-3">
+                            <div className="card-header bg-primary text-white">
+                              <h6 className="mb-0">Grunddaten</h6>
+                            </div>
+                            <div className="card-body">
+                              <table className="table table-sm">
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                      <strong>Name:</strong>
+                                    </td>
+                                    <td>{selectedPatient.name}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>
+                                      <strong>Geschlecht:</strong>
+                                    </td>
+                                    <td>{selectedPatient.gender}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>
+                                      <strong>Alter:</strong>
+                                    </td>
+                                    <td>
+                                      {selectedPatient.age
+                                        ? `${selectedPatient.age} Jahre`
+                                        : "Unbekannt"}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>
+                                      <strong>Geburtsdatum:</strong>
+                                    </td>
+                                    <td>
+                                      {selectedPatient.birth_date
+                                        ? convertToEuropeanDate(
+                                            selectedPatient.birth_date
+                                          )
+                                        : "Unbekannt"}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>
+                                      <strong>Größe:</strong>
+                                    </td>
+                                    <td>
+                                      {selectedPatient.height
+                                        ? `${selectedPatient.height} cm`
+                                        : "Nicht verfügbar"}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>
+                                      <strong>Gewicht:</strong>
+                                    </td>
+                                    <td>
+                                      {selectedPatient.weight
+                                        ? `${selectedPatient.weight} kg`
+                                        : "Nicht verfügbar"}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>
+                                      <strong>BMI:</strong>
+                                    </td>
+                                    <td>
+                                      {selectedPatient.bmi
+                                        ? selectedPatient.bmi
+                                        : "Nicht berechenbar"}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>
+                                      <strong>Schwangerschaft:</strong>
+                                    </td>
+                                    <td>{selectedPatient.pregnancy_status}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Medical Info */}
+                        <div className="col-md-6">
+                          {/* Conditions */}
+                          <div className="card mb-3">
+                            <div className="card-header bg-warning text-dark">
+                              <h6 className="mb-0">Vorerkrankungen</h6>
+                            </div>
+                            <div className="card-body">
+                              {selectedPatient.conditions.length > 0 ? (
+                                <ul className="list-unstyled mb-0">
+                                  {selectedPatient.conditions.map(
+                                    (condition, idx) => (
+                                      <li key={idx} className="mb-1">
+                                        • {condition}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              ) : (
+                                <span className="text-muted">
+                                  Keine Vorerkrankungen dokumentiert
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Allergies */}
+                          <div className="card mb-3">
+                            <div className="card-header bg-danger text-white">
+                              <h6 className="mb-0">Allergien</h6>
+                            </div>
+                            <div className="card-body">
+                              {selectedPatient.allergies.length > 0 ? (
+                                <ul className="list-unstyled mb-0">
+                                  {selectedPatient.allergies.map(
+                                    (allergy, idx) => (
+                                      <li key={idx} className="mb-1">
+                                        • {allergy}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              ) : (
+                                <span className="text-muted">
+                                  Keine Allergien dokumentiert
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Medications */}
+                        <div className="col-12">
+                          <div className="card mb-3">
+                            <div className="card-header bg-success text-white">
+                              <h6 className="mb-0">Aktuelle Medikamente</h6>
+                            </div>
+                            <div className="card-body">
+                              {selectedPatient.medications.length > 0 ? (
+                                <div className="row">
+                                  {selectedPatient.medications.map(
+                                    (medication, idx) => (
+                                      <div key={idx} className="col-md-6 mb-2">
+                                        • {medication}
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-muted">
+                                  Keine aktuellen Medikamente dokumentiert
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Lab Values */}
+                        <div className="col-12">
+                          <div className="card">
+                            <div className="card-header bg-info text-white">
+                              <h6 className="mb-0">Laborwerte</h6>
+                            </div>
+                            <div className="card-body">
+                              {selectedPatient.lab_values.length > 0 ? (
+                                <div className="table-responsive">
+                                  <table className="table table-sm table-striped">
+                                    <thead>
+                                      <tr>
+                                        <th>Parameter</th>
+                                        <th>Wert</th>
+                                        <th>Einheit</th>
+                                        <th>Code</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {selectedPatient.lab_values.map(
+                                        (lab, idx) => (
+                                          <tr key={idx}>
+                                            <td>{lab.name}</td>
+                                            <td>
+                                              <strong>{lab.value}</strong>
+                                            </td>
+                                            <td>{lab.unit}</td>
+                                            <td>
+                                              <code className="small">
+                                                {lab.code}
+                                              </code>
+                                            </td>
+                                          </tr>
+                                        )
+                                      )}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              ) : (
+                                <span className="text-muted">
+                                  Keine Laborwerte verfügbar
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Therapy Recommendations Tab */}
+        {activeTab === "therapy" && (
+          <div className="row">
+            <div className="col-md-4">
+              <div className="card">
+                <div className="card-header">
+                  <h5>💊 Therapie-Empfehlung anfragen</h5>
+                </div>
+                <div className="card-body">
+                  <form onSubmit={handleTherapyRecommendation}>
+                    <div className="mb-3">
+                      <label className="form-label">Indikation</label>
+                      <select
+                        className="form-select"
+                        value={therapyForm.indication}
+                        onChange={(e) =>
+                          setTherapyForm((prev) => ({
+                            ...prev,
+                            indication: e.target.value,
+                          }))
+                        }
+                      >
+                        <option value="CAP">
+                          CAP - Ambulant erworbene Pneumonie
+                        </option>
+                        <option value="HAP">
+                          HAP - Nosokomial erworbene Pneumonie
+                        </option>
+                        <option value="AKUTE_EXAZERBATION_COPD">
+                          AECOPD - Akute Exazerbation der COPD
+                        </option>
+                      </select>
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Schweregrad</label>
+                      <select
+                        className="form-select"
+                        value={therapyForm.severity}
+                        onChange={(e) =>
+                          setTherapyForm((prev) => ({
+                            ...prev,
+                            severity: e.target.value,
+                          }))
+                        }
+                      >
+                        <option value="LEICHT">Leicht</option>
+                        <option value="MITTELSCHWER">Mittelschwer</option>
+                        <option value="SCHWER">Schwer</option>
+                        <option value="SEPTISCH">Septisch</option>
+                      </select>
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">
+                        Infektionsort (optional)
+                      </label>
+                      <select
+                        className="form-select"
+                        value={therapyForm.infection_site}
+                        onChange={(e) =>
+                          setTherapyForm((prev) => ({
+                            ...prev,
+                            infection_site: e.target.value,
+                          }))
+                        }
+                      >
+                        <option value="">-- Nicht spezifiziert --</option>
+                        <option value="LUNGE">Lunge</option>
+                        <option value="BLUT">Blut</option>
+                        <option value="HARNTRAKT">Harntrakt</option>
+                        <option value="ZNS">ZNS</option>
+                        <option value="HAUT_WEICHTEILE">Haut/Weichteile</option>
+                      </select>
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Risikofaktoren</label>
+                      {[
+                        {
+                          key: "ANTIBIOTISCHE_VORBEHANDLUNG",
+                          label: "Antibiotische Vorbehandlung",
+                        },
+                        { key: "MRGN_VERDACHT", label: "MRGN Verdacht" },
+                        { key: "MRSA_VERDACHT", label: "MRSA Verdacht" },
+                        { key: "BEATMUNG", label: "Beatmung" },
+                        { key: "KATHETER", label: "Katheter" },
+                      ].map((factor) => (
+                        <div key={factor.key} className="form-check">
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            id={`therapy-${factor.key}`}
+                            checked={therapyForm.risk_factors.includes(
+                              factor.key
+                            )}
+                            onChange={(e) =>
+                              handleTherapyRiskFactorChange(
+                                factor.key,
+                                e.target.checked
+                              )
+                            }
+                          />
+                          <label
+                            className="form-check-label"
+                            htmlFor={`therapy-${factor.key}`}
+                          >
+                            {factor.label}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">
+                        Verdachtskeime (optional)
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={therapyForm.suspected_pathogens}
+                        onChange={(e) =>
+                          setTherapyForm((prev) => ({
+                            ...prev,
+                            suspected_pathogens: e.target.value,
+                          }))
+                        }
+                        placeholder="z.B. S. pneumoniae, H. influenzae"
+                      />
+                      <div className="form-text">Komma-getrennt</div>
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">
+                        Patienten-ID (optional)
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={therapyForm.patient_id}
+                        onChange={(e) =>
+                          setTherapyForm((prev) => ({
+                            ...prev,
+                            patient_id: e.target.value,
+                          }))
+                        }
+                        placeholder="z.B. cfsb1758022576326"
+                      />
+                      <div className="form-text">
+                        Für patientenspezifische Empfehlungen
+                      </div>
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Freitext (optional)</label>
+                      <textarea
+                        className="form-control"
+                        rows="3"
+                        value={therapyForm.free_text}
+                        onChange={(e) =>
+                          setTherapyForm((prev) => ({
+                            ...prev,
+                            free_text: e.target.value,
+                          }))
+                        }
+                        placeholder="Zusätzliche klinische Informationen..."
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="btn btn-success w-100"
+                      disabled={therapyLoading}
+                    >
+                      {therapyLoading ? (
+                        <>
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            role="status"
+                          ></span>
+                          Generiere Therapie-Empfehlungen...
+                        </>
+                      ) : (
+                        "💊 Therapie-Empfehlungen generieren"
+                      )}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-8">
+              <div className="card">
+                <div className="card-header">
+                  <h5>🎯 Therapie-Empfehlungen</h5>
+                </div>
+                <div className="card-body">
+                  {!therapyResults && !therapyLoading && (
+                    <div className="text-muted text-center py-4">
+                      <p>
+                        Füllen Sie die Parameter aus und generieren Sie
+                        Therapie-Empfehlungen
+                      </p>
+                      <p>
+                        Das System wird relevante Leitlinien durchsuchen und
+                        strukturierte Antibiotika-Empfehlungen erstellen.
+                      </p>
+                    </div>
+                  )}
+
+                  {therapyLoading && (
+                    <div className="text-center py-4">
+                      <div
+                        className="spinner-border text-primary"
+                        role="status"
+                      >
+                        <span className="visually-hidden">
+                          Generiere Therapie-Empfehlungen...
+                        </span>
+                      </div>
+                      <p className="mt-2 text-muted">
+                        LLM erstellt strukturierte Therapie-Empfehlungen
+                        basierend auf aktuellen Leitlinien...
+                      </p>
+                    </div>
+                  )}
+
+                  {therapyResults?.error && (
+                    <div className="alert alert-danger">
+                      <strong>Fehler:</strong> {therapyResults.error}
+                    </div>
+                  )}
+
+                  {therapyResults && !therapyResults.error && (
+                    <div>
+                      {/* Context Information */}
+                      {therapyResults.context_summary && (
+                        <div className="mb-4">
+                          <div className="card bg-light">
+                            <div className="card-header">
+                              <h6 className="mb-0">📋 Klinischer Kontext</h6>
+                            </div>
+                            <div className="card-body">
+                              <div className="row">
+                                <div className="col-md-6">
+                                  <small>
+                                    <strong>RAG Ergebnisse:</strong>{" "}
+                                    {
+                                      therapyResults.context_summary
+                                        .rag_results_count
+                                    }
+                                  </small>
+                                </div>
+                                <div className="col-md-6">
+                                  <small>
+                                    <strong>Dosierungstabellen:</strong>{" "}
+                                    {
+                                      therapyResults.context_summary
+                                        .dosing_tables_count
+                                    }
+                                  </small>
+                                </div>
+                              </div>
+                              {therapyResults.context_summary
+                                .patient_available && (
+                                <div className="mt-2">
+                                  <span className="badge bg-info">
+                                    👤 Patientendaten verfügbar
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Therapy Recommendations */}
+                      {therapyResults.recommendations &&
+                        therapyResults.recommendations.length > 0 && (
+                          <div className="mb-4">
+                            <h6 className="text-primary">
+                              💊 Empfohlene Therapien (
+                              {therapyResults.recommendations.length})
+                            </h6>
+                            {therapyResults.recommendations.map(
+                              (recommendation, idx) => (
+                                <div
+                                  key={idx}
+                                  className="card mb-3 border-success"
+                                >
+                                  <div className="card-header bg-success text-white">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                      <div>
+                                        <h6 className="mb-0">
+                                          Option {idx + 1}:{" "}
+                                          {recommendation.name}
+                                        </h6>
+                                      </div>
+                                      <span className="badge bg-light text-success">
+                                        Priorität: {recommendation.priority}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="card-body">
+                                    {/* Medications */}
+                                    <div className="mb-3">
+                                      <h6>🔹 Medikamente:</h6>
+                                      {recommendation.medications.map(
+                                        (medication, medIdx) => (
+                                          <div
+                                            key={medIdx}
+                                            className="border rounded p-3 mb-2 bg-light"
+                                          >
+                                            <div className="row">
+                                              <div className="col-md-8">
+                                                <div className="mb-2">
+                                                  {medication.active_ingredients.map(
+                                                    (ingredient, ingIdx) => (
+                                                      <span key={ingIdx}>
+                                                        <strong>
+                                                          {ingredient.name}
+                                                        </strong>{" "}
+                                                        {ingredient.strength}
+                                                        {ingIdx <
+                                                        medication
+                                                          .active_ingredients
+                                                          .length -
+                                                          1
+                                                          ? " + "
+                                                          : ""}
+                                                      </span>
+                                                    )
+                                                  )}
+                                                </div>
+                                                <div className="text-muted small">
+                                                  {medication.frequency} •{" "}
+                                                  {medication.interval} •{" "}
+                                                  {medication.duration}
+                                                </div>
+                                              </div>
+                                              <div className="col-md-4 text-end">
+                                                <span className="badge bg-primary">
+                                                  {
+                                                    medication.administration_route
+                                                  }
+                                                </span>
+                                              </div>
+                                            </div>
+                                            {medication.notes && (
+                                              <div className="mt-2">
+                                                <small className="text-muted">
+                                                  📝 {medication.notes}
+                                                </small>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )
+                                      )}
+                                    </div>
+
+                                    {/* Clinical Guidance */}
+                                    {recommendation.clinical_guidance && (
+                                      <div className="row">
+                                        {recommendation.clinical_guidance
+                                          .monitoring_parameters &&
+                                          recommendation.clinical_guidance
+                                            .monitoring_parameters.length >
+                                            0 && (
+                                            <div className="col-md-6 mb-3">
+                                              <h6>🔍 Monitoring:</h6>
+                                              <ul className="list-unstyled">
+                                                {recommendation.clinical_guidance.monitoring_parameters.map(
+                                                  (param, paramIdx) => (
+                                                    <li
+                                                      key={paramIdx}
+                                                      className="small"
+                                                    >
+                                                      • {param}
+                                                    </li>
+                                                  )
+                                                )}
+                                              </ul>
+                                            </div>
+                                          )}
+
+                                        {recommendation.clinical_guidance
+                                          .side_effects &&
+                                          recommendation.clinical_guidance
+                                            .side_effects.length > 0 && (
+                                            <div className="col-md-6 mb-3">
+                                              <h6>⚠️ Nebenwirkungen:</h6>
+                                              <ul className="list-unstyled">
+                                                {recommendation.clinical_guidance.side_effects.map(
+                                                  (effect, effectIdx) => (
+                                                    <li
+                                                      key={effectIdx}
+                                                      className="small text-warning"
+                                                    >
+                                                      • {effect}
+                                                    </li>
+                                                  )
+                                                )}
+                                              </ul>
+                                            </div>
+                                          )}
+
+                                        {recommendation.clinical_guidance
+                                          .drug_interactions &&
+                                          recommendation.clinical_guidance
+                                            .drug_interactions.length > 0 && (
+                                            <div className="col-md-6 mb-3">
+                                              <h6>🔄 Interaktionen:</h6>
+                                              <ul className="list-unstyled">
+                                                {recommendation.clinical_guidance.drug_interactions.map(
+                                                  (interaction, intIdx) => (
+                                                    <li
+                                                      key={intIdx}
+                                                      className="small text-danger"
+                                                    >
+                                                      • {interaction}
+                                                    </li>
+                                                  )
+                                                )}
+                                              </ul>
+                                            </div>
+                                          )}
+
+                                        {recommendation.clinical_guidance
+                                          .pregnancy_considerations && (
+                                          <div className="col-md-6 mb-3">
+                                            <h6>🤱 Schwangerschaft:</h6>
+                                            <p className="small text-info">
+                                              {
+                                                recommendation.clinical_guidance
+                                                  .pregnancy_considerations
+                                              }
+                                            </p>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {/* Sources */}
+                                    {recommendation.sources &&
+                                      recommendation.sources.length > 0 && (
+                                        <div className="mt-3">
+                                          <h6>📚 Quellen:</h6>
+                                          <div className="row">
+                                            {recommendation.sources.map(
+                                              (source, sourceIdx) => (
+                                                <div
+                                                  key={sourceIdx}
+                                                  className="col-md-6 mb-2"
+                                                >
+                                                  <div className="border rounded p-2 bg-light">
+                                                    <small>
+                                                      <strong>
+                                                        {source.guideline_id}
+                                                      </strong>
+                                                      {source.section && (
+                                                        <span>
+                                                          {" "}
+                                                          • {source.section}
+                                                        </span>
+                                                      )}
+                                                      {source.page && (
+                                                        <span>
+                                                          {" "}
+                                                          • Seite {source.page}
+                                                        </span>
+                                                      )}
+                                                      <br />
+                                                      <span className="text-muted">
+                                                        Relevanz:{" "}
+                                                        {(
+                                                          source.relevance_score *
+                                                          100
+                                                        ).toFixed(1)}
+                                                        %
+                                                      </span>
+                                                    </small>
+                                                  </div>
+                                                </div>
+                                              )
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                  </div>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        )}
+
+                      {/* General Clinical Notes */}
+                      {therapyResults.general_notes && (
+                        <div className="alert alert-info">
+                          <h6>ℹ️ Allgemeine Hinweise:</h6>
+                          <p className="mb-0">{therapyResults.general_notes}</p>
+                        </div>
+                      )}
+
+                      {/* LLM Debug Information */}
+                      {therapyResults.llm_debug && (
+                        <div className="card mt-4">
+                          <div className="card-header">
+                            <button
+                              className="btn btn-link text-decoration-none p-0 w-100 text-start"
+                              type="button"
+                              onClick={() =>
+                                setLlmDebugExpanded(!llmDebugExpanded)
+                              }
+                            >
+                              <h6 className="mb-0">
+                                🔍 LLM Debug-Informationen{" "}
+                                <small className="text-muted">
+                                  (
+                                  {llmDebugExpanded
+                                    ? "Einklappen"
+                                    : "Ausklappen"}
+                                  )
+                                </small>
+                                <span className="float-end">
+                                  {llmDebugExpanded ? "▲" : "▼"}
+                                </span>
+                              </h6>
+                            </button>
+                          </div>
+                          {llmDebugExpanded && (
+                            <div className="card-body">
+                              {/* Model Information */}
+                              {therapyResults.llm_debug.model && (
+                                <div className="mb-3">
+                                  <strong>🤖 Verwendetes Modell:</strong>
+                                  <div className="bg-light p-2 rounded mt-1">
+                                    <code>
+                                      {therapyResults.llm_debug.model}
+                                    </code>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* System Prompt */}
+                              {therapyResults.llm_debug.system_prompt && (
+                                <div className="mb-3">
+                                  <strong>📋 System Prompt:</strong>
+                                  <div
+                                    className="bg-light p-3 rounded mt-1"
+                                    style={{
+                                      maxHeight: "300px",
+                                      overflowY: "auto",
+                                    }}
+                                  >
+                                    <pre
+                                      className="mb-0"
+                                      style={{
+                                        fontSize: "0.875rem",
+                                        whiteSpace: "pre-wrap",
+                                        wordWrap: "break-word",
+                                      }}
+                                    >
+                                      {therapyResults.llm_debug.system_prompt}
+                                    </pre>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* User Prompt */}
+                              {therapyResults.llm_debug.user_prompt && (
+                                <div className="mb-3">
+                                  <strong>
+                                    👤 User Prompt (Klinischer Kontext):
+                                  </strong>
+                                  <div
+                                    className="bg-light p-3 rounded mt-1"
+                                    style={{
+                                      maxHeight: "400px",
+                                      overflowY: "auto",
+                                    }}
+                                  >
+                                    <pre
+                                      className="mb-0"
+                                      style={{
+                                        fontSize: "0.875rem",
+                                        whiteSpace: "pre-wrap",
+                                        wordWrap: "break-word",
+                                      }}
+                                    >
+                                      {therapyResults.llm_debug.user_prompt}
+                                    </pre>
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="text-muted">
+                                <small>
+                                  💡 Diese Informationen zeigen die exakten
+                                  Prompts, die an das LLM gesendet wurden, um
+                                  die Therapieempfehlungen zu generieren. Sie
+                                  können zur Qualitätskontrolle und Verbesserung
+                                  der Prompts verwendet werden.
+                                </small>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* LLM Processing Info */}
+                      {therapyResults.processing_time_ms && (
+                        <div className="text-muted text-center mt-3">
+                          <small>
+                            ⏱️ Verarbeitung: {therapyResults.processing_time_ms}
+                            ms
+                            {therapyResults.model_used &&
+                              ` • Modell: ${therapyResults.model_used}`}
+                          </small>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -1208,107 +2607,143 @@ function App() {
                           {searchResults.total_chunks_searched} durchsuchten
                           Chunks ({searchResults.execution_time_ms.toFixed(1)}
                           ms)
-                          {searchResults.dosing_tables && searchResults.dosing_tables.length > 0 && (
-                            <> • {searchResults.dosing_tables.length} Dosierungstabellen</>
-                          )}
+                          {searchResults.dosing_tables &&
+                            searchResults.dosing_tables.length > 0 && (
+                              <>
+                                {" "}
+                                • {searchResults.dosing_tables.length}{" "}
+                                Dosierungstabellen
+                              </>
+                            )}
                         </small>
                       </div>
 
                       {/* Dosing Tables Section */}
-                      {searchResults.dosing_tables && searchResults.dosing_tables.length > 0 && (
-                        <div className="mb-4">
-                          <h6 className="text-primary">💊 Dosierungstabellen</h6>
-                          <div className="border rounded p-3 bg-light">
-                            {searchResults.dosing_tables.map((table, idx) => (
-                              <div key={idx} className="card mb-3 border-primary">
-                                <div className="card-header bg-primary text-white">
-                                  <div className="d-flex justify-content-between align-items-start">
-                                    <div>
-                                      <span className="badge bg-light text-primary me-2">
-                                        Score: {table.score.toFixed(3)}
-                                      </span>
-                                      <strong>Tabelle {idx + 1}</strong>
-                                    </div>
-                                    <button
-                                      className="btn btn-sm btn-outline-light"
-                                      type="button"
-                                      onClick={(e) => {
-                                        const content = e.target
-                                          .closest(".card")
-                                          .querySelector(".dosing-table-content");
-                                        content.style.display =
-                                          content.style.display === "none"
-                                            ? "block"
-                                            : "none";
-                                        e.target.textContent =
-                                          content.style.display === "none"
-                                            ? "Tabelle zeigen"
-                                            : "Tabelle verbergen";
-                                      }}
-                                    >
-                                      Tabelle zeigen
-                                    </button>
-                                  </div>
-                                  <div className="mt-2">
-                                    <small>{table.table_name}</small>
-                                  </div>
-                                </div>
+                      {searchResults.dosing_tables &&
+                        searchResults.dosing_tables.length > 0 && (
+                          <div className="mb-4">
+                            <h6 className="text-primary">
+                              💊 Dosierungstabellen
+                            </h6>
+                            <div className="border rounded p-3 bg-light">
+                              {searchResults.dosing_tables.map((table, idx) => (
                                 <div
-                                  className="card-body dosing-table-content"
-                                  style={{ display: "none" }}
+                                  key={idx}
+                                  className="card mb-3 border-primary"
                                 >
-                                  <div className="table-responsive">
-                                    <div 
-                                      dangerouslySetInnerHTML={{ 
-                                        __html: table.table_html
-                                          .replace(/DOSING TABLE \(LLM Format\):/g, '')
-                                          .replace(/END OF DOSING TABLE/g, '')
-                                          .replace(/\| \*\*/g, '<th>')
-                                          .replace(/\*\* \|/g, '</th>')
-                                          .replace(/\| /g, '<td>')
-                                          .replace(/ \|/g, '</td>')
-                                          .replace(/\n/g, '</tr><tr>')
-                                          .replace(/<tr><\/tr>/g, '')
-                                          .replace(/^<\/tr>/, '')
-                                          .replace(/<tr>$/, '')
-                                      }} 
-                                    />
-                                  </div>
-                                  {table.clinical_context && Object.keys(table.clinical_context).length > 0 && (
-                                    <div className="mt-3">
-                                      <h6>🎯 Klinischer Kontext:</h6>
-                                      <div className="d-flex flex-wrap gap-2">
-                                        {table.clinical_context.indication && (
-                                          <span className="badge bg-info">
-                                            {table.clinical_context.indication}
-                                          </span>
-                                        )}
-                                        {table.clinical_context.severity && (
-                                          <span className="badge bg-warning">
-                                            {table.clinical_context.severity}
-                                          </span>
-                                        )}
-                                        {table.clinical_context.infection_site && (
-                                          <span className="badge bg-success">
-                                            {table.clinical_context.infection_site}
-                                          </span>
-                                        )}
-                                        {table.clinical_context.keywords && table.clinical_context.keywords.length > 0 && (
-                                          table.clinical_context.keywords.map((keyword, kidx) => (
-                                            <span key={kidx} className="badge bg-secondary">
-                                              {keyword}
-                                            </span>
-                                          ))
-                                        )}
+                                  <div className="card-header bg-primary text-white">
+                                    <div className="d-flex justify-content-between align-items-start">
+                                      <div>
+                                        <span className="badge bg-light text-primary me-2">
+                                          Score: {table.score.toFixed(3)}
+                                        </span>
+                                        <strong>Tabelle {idx + 1}</strong>
                                       </div>
+                                      <button
+                                        className="btn btn-sm btn-outline-light"
+                                        type="button"
+                                        onClick={(e) => {
+                                          const content = e.target
+                                            .closest(".card")
+                                            .querySelector(
+                                              ".dosing-table-content"
+                                            );
+                                          content.style.display =
+                                            content.style.display === "none"
+                                              ? "block"
+                                              : "none";
+                                          e.target.textContent =
+                                            content.style.display === "none"
+                                              ? "Tabelle zeigen"
+                                              : "Tabelle verbergen";
+                                        }}
+                                      >
+                                        Tabelle zeigen
+                                      </button>
                                     </div>
-                                  )}
+                                    <div className="mt-2">
+                                      <small>{table.table_name}</small>
+                                    </div>
+                                  </div>
+                                  <div
+                                    className="card-body dosing-table-content"
+                                    style={{ display: "none" }}
+                                  >
+                                    <div className="table-responsive">
+                                      <div
+                                        dangerouslySetInnerHTML={{
+                                          __html: table.table_html
+                                            .replace(
+                                              /DOSING TABLE \(LLM Format\):/g,
+                                              ""
+                                            )
+                                            .replace(/END OF DOSING TABLE/g, "")
+                                            .replace(/\| \*\*/g, "<th>")
+                                            .replace(/\*\* \|/g, "</th>")
+                                            .replace(/\| /g, "<td>")
+                                            .replace(/ \|/g, "</td>")
+                                            .replace(/\n/g, "</tr><tr>")
+                                            .replace(/<tr><\/tr>/g, "")
+                                            .replace(/^<\/tr>/, "")
+                                            .replace(/<tr>$/, ""),
+                                        }}
+                                      />
+                                    </div>
+                                    {table.clinical_context &&
+                                      Object.keys(table.clinical_context)
+                                        .length > 0 && (
+                                        <div className="mt-3">
+                                          <h6>🎯 Klinischer Kontext:</h6>
+                                          <div className="d-flex flex-wrap gap-2">
+                                            {table.clinical_context
+                                              .indication && (
+                                              <span className="badge bg-info">
+                                                {
+                                                  table.clinical_context
+                                                    .indication
+                                                }
+                                              </span>
+                                            )}
+                                            {table.clinical_context
+                                              .severity && (
+                                              <span className="badge bg-warning">
+                                                {
+                                                  table.clinical_context
+                                                    .severity
+                                                }
+                                              </span>
+                                            )}
+                                            {table.clinical_context
+                                              .infection_site && (
+                                              <span className="badge bg-success">
+                                                {
+                                                  table.clinical_context
+                                                    .infection_site
+                                                }
+                                              </span>
+                                            )}
+                                            {table.clinical_context.keywords &&
+                                              table.clinical_context.keywords
+                                                .length > 0 &&
+                                              table.clinical_context.keywords.map(
+                                                (keyword, kidx) => (
+                                                  <span
+                                                    key={kidx}
+                                                    className="badge bg-secondary"
+                                                  >
+                                                    {keyword}
+                                                  </span>
+                                                )
+                                              )}
+                                          </div>
+                                        </div>
+                                      )}
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
                       {/* Regular Chunks Section */}
                       <h6 className="text-secondary">📋 Leitlinien-Chunks</h6>
@@ -1387,6 +2822,121 @@ function App() {
                       )}
                     </>
                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab */}
+        {activeTab === "settings" && (
+          <div className="card">
+            <div className="card-header">
+              <h5>⚙️ LLM Konfiguration</h5>
+            </div>
+            <div className="card-body">
+              <div className="mb-3">
+                <label className="form-label">LLM Endpoint URL</label>
+                <input
+                  type="url"
+                  className="form-control"
+                  value={llmConfig.endpoint}
+                  onChange={(e) =>
+                    handleLlmConfigChange("endpoint", e.target.value)
+                  }
+                  placeholder="https://api.novita.ai/v3/openai/chat/completions"
+                />
+                <div className="form-text">
+                  Novita AI oder OpenAI-kompatible API Endpoint URL
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Model Name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={llmConfig.model}
+                  onChange={(e) =>
+                    handleLlmConfigChange("model", e.target.value)
+                  }
+                  placeholder="openai/gpt-oss-20b"
+                />
+                <div className="form-text">
+                  Beispiele: openai/gpt-oss-20b,
+                  meta-llama/llama-3.1-70b-instruct, gpt-4o, gpt-3.5-turbo
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="mb-3">
+                    <label className="form-label">Max Tokens</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={llmConfig.max_tokens}
+                      onChange={(e) =>
+                        handleLlmConfigChange(
+                          "max_tokens",
+                          parseInt(e.target.value)
+                        )
+                      }
+                      min="1000"
+                      max="50000"
+                    />
+                    <div className="form-text">
+                      Maximale Anzahl von Tokens für die Antwort (1000-50000)
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="mb-3">
+                    <label className="form-label">Temperature</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={llmConfig.temperature}
+                      onChange={(e) =>
+                        handleLlmConfigChange(
+                          "temperature",
+                          parseFloat(e.target.value)
+                        )
+                      }
+                      min="0"
+                      max="1"
+                      step="0.1"
+                    />
+                    <div className="form-text">
+                      Kreativität des LLM (0.0 = deterministisch, 1.0 = kreativ)
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="d-flex gap-2">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={saveLlmConfig}
+                >
+                  💾 Konfiguration speichern
+                </button>
+                {llmConfigSaved && (
+                  <div className="alert alert-success mb-0 py-2" role="alert">
+                    ✅ Konfiguration erfolgreich gespeichert!
+                  </div>
+                )}
+              </div>
+
+              <hr />
+
+              <div className="mt-4">
+                <h6>📋 Aktuelle Konfiguration</h6>
+                <div className="bg-light p-3 rounded">
+                  <pre style={{ fontSize: "0.875rem", marginBottom: 0 }}>
+                    {JSON.stringify(llmConfig, null, 2)}
+                  </pre>
                 </div>
               </div>
             </div>
