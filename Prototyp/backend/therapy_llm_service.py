@@ -34,7 +34,7 @@ class TherapyLLMService:
         )
         
         self.model = os.getenv("NOVITA_MODEL", "openai/gpt-oss-20b")
-        self.max_tokens = int(os.getenv("NOVITA_MAX_TOKENS", "131000"))
+        self.max_tokens = int(os.getenv("NOVITA_MAX_TOKENS", "4000"))  # Safe default within API limits
         self.temperature = float(os.getenv("NOVITA_TEMPERATURE", "0.6"))
         
         # Validate API key
@@ -46,7 +46,7 @@ class TherapyLLMService:
     def generate_therapy_recommendation(
         self, 
         context_data: Dict[str, Any], 
-        max_options: int = 3
+        max_options: int = 5
     ) -> TherapyRecommendation:
         """
         Generate therapy recommendations based on clinical context
@@ -159,12 +159,11 @@ class TherapyLLMService:
 WICHTIGE HINWEISE:
 - Dies ist nur ein Prototyp für Forschungszwecke, NICHT für reale Patienten
 - Alle Empfehlungen müssen auf den bereitgestellten Leitlinien und Dosierungstabellen basieren
-- Berücksichtige immer Patientencharakteristika (Allergien, Schwangerschaft, Nierenfunktion, etc.)
+- Berücksichtige immer Patientencharakteristika (Allergien, Schwangerschaft, Nierenfunktion, Vorerkrankungen, Medikation, etc.)
 - Zitiere präzise die Quellen mit Leitlinien-ID und Seitenzahl
-- Antworte AUSSCHLIESSLICH auf DEUTSCH - verwende deutsche medizinische Begriffe
-- Alle Texte, Notizen und Beschreibungen müssen auf Deutsch sein
+- Antworte AUSSCHLIESSLICH auf DEUTSCH und verwende deutsche medizinische Begriffe
 - WICHTIG: Interaktionen nur erwähnen, wenn der Patient das interagierende Medikament einnimmt
-- WICHTIG: Monitoring-Parameter nur für die verschriebenen Antibiotika relevant
+- WICHTIG: Monitoring-Parameter nur für die tatsächlich verschriebenen Antibiotika relevant
 - WICHTIG: Allgemeine Infektions-Monitoring in therapy_focus_info erwähnen
 
 AUSGABEFORMAT:
@@ -176,22 +175,22 @@ Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt im folgenden Format:
       "active_ingredients": [
         {"name": "Wirkstoffname", "strength": "Stärke mit Einheit"}
       ],
-      "frequency_lower_bound": Zahl,
-      "frequency_upper_bound": Zahl_oder_null,
-      "frequency_unit": "täglich",
-      "duration_lower_bound": Zahl,
-      "duration_upper_bound": Zahl_oder_null,
-      "duration_unit": "Tage",
-      "route": "p.o.",
-      "notes": "Medikamentenspezifische Hinweise (Einnahme, Besonderheiten, Anpassung) - NICHT Therapiedauer wiederholen"
+      "frequency_lower_bound": Integer,
+      "frequency_upper_bound": Integer_oder_null,
+      "frequency_unit": "z.B. täglich oder wöchentlich",
+      "duration_lower_bound": Integer,
+      "duration_upper_bound": Integer_oder_null,
+      "duration_unit": "z.B. Tage oder Wochen",
+      "route": "z.B. p.o., oder i.v.",
+      "notes": "Medikamentenspezifische Hinweise (z.B. Einnahme mit der Nahrung, Besonderheiten, Anpassung), NICHT Therapiedauer wiederholen"
     }
   ],
   "clinical_guidance": {
-    "monitoring_parameters": ["Nur für die verschriebenen Antibiotika relevante Parameter"],
-    "relevant_side_effects": ["Spezifische Nebenwirkungen der verschriebenen Antibiotika"],
-    "drug_interactions": ["Nur wenn Patient das interagierende Medikament einnimmt"],
+    "monitoring_parameters": ["Hier nur was reinschreiben, wenn für das verschriebenen Antibiotikum relevante Monitoring Parameter in der Leitlinie erwähnt werden"],
+    "relevant_side_effects": ["Hier nur relevante und Spezifische Nebenwirkungen des verschriebenen Antibiotikum, vor allem mit Hinblick auf bereits vorhandene Komorbiditäten"],
+    "drug_interactions": ["Nur wenn Patient das interagierende Medikament einnimmt, wenn keine Interaktion vorhanden, muss dies auch nicht extra erwähnt werden"],
     "pregnancy_considerations": "Text oder null",
-    "deescalation_info": "Deeskalations-Strategie",
+    "deescalation_info": "Deeskalations-Strategie, z.B. Oralisierung und Fokussierung der Therapie nach Erregernachweis",
     "therapy_focus_info": "Allgemeine Therapiehinweise und Infektions-Monitoring"
   },
   "source_citations": [
@@ -210,9 +209,9 @@ Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt im folgenden Format:
 
 DOSIERUNGS-REGELN:
 - active_ingredients: Array mit 1-3 Wirkstoffen pro Medikament
-- frequency_bounds: Häufigkeit pro Tag (z.B. 3 oder 3-4)
-- duration_bounds: INDIVIDUELLE Therapiedauer für JEDES Medikament (z.B. 5 oder 5-7)
-- WICHTIG: Jede Therapieoption benötigt eine spezifische Therapiedauer
+- frequency_bounds: Häufigkeit pro Tag (z.B. 3xtäglich --> nur lower_bound = 3 setzen, upper_bound = Null, 3-4xtäglich --> lower_bound = 3, upper_bound = 4)
+- duration_bounds: INDIVIDUELLE Therapiedauer für JEDES Medikament (z.B. 5 Tage --> lower_bound = 5, upper_bound = Null, 5-7 Tage --> lower_bound = 5, upper_bound = 7)
+- WICHTIG: Therapiedauer nur angeben wenn diese in den Informationen explizit genannt wird, ansonsten "Keine Information zur Therapiedauer verfügbar" und beide bounds auf Null setzen
 - Therapiedauer nicht nur in notes erwähnen, sondern als duration_bounds angeben
 - Berücksichtige patientenspezifische Faktoren für die Dauer (Alter, Schweregrad, Komorbidität)
 - Alle Zahlenfelder müssen Integer sein
@@ -281,7 +280,7 @@ DOSIERUNGS-REGELN:
         
         # Task instruction
         prompt_parts.append("=== AUFGABE ===")
-        prompt_parts.append(f"Erstelle {max_options} Therapieoptionen für diese klinische Situation.")
+        prompt_parts.append(f"Erstelle ein bis maximal {max_options} Therapieoptionen für diese klinische Situation (je nachdem wie viele valide Therapien tatsächlich zur Auswahl stehen).")
         prompt_parts.append("Berücksichtige:")
         prompt_parts.append("- Die bereitgestellten Leitlinien und Dosierungstabellen")
         prompt_parts.append("- Patientenspezifische Faktoren (Allergien, Schwangerschaft, etc.)")

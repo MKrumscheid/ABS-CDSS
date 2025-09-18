@@ -17,6 +17,25 @@ class TherapyContextBuilder:
         self.fhir_service = fhir_service
         self.additional_info_path = os.path.join(os.path.dirname(__file__), "data", "additional_info")
     
+    def _format_indication(self, indication):
+        """Format indication with human-readable description"""
+        indication_map = {
+            "AMBULANT_ERWORBENE_PNEUMONIE": "CAP (Ambulant erworbene Pneumonie)",
+            "NOSOKOMIAL_ERWORBENE_PNEUMONIE": "HAP (Nosokomial erworbene Pneumonie)", 
+            "AKUTE_EXAZERBATION_COPD": "AECOPD (Akute Exazerbation der COPD)"
+        }
+        return indication_map.get(str(indication).replace("Indication.", ""), str(indication))
+    
+    def _format_severity(self, severity):
+        """Format severity with human-readable description"""
+        severity_map = {
+            "LEICHT": "Leicht",
+            "MITTELSCHWER": "Mittelschwer",
+            "SCHWER": "Schwer", 
+            "SEPTISCH": "Septisch"
+        }
+        return severity_map.get(str(severity).replace("Severity.", ""), str(severity))
+    
     def build_therapy_context(
         self, 
         clinical_query: ClinicalQuery, 
@@ -116,8 +135,8 @@ class TherapyContextBuilder:
         
         # 1. Clinical Query Summary
         sections.append("=== KLINISCHE ANFRAGE ===")
-        sections.append(f"Indikation: {clinical_query.indication}")
-        sections.append(f"Schweregrad: {clinical_query.severity}")
+        sections.append(f"Indikation: {self._format_indication(clinical_query.indication)}")
+        sections.append(f"Schweregrad: {self._format_severity(clinical_query.severity)}")
         if clinical_query.infection_site:
             sections.append(f"Infektionsort: {clinical_query.infection_site}")
         if clinical_query.risk_factors:
@@ -146,7 +165,9 @@ class TherapyContextBuilder:
             sections.append("")
             
             for i, table in enumerate(dosing_tables, 1):
-                sections.append(f"DOSIERUNGSTABELLE {i} [Relevanz: {table.score:.1%}]")
+                # Normalize score to 0-1 range for display
+                normalized_score = min(table.score, 1.0) if table.score > 1.0 else table.score
+                sections.append(f"DOSIERUNGSTABELLE {i} [Relevanz: {normalized_score:.1%}]")
                 sections.append(f"📋 TABELLE: {table.table_name}")
                 
                 # Enhanced clinical context
@@ -164,24 +185,17 @@ class TherapyContextBuilder:
                 sections.append(table.table_html)
                 sections.append("")
                 
-                # Add extraction hint for LLM
-                sections.append("💡 EXTRAKTIONSHILFE FÜR LLM:")
-                sections.append("Aus dieser Tabelle können folgende Informationen extrahiert werden:")
-                sections.append("- Wirkstoffnamen und Stärken")
-                sections.append("- Dosierungsfrequenzen (z.B. 3x täglich)")
-                sections.append("- Therapiedauern (z.B. 5-7 Tage)")
-                sections.append("- Applikationswege (p.o., i.v.)")
-                sections.append("-" * 80)
-                sections.append("")
         
         # 5. Relevant Guideline Chunks with Enhanced Source Citations
         if rag_results:
             sections.append("=== LEITLINIEN-EVIDENZ ===")
-            sections.append("Die folgenden Evidenzen stammen aus validierten medizinischen Leitlinien:")
+            sections.append("Die folgenden Informationen stammen aus medizinischen Leitlinien:")
             sections.append("")
             
             for i, result in enumerate(rag_results, 1):
-                sections.append(f"EVIDENZ {i} [Relevanz: {result.score:.1%}]")
+                # Normalize score to 0-1 range for display
+                normalized_score = min(result.score, 1.0) if result.score > 1.0 else result.score
+                sections.append(f"EVIDENZ {i} [Relevanz: {normalized_score:.1%}]")
                 sections.append(f"📋 QUELLE: {result.guideline_id}")
                 if result.page:
                     sections.append(f"📄 SEITE: {result.page}")
@@ -192,10 +206,7 @@ class TherapyContextBuilder:
                 sections.append(result.snippet)
                 sections.append("")
                 sections.append("💡 ZITIERHILFE FÜR LLM:")
-                # Normalize score to 0.0-1.0 range for citation example
-                normalized_score = min(result.score / 100.0, 1.0) if result.score > 10 else min(result.score, 1.0)
-                normalized_score = max(0.0, normalized_score)
-                
+                # Use the same normalized score as displayed above
                 citation_example = f'{{\"guideline_id\": \"{result.guideline_id}\"'
                 if result.page:
                     citation_example += f', \"page_number\": {result.page}'
@@ -210,22 +221,22 @@ class TherapyContextBuilder:
         sections.append("=== INSTRUKTIONEN FÜR THERAPIEEMPFEHLUNG ===")
         sections.append("Erstelle strukturierte Therapieempfehlungen basierend auf:")
         sections.append("")
-        sections.append("📊 DATENGRUNDLAGE:")
-        sections.append(f"- {len(rag_results)} Leitlinien-Evidenzen")
-        sections.append(f"- {len(dosing_tables)} Dosierungstabellen")
+        sections.append("DATENGRUNDLAGE:")
+        sections.append(f"- Den {len(rag_results)} Leitlinien-Evidenzen")
+        sections.append(f"- Den {len(dosing_tables)} Dosierungstabellen")
         if patient_data:
-            sections.append("- Vollständige Patientendaten verfügbar")
+            sections.append("- Den vorliegenden Patientendaten (Medikation, Vorerkrankungen, Allergien und Medikamente)")
         else:
             sections.append("- ⚠️ Keine Patientendaten verfügbar")
         
         # Add information about included additional context
-        sections.append("- ✅ Sicherheit und Verträglichkeit (immer)")
+        sections.append("- Allgemeine Infos zur Sicherheit und Verträglichkeit von Antibiotikatherapien")
         if clinical_query.risk_factors:
-            sections.append("- ✅ Multiresistente Keime (wegen Risikofaktoren)")
+            sections.append("- Multiresistente Keime (wenn Risikofaktoren für MRGN/ESBL/MRSA vorhanden sind)")
         if patient_data and patient_data.get("age"):
             try:
                 if int(patient_data["age"]) > 70:
-                    sections.append("- ✅ Therapie beim alten Menschen (Alter >70)")
+                    sections.append("- Therapie beim alten Menschen (Alter >70)")
             except (ValueError, TypeError):
                 pass
         sections.append("")
@@ -233,20 +244,20 @@ class TherapyContextBuilder:
         sections.append("🎯 THERAPIEZIELE:")
         sections.append("- Evidenzbasierte Antibiotikatherapie")
         sections.append("- Patientenspezifische Dosierung")
-        sections.append("- Berücksichtigung von Kontraindikationen")
+        sections.append("- Berücksichtigung von Kontraindikationen, Arzneimittelinteraktionen und Allergien")
         sections.append("- Überwachungsparameter definieren")
         sections.append("- Deeskalationsstrategie planen")
         sections.append("")
         
         sections.append("⚠️ WICHTIGE SICHERHEITSASPEKTE:")
         if patient_data and patient_data.get("pregnancy_status") != "Nicht Schwanger":
-            sections.append("- 🚨 SCHWANGERSCHAFT: Schwangerschaftssichere Antibiotika wählen!")
+            sections.append("- SCHWANGERSCHAFT: Schwangerschaftssichere Antibiotika wählen!")
         if patient_data and patient_data.get("allergies"):
-            sections.append(f"- 🚨 ALLERGIEN: {', '.join(patient_data['allergies'])} vermeiden!")
+            sections.append(f"- ALLERGIEN: {', '.join(patient_data['allergies'])} vermeiden!")
         if patient_data and patient_data.get("medications"):
-            sections.append("- 💊 INTERAKTIONEN: Aktuelle Medikation auf Wechselwirkungen prüfen")
-        sections.append("- 🔬 MONITORING: Relevante Laborparameter überwachen")
-        sections.append("- 📉 DEESKALATION: Nach Erregernachweis gezielt therapieren")
+            sections.append("- INTERAKTIONEN: Aktuelle Medikation auf Wechselwirkungen prüfen")
+        sections.append("- MONITORING: Relevante Laborparameter überwachen")
+        sections.append("- DEESKALATION: Wenn Verdachtserreger angeben ist, gezielt therapieren, ansonsten empirisch (kalkuliert)")
         sections.append("")
         
         sections.append("📚 QUELLENANGABEN:")
@@ -301,16 +312,17 @@ class TherapyContextBuilder:
         return "\n".join(sections)
     
     def _format_patient_summary(self, patient_data: Dict[str, Any]) -> str:
-        """Format patient data into a concise summary"""
+        """Format patient data into a concise summary without names for privacy"""
         summary_lines = []
         
-        # Demographics
-        if patient_data.get("name"):
-            summary_lines.append(f"Patient: {patient_data['name']}")
+        # Demographics (excluding name for privacy)
+        demographic_info = []
         if patient_data.get("age"):
-            summary_lines.append(f"Alter: {patient_data['age']} Jahre")
+            demographic_info.append(f"Alter: {patient_data['age']} Jahre")
         if patient_data.get("gender"):
-            summary_lines.append(f"Geschlecht: {patient_data['gender']}")
+            demographic_info.append(f"Geschlecht: {patient_data['gender']}")
+        if demographic_info:
+            summary_lines.append(", ".join(demographic_info))
         
         # Physical parameters
         physical_params = []
@@ -323,17 +335,17 @@ class TherapyContextBuilder:
         if physical_params:
             summary_lines.append(", ".join(physical_params))
         
-        # Pregnancy status
+        # Pregnancy status (important for drug selection)
         pregnancy_status = patient_data.get("pregnancy_status", "Nicht Schwanger")
         if pregnancy_status != "Nicht Schwanger":
             summary_lines.append(f"🚨 SCHWANGERSCHAFT: {pregnancy_status}")
         
-        # Medical history
+        # Medical history (consolidated)
         conditions = patient_data.get("conditions", [])
         if conditions:
-            summary_lines.append(f"Vorerkrankungen: {', '.join(conditions)}")
+            summary_lines.append(f"Anamnese/Vorerkrankungen: {', '.join(conditions)}")
         
-        # Allergies (IMPORTANT for therapy planning)
+        # Allergies (critical for drug selection)
         allergies = patient_data.get("allergies", [])
         if allergies:
             summary_lines.append(f"🚨 ALLERGIEN: {', '.join(allergies)}")
@@ -344,10 +356,8 @@ class TherapyContextBuilder:
         medications = patient_data.get("medications", [])
         if medications:
             summary_lines.append(f"Aktuelle Medikation: {', '.join(medications)}")
-        else:
-            summary_lines.append("Aktuelle Medikation: Keine dokumentiert")
         
-        # Key lab values
+        # Key lab values (prioritize organ function)
         lab_values = patient_data.get("lab_values", [])
         if lab_values:
             key_labs = []
@@ -356,7 +366,7 @@ class TherapyContextBuilder:
                 value = lab.get("value", "")
                 unit = lab.get("unit", "")
                 
-                # Prioritize kidney and liver function
+                # Prioritize kidney and liver function for dosing
                 if any(keyword in name.lower() for keyword in ["kreatinin", "clearance", "gfr", "bilirubin", "ast", "alt"]):
                     key_labs.append(f"{name}: {value} {unit}".strip())
             
@@ -404,7 +414,7 @@ class TherapyContextBuilder:
         # Always include safety information
         safety_info = self._load_additional_info("Sicherheit und Verträglichkeit.txt")
         if safety_info:
-            additional_sections.append("=== SICHERHEIT UND VERTRÄGLICHKEIT ===")
+            additional_sections.append("=== ALLGEMEINE INFOS ZUR SICHERHEIT UND VERTRÄGLICHKEIT DER ANTIBIOTISCHEN THERAPIE ===")
             additional_sections.append("(Quelle: S2k_Parenterale_Antibiotika_2019-08, Seite 81-84)")
             additional_sections.append("")
             additional_sections.append(safety_info)
@@ -414,7 +424,7 @@ class TherapyContextBuilder:
         if clinical_query.risk_factors:
             resistant_info = self._load_additional_info("Infektionen durch multiresistente Keime.txt")
             if resistant_info:
-                additional_sections.append("=== INFEKTIONEN DURCH MULTIRESISTENTE KEIME ===")
+                additional_sections.append("=== INFORMATIONEN FÜR INFEKTIONEN DURCH MULTIRESISTENTE KEIME ===")
                 additional_sections.append("(Quelle: S2k_Parenterale_Antibiotika_2019-08, Seite 309-318)")
                 additional_sections.append(f"RELEVANT wegen Risikofaktoren: {', '.join(clinical_query.risk_factors)}")
                 additional_sections.append("")
@@ -428,7 +438,7 @@ class TherapyContextBuilder:
                 if patient_age > 70:
                     elderly_info = self._load_additional_info("Antibiotikatherapie beim alten Menschen.txt")
                     if elderly_info:
-                        additional_sections.append("=== ANTIBIOTIKATHERAPIE BEIM ALTEN MENSCHEN ===")
+                        additional_sections.append("=== ANTIBIOTIKATHERAPIE BEIM ALTEN MENSCHEN (Alter > 70) ===")
                         additional_sections.append("(Quelle: S2k_Parenterale_Antibiotika_2019-08, Seite 294-302)")
                         additional_sections.append(f"RELEVANT wegen Patientenalter: {patient_age} Jahre (>70)")
                         additional_sections.append("")

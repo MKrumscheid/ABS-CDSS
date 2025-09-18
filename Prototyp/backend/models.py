@@ -137,8 +137,8 @@ class MedicationRecommendation(BaseModel):
     active_ingredients: List[ActiveIngredient] = Field(..., min_items=1, max_items=3)
     
     # Frequency bounds (e.g., "3x täglich" or "3-4x täglich")
-    frequency_lower_bound: int = Field(..., ge=1, le=6)  # Minimum times per day
-    frequency_upper_bound: Optional[int] = Field(None, ge=1, le=6)  # Maximum times per day (if range)
+    frequency_lower_bound: int = Field(..., ge=1)  # Minimum times per day
+    frequency_upper_bound: Optional[int] = Field(None, ge=1)  # Maximum times per day (if range)
     frequency_unit: str = Field(default="täglich")  # "täglich", "alle 8h", etc.
     
     # Duration bounds (e.g., "5 Tage" or "5-7 Tage")
@@ -147,7 +147,7 @@ class MedicationRecommendation(BaseModel):
     duration_unit: str = Field(default="Tage")  # "Tage", "Wochen", etc.
     
     # Route of administration
-    route: str = Field(default="p.o.")  # "p.o.", "i.v.", "i.m.", etc.
+    route: str = Field(default="i.v.")  # "p.o.", "i.v.", "i.m.", etc.
     
     # Additional notes for this specific medication
     notes: Optional[str] = None
@@ -209,7 +209,7 @@ class TherapyRecommendationRequest(BaseModel):
     """Model for therapy recommendation request"""
     clinical_query: ClinicalQuery
     patient_id: str
-    max_therapy_options: int = Field(default=3, ge=1, le=5)
+    max_therapy_options: int = Field(default=5, ge=1, le=5)
     include_alternative_options: bool = Field(default=True)
 
 # ==== LLM Configuration ====
@@ -219,7 +219,7 @@ class LLMConfiguration(BaseModel):
                          description="LLM API endpoint URL")
     model: str = Field(default="openai/gpt-oss-20b", 
                       description="Model name to use")
-    max_tokens: int = Field(default=32000, ge=1000, le=50000, 
+    max_tokens: int = Field(default=16000, ge=1000, le=32768, 
                            description="Maximum tokens for response")
     temperature: float = Field(default=0.6, ge=0.0, le=1.0, 
                               description="Temperature for response generation")

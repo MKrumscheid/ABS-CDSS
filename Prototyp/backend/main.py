@@ -458,7 +458,7 @@ async def get_llm_configuration():
             "config": {
                 "endpoint": getattr(therapy_llm_service, 'endpoint', 'https://api.novita.ai/v3/openai/chat/completions'),
                 "model": getattr(therapy_llm_service, 'model', 'openai/gpt-oss-20b'),
-                "max_tokens": getattr(therapy_llm_service, 'max_tokens', 131000),
+                "max_tokens": getattr(therapy_llm_service, 'max_tokens', 4000),
                 "temperature": getattr(therapy_llm_service, 'temperature', 0.6)
             }
         }
