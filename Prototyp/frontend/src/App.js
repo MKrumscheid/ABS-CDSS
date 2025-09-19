@@ -1846,48 +1846,133 @@ function App() {
                                   <div className="card-body">
                                     {/* Medications */}
                                     <div className="mb-3">
-                                      <h6>🔹 Medikamente:</h6>
+                                      <h6>� Medikamente:</h6>
                                       {recommendation.medications.map(
                                         (medication, medIdx) => (
                                           <div
                                             key={medIdx}
-                                            className="border rounded p-3 mb-2 bg-light"
+                                            className="border rounded p-3 mb-2"
                                           >
-                                            <div className="row">
+                                            {/* Medication Header */}
+                                            <div className="row mb-3">
                                               <div className="col-md-8">
                                                 <div className="mb-2">
-                                                  {medication.active_ingredients.map(
-                                                    (ingredient, ingIdx) => (
-                                                      <span key={ingIdx}>
-                                                        <strong>
-                                                          {ingredient.name}
-                                                        </strong>{" "}
-                                                        {ingredient.strength}
-                                                        {ingIdx <
-                                                        medication
-                                                          .active_ingredients
-                                                          .length -
-                                                          1
-                                                          ? " + "
-                                                          : ""}
-                                                      </span>
-                                                    )
-                                                  )}
-                                                </div>
-                                                <div className="text-muted small">
-                                                  {medication.frequency} •{" "}
-                                                  {medication.interval} •{" "}
-                                                  {medication.duration}
+                                                  <h6 className="text-primary mb-1">
+                                                    {medication.active_ingredients.map(
+                                                      (ingredient, ingIdx) => (
+                                                        <span key={ingIdx}>
+                                                          <strong>
+                                                            {ingredient.name}
+                                                          </strong>{" "}
+                                                          {ingredient.strength}
+                                                          {ingIdx <
+                                                          medication
+                                                            .active_ingredients
+                                                            .length -
+                                                            1
+                                                            ? " + "
+                                                            : ""}
+                                                        </span>
+                                                      )
+                                                    )}
+                                                  </h6>
                                                 </div>
                                               </div>
                                               <div className="col-md-4 text-end">
                                                 <span className="badge bg-primary">
-                                                  {
-                                                    medication.administration_route
-                                                  }
+                                                  {medication.route}
                                                 </span>
                                               </div>
                                             </div>
+
+                                            {/* Structured Dosing Table */}
+                                            {medication.structured_dosing && (
+                                              <div className="table-responsive">
+                                                <table className="table table-sm table-bordered">
+                                                  <thead className="table-light">
+                                                    <tr>
+                                                      <th>Wirkstoff</th>
+                                                      <th>Stärke</th>
+                                                      <th>Häufigkeit</th>
+                                                      <th>Therapiedauer</th>
+                                                      <th>Applikationsweg</th>
+                                                    </tr>
+                                                  </thead>
+                                                  <tbody>
+                                                    {medication.active_ingredients.map(
+                                                      (ingredient, ingIdx) => (
+                                                        <tr key={ingIdx}>
+                                                          <td>
+                                                            <strong>
+                                                              {ingredient.name}
+                                                            </strong>
+                                                          </td>
+                                                          <td>
+                                                            {
+                                                              ingredient.strength
+                                                            }
+                                                          </td>
+                                                          <td>
+                                                            {medication
+                                                              .structured_dosing
+                                                              .frequency_upper &&
+                                                            medication
+                                                              .structured_dosing
+                                                              .frequency_upper !==
+                                                              medication
+                                                                .structured_dosing
+                                                                .frequency_lower
+                                                              ? `${medication.structured_dosing.frequency_lower}-${medication.structured_dosing.frequency_upper}x ${medication.structured_dosing.frequency_unit}`
+                                                              : `${medication.structured_dosing.frequency_lower}x ${medication.structured_dosing.frequency_unit}`}
+                                                          </td>
+                                                          <td>
+                                                            {medication
+                                                              .structured_dosing
+                                                              .duration_lower ? (
+                                                              medication
+                                                                .structured_dosing
+                                                                .duration_upper &&
+                                                              medication
+                                                                .structured_dosing
+                                                                .duration_upper !==
+                                                                medication
+                                                                  .structured_dosing
+                                                                  .duration_lower ? (
+                                                                `${medication.structured_dosing.duration_lower}-${medication.structured_dosing.duration_upper} ${medication.structured_dosing.duration_unit}`
+                                                              ) : (
+                                                                `${medication.structured_dosing.duration_lower} ${medication.structured_dosing.duration_unit}`
+                                                              )
+                                                            ) : (
+                                                              <span className="text-muted">
+                                                                Nicht
+                                                                spezifiziert
+                                                              </span>
+                                                            )}
+                                                          </td>
+                                                          <td>
+                                                            {
+                                                              medication
+                                                                .structured_dosing
+                                                                .route
+                                                            }
+                                                          </td>
+                                                        </tr>
+                                                      )
+                                                    )}
+                                                  </tbody>
+                                                </table>
+                                              </div>
+                                            )}
+
+                                            {/* Legacy format fallback */}
+                                            {!medication.structured_dosing && (
+                                              <div className="text-muted small">
+                                                {medication.frequency} •{" "}
+                                                {medication.duration}
+                                              </div>
+                                            )}
+
+                                            {/* Medication Notes */}
                                             {medication.notes && (
                                               <div className="mt-2">
                                                 <small className="text-muted">
@@ -1895,92 +1980,194 @@ function App() {
                                                 </small>
                                               </div>
                                             )}
+
+                                            {/* Medication-specific Clinical Guidance */}
+                                            {medication.clinical_guidance && (
+                                              <div className="mt-3">
+                                                <h6 className="text-primary mb-3">
+                                                  📋 Klinische Hinweise für{" "}
+                                                  {medication.active_ingredients
+                                                    .map((ai) => ai.name)
+                                                    .join(" / ")}
+                                                </h6>
+                                                <div className="row">
+                                                  {/* Monitoring Parameters */}
+                                                  {medication.clinical_guidance
+                                                    .monitoring_parameters &&
+                                                    medication.clinical_guidance
+                                                      .monitoring_parameters
+                                                      .length > 0 && (
+                                                      <div className="col-md-4 mb-3">
+                                                        <div className="card h-100 border-info">
+                                                          <div className="card-header bg-info text-white">
+                                                            <h6 className="mb-0">
+                                                              🔍 Monitoring
+                                                            </h6>
+                                                          </div>
+                                                          <div className="card-body">
+                                                            <ul className="list-unstyled mb-0">
+                                                              {medication.clinical_guidance.monitoring_parameters.map(
+                                                                (
+                                                                  param,
+                                                                  paramIdx
+                                                                ) => (
+                                                                  <li
+                                                                    key={
+                                                                      paramIdx
+                                                                    }
+                                                                    className="small mb-1"
+                                                                  >
+                                                                    • {param}
+                                                                  </li>
+                                                                )
+                                                              )}
+                                                            </ul>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                    )}
+
+                                                  {/* Relevant Side Effects */}
+                                                  {medication.clinical_guidance
+                                                    .relevant_side_effects &&
+                                                    medication.clinical_guidance
+                                                      .relevant_side_effects
+                                                      .length > 0 && (
+                                                      <div className="col-md-4 mb-3">
+                                                        <div className="card h-100 border-warning">
+                                                          <div className="card-header bg-warning text-dark">
+                                                            <h6 className="mb-0">
+                                                              ⚠️ Relevante
+                                                              Nebenwirkungen
+                                                            </h6>
+                                                          </div>
+                                                          <div className="card-body">
+                                                            <ul className="list-unstyled mb-0">
+                                                              {medication.clinical_guidance.relevant_side_effects.map(
+                                                                (
+                                                                  effect,
+                                                                  effectIdx
+                                                                ) => (
+                                                                  <li
+                                                                    key={
+                                                                      effectIdx
+                                                                    }
+                                                                    className="small mb-1 text-warning"
+                                                                  >
+                                                                    • {effect}
+                                                                  </li>
+                                                                )
+                                                              )}
+                                                            </ul>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                    )}
+
+                                                  {/* Drug Interactions */}
+                                                  {medication.clinical_guidance
+                                                    .drug_interactions &&
+                                                    medication.clinical_guidance
+                                                      .drug_interactions
+                                                      .length > 0 && (
+                                                      <div className="col-md-4 mb-3">
+                                                        <div className="card h-100 border-danger">
+                                                          <div className="card-header bg-danger text-white">
+                                                            <h6 className="mb-0">
+                                                              🔄 Interaktionen
+                                                            </h6>
+                                                          </div>
+                                                          <div className="card-body">
+                                                            <ul className="list-unstyled mb-0">
+                                                              {medication.clinical_guidance.drug_interactions.map(
+                                                                (
+                                                                  interaction,
+                                                                  intIdx
+                                                                ) => (
+                                                                  <li
+                                                                    key={intIdx}
+                                                                    className="small mb-1 text-danger"
+                                                                  >
+                                                                    •{" "}
+                                                                    {
+                                                                      interaction
+                                                                    }
+                                                                  </li>
+                                                                )
+                                                              )}
+                                                            </ul>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Additional Clinical Information */}
+                                                {(medication.clinical_guidance
+                                                  .pregnancy_considerations ||
+                                                  medication.clinical_guidance
+                                                    .deescalation_info ||
+                                                  medication.clinical_guidance
+                                                    .therapy_focus_info) && (
+                                                  <div className="row mt-3">
+                                                    {medication
+                                                      .clinical_guidance
+                                                      .pregnancy_considerations && (
+                                                      <div className="col-12 mb-2">
+                                                        <div className="alert alert-warning mb-2">
+                                                          <strong>
+                                                            🤰 Schwangerschaft:
+                                                          </strong>{" "}
+                                                          {
+                                                            medication
+                                                              .clinical_guidance
+                                                              .pregnancy_considerations
+                                                          }
+                                                        </div>
+                                                      </div>
+                                                    )}
+
+                                                    {medication
+                                                      .clinical_guidance
+                                                      .deescalation_info && (
+                                                      <div className="col-12 mb-2">
+                                                        <div className="alert alert-info mb-2">
+                                                          <strong>
+                                                            📉 Deeskalation:
+                                                          </strong>{" "}
+                                                          {
+                                                            medication
+                                                              .clinical_guidance
+                                                              .deescalation_info
+                                                          }
+                                                        </div>
+                                                      </div>
+                                                    )}
+
+                                                    {medication
+                                                      .clinical_guidance
+                                                      .therapy_focus_info && (
+                                                      <div className="col-12 mb-2">
+                                                        <div className="alert alert-primary mb-2">
+                                                          <strong>
+                                                            🎯 Therapiefokus:
+                                                          </strong>{" "}
+                                                          {
+                                                            medication
+                                                              .clinical_guidance
+                                                              .therapy_focus_info
+                                                          }
+                                                        </div>
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
                                           </div>
                                         )
                                       )}
                                     </div>
-
-                                    {/* Clinical Guidance */}
-                                    {recommendation.clinical_guidance && (
-                                      <div className="row">
-                                        {recommendation.clinical_guidance
-                                          .monitoring_parameters &&
-                                          recommendation.clinical_guidance
-                                            .monitoring_parameters.length >
-                                            0 && (
-                                            <div className="col-md-6 mb-3">
-                                              <h6>🔍 Monitoring:</h6>
-                                              <ul className="list-unstyled">
-                                                {recommendation.clinical_guidance.monitoring_parameters.map(
-                                                  (param, paramIdx) => (
-                                                    <li
-                                                      key={paramIdx}
-                                                      className="small"
-                                                    >
-                                                      • {param}
-                                                    </li>
-                                                  )
-                                                )}
-                                              </ul>
-                                            </div>
-                                          )}
-
-                                        {recommendation.clinical_guidance
-                                          .side_effects &&
-                                          recommendation.clinical_guidance
-                                            .side_effects.length > 0 && (
-                                            <div className="col-md-6 mb-3">
-                                              <h6>⚠️ Nebenwirkungen:</h6>
-                                              <ul className="list-unstyled">
-                                                {recommendation.clinical_guidance.side_effects.map(
-                                                  (effect, effectIdx) => (
-                                                    <li
-                                                      key={effectIdx}
-                                                      className="small text-warning"
-                                                    >
-                                                      • {effect}
-                                                    </li>
-                                                  )
-                                                )}
-                                              </ul>
-                                            </div>
-                                          )}
-
-                                        {recommendation.clinical_guidance
-                                          .drug_interactions &&
-                                          recommendation.clinical_guidance
-                                            .drug_interactions.length > 0 && (
-                                            <div className="col-md-6 mb-3">
-                                              <h6>🔄 Interaktionen:</h6>
-                                              <ul className="list-unstyled">
-                                                {recommendation.clinical_guidance.drug_interactions.map(
-                                                  (interaction, intIdx) => (
-                                                    <li
-                                                      key={intIdx}
-                                                      className="small text-danger"
-                                                    >
-                                                      • {interaction}
-                                                    </li>
-                                                  )
-                                                )}
-                                              </ul>
-                                            </div>
-                                          )}
-
-                                        {recommendation.clinical_guidance
-                                          .pregnancy_considerations && (
-                                          <div className="col-md-6 mb-3">
-                                            <h6>🤱 Schwangerschaft:</h6>
-                                            <p className="small text-info">
-                                              {
-                                                recommendation.clinical_guidance
-                                                  .pregnancy_considerations
-                                              }
-                                            </p>
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
 
                                     {/* Sources */}
                                     {recommendation.sources &&
@@ -2028,6 +2215,170 @@ function App() {
                                           </div>
                                         </div>
                                       )}
+
+                                    {/* Clinical Guidance - displayed once per therapy option, AFTER all medications */}
+                                    {recommendation.clinical_guidance && (
+                                      <div className="mt-4">
+                                        <h6 className="text-primary mb-3">
+                                          📋 Klinische Hinweise
+                                        </h6>
+                                        <div className="row">
+                                          {/* Monitoring Parameters */}
+                                          {recommendation.clinical_guidance
+                                            .monitoring_parameters &&
+                                            recommendation.clinical_guidance
+                                              .monitoring_parameters.length >
+                                              0 && (
+                                              <div className="col-md-4 mb-3">
+                                                <div className="card h-100 border-info">
+                                                  <div className="card-header bg-info text-white">
+                                                    <h6 className="mb-0">
+                                                      🔍 Monitoring
+                                                    </h6>
+                                                  </div>
+                                                  <div className="card-body">
+                                                    <ul className="list-unstyled mb-0">
+                                                      {recommendation.clinical_guidance.monitoring_parameters.map(
+                                                        (param, paramIdx) => (
+                                                          <li
+                                                            key={paramIdx}
+                                                            className="small mb-1"
+                                                          >
+                                                            • {param}
+                                                          </li>
+                                                        )
+                                                      )}
+                                                    </ul>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            )}
+
+                                          {/* Relevant Side Effects */}
+                                          {recommendation.clinical_guidance
+                                            .relevant_side_effects &&
+                                            recommendation.clinical_guidance
+                                              .relevant_side_effects.length >
+                                              0 && (
+                                              <div className="col-md-4 mb-3">
+                                                <div className="card h-100 border-warning">
+                                                  <div className="card-header bg-warning text-dark">
+                                                    <h6 className="mb-0">
+                                                      ⚠️ Relevante
+                                                      Nebenwirkungen
+                                                    </h6>
+                                                  </div>
+                                                  <div className="card-body">
+                                                    <ul className="list-unstyled mb-0">
+                                                      {recommendation.clinical_guidance.relevant_side_effects.map(
+                                                        (effect, effectIdx) => (
+                                                          <li
+                                                            key={effectIdx}
+                                                            className="small mb-1 text-warning"
+                                                          >
+                                                            • {effect}
+                                                          </li>
+                                                        )
+                                                      )}
+                                                    </ul>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            )}
+
+                                          {/* Drug Interactions */}
+                                          {recommendation.clinical_guidance
+                                            .drug_interactions &&
+                                            recommendation.clinical_guidance
+                                              .drug_interactions.length > 0 && (
+                                              <div className="col-md-4 mb-3">
+                                                <div className="card h-100 border-danger">
+                                                  <div className="card-header bg-danger text-white">
+                                                    <h6 className="mb-0">
+                                                      🔄 Interaktionen
+                                                    </h6>
+                                                  </div>
+                                                  <div className="card-body">
+                                                    <ul className="list-unstyled mb-0">
+                                                      {recommendation.clinical_guidance.drug_interactions.map(
+                                                        (
+                                                          interaction,
+                                                          intIdx
+                                                        ) => (
+                                                          <li
+                                                            key={intIdx}
+                                                            className="small mb-1 text-danger"
+                                                          >
+                                                            • {interaction}
+                                                          </li>
+                                                        )
+                                                      )}
+                                                    </ul>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            )}
+                                        </div>
+
+                                        {/* Additional Clinical Information */}
+                                        {(recommendation.clinical_guidance
+                                          .pregnancy_considerations ||
+                                          recommendation.clinical_guidance
+                                            .deescalation_info ||
+                                          recommendation.clinical_guidance
+                                            .therapy_focus_info) && (
+                                          <div className="row mt-3">
+                                            {recommendation.clinical_guidance
+                                              .pregnancy_considerations && (
+                                              <div className="col-12 mb-2">
+                                                <div className="alert alert-warning mb-2">
+                                                  <strong>
+                                                    🤰 Schwangerschaft:
+                                                  </strong>{" "}
+                                                  {
+                                                    recommendation
+                                                      .clinical_guidance
+                                                      .pregnancy_considerations
+                                                  }
+                                                </div>
+                                              </div>
+                                            )}
+
+                                            {recommendation.clinical_guidance
+                                              .deescalation_info && (
+                                              <div className="col-12 mb-2">
+                                                <div className="alert alert-info mb-2">
+                                                  <strong>
+                                                    📉 Deeskalation:
+                                                  </strong>{" "}
+                                                  {
+                                                    recommendation
+                                                      .clinical_guidance
+                                                      .deescalation_info
+                                                  }
+                                                </div>
+                                              </div>
+                                            )}
+
+                                            {recommendation.clinical_guidance
+                                              .therapy_focus_info && (
+                                              <div className="col-12 mb-2">
+                                                <div className="alert alert-primary mb-2">
+                                                  <strong>
+                                                    🎯 Therapiefokus:
+                                                  </strong>{" "}
+                                                  {
+                                                    recommendation
+                                                      .clinical_guidance
+                                                      .therapy_focus_info
+                                                  }
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               )

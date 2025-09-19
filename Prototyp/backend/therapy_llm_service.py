@@ -175,24 +175,25 @@ Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt im folgenden Format:
       "active_ingredients": [
         {"name": "Wirkstoffname", "strength": "Stärke mit Einheit"}
       ],
-      "frequency_lower_bound": Integer,
+      "frequency_lower_bound": Integer (mindestens 1),
       "frequency_upper_bound": Integer_oder_null,
       "frequency_unit": "z.B. täglich oder wöchentlich",
-      "duration_lower_bound": Integer,
+      "duration_lower_bound": Integer (mindestens 1),
       "duration_upper_bound": Integer_oder_null,
       "duration_unit": "z.B. Tage oder Wochen",
       "route": "z.B. p.o., oder i.v.",
-      "notes": "Medikamentenspezifische Hinweise (z.B. Einnahme mit der Nahrung, Besonderheiten, Anpassung), NICHT Therapiedauer wiederholen"
+      "notes": "Medikamentenspezifische Hinweise (z.B. Einnahme mit der Nahrung, Besonderheiten, Anpassung), NICHT Therapiedauer wiederholen",
+      "clinical_guidance": {
+        "monitoring_parameters": ["NUR für DIESES spezifische Antibiotikum relevante Monitoring Parameter aus den Leitlinien"],
+        "relevant_side_effects": ["NUR für DIESES spezifische Antibiotikum relevante Nebenwirkungen, besonders bei vorhandenen Komorbiditäten"],
+        "drug_interactions": ["NUR wenn Patient das mit DIESEM Antibiotikum interagierende Medikament einnimmt"],
+        "pregnancy_considerations": "Text oder null - nur wenn für DIESES Antibiotikum relevant",
+        "deescalation_info": "Deeskalations-Strategie für DIESES Antibiotikum",
+        "therapy_focus_info": "Spezifische Therapiehinweise für DIESES Antibiotikum"
+      }
     }
   ],
-  "clinical_guidance": {
-    "monitoring_parameters": ["Hier nur was reinschreiben, wenn für das verschriebenen Antibiotikum relevante Monitoring Parameter in der Leitlinie erwähnt werden"],
-    "relevant_side_effects": ["Hier nur relevante und Spezifische Nebenwirkungen des verschriebenen Antibiotikum, vor allem mit Hinblick auf bereits vorhandene Komorbiditäten"],
-    "drug_interactions": ["Nur wenn Patient das interagierende Medikament einnimmt, wenn keine Interaktion vorhanden, muss dies auch nicht extra erwähnt werden"],
-    "pregnancy_considerations": "Text oder null",
-    "deescalation_info": "Deeskalations-Strategie, z.B. Oralisierung und Fokussierung der Therapie nach Erregernachweis",
-    "therapy_focus_info": "Allgemeine Therapiehinweise und Infektions-Monitoring"
-  },
+  "clinical_guidance": null,
   "source_citations": [
     {
       "guideline_id": "ID_der_Leitlinie",
@@ -230,51 +231,9 @@ DOSIERUNGS-REGELN:
         
         prompt_parts = []
         
-        # Clinical situation
-        prompt_parts.append("=== KLINISCHE SITUATION ===")
-        prompt_parts.append(f"Indikation: {clinical_query.get('indication', 'Nicht angegeben')}")
-        prompt_parts.append(f"Schweregrad: {clinical_query.get('severity', 'Nicht angegeben')}")
-        
-        if clinical_query.get('infection_site'):
-            prompt_parts.append(f"Infektionsort: {clinical_query.get('infection_site')}")
-        
-        if clinical_query.get('risk_factors'):
-            prompt_parts.append(f"Risikofaktoren: {', '.join(clinical_query.get('risk_factors', []))}")
-        
-        if clinical_query.get('suspected_pathogens'):
-            prompt_parts.append(f"Verdachtserreger: {', '.join(clinical_query.get('suspected_pathogens', []))}")
-        
-        if clinical_query.get('free_text'):
-            prompt_parts.append(f"Zusätzlicher Kontext: {clinical_query.get('free_text')}")
-        
-        prompt_parts.append("")
-        
-        # Patient information
-        if patient_data:
-            prompt_parts.append("=== PATIENTENINFORMATIONEN ===")
-            if patient_data.get("age"):
-                prompt_parts.append(f"Alter: {patient_data['age']} Jahre")
-            if patient_data.get("weight"):
-                prompt_parts.append(f"Gewicht: {patient_data['weight']} kg")
-            if patient_data.get("pregnancy_status") and patient_data["pregnancy_status"] != "Nicht Schwanger":
-                prompt_parts.append(f"🚨 SCHWANGERSCHAFT: {patient_data['pregnancy_status']}")
-            if patient_data.get("allergies"):
-                prompt_parts.append(f"🚨 ALLERGIEN: {', '.join(patient_data['allergies'])}")
-            else:
-                prompt_parts.append("Allergien: Keine bekannt")
-            if patient_data.get("medications"):
-                prompt_parts.append(f"Aktuelle Medikation: {', '.join(patient_data['medications'])}")
-            if patient_data.get("lab_values"):
-                lab_summary = []
-                for lab in patient_data["lab_values"]:
-                    lab_summary.append(f"{lab.get('name', '')}: {lab.get('value', '')} {lab.get('unit', '')}")
-                if lab_summary:
-                    prompt_parts.append(f"Relevante Laborwerte: {', '.join(lab_summary)}")
-            prompt_parts.append("")
-        
-        # Evidence from guidelines and dosing tables
+        # Use the pre-formatted context text which already contains the clinical situation
+        # This avoids duplication and ensures proper formatting
         if context_text:
-            prompt_parts.append("=== EVIDENZ UND DOSIERUNGSEMPFEHLUNGEN ===")
             prompt_parts.append(context_text)
             prompt_parts.append("")
         
@@ -310,6 +269,19 @@ DOSIERUNGS-REGELN:
                     strength=ingredient_data.get("strength", "")
                 ))
             
+            # Parse clinical guidance for this specific medication
+            medication_guidance_data = option_data.get("clinical_guidance", {})
+            medication_clinical_guidance = None
+            if medication_guidance_data:
+                medication_clinical_guidance = ClinicalGuidance(
+                    monitoring_parameters=medication_guidance_data.get("monitoring_parameters", []),
+                    relevant_side_effects=medication_guidance_data.get("relevant_side_effects", []),
+                    drug_interactions=medication_guidance_data.get("drug_interactions", []),
+                    pregnancy_considerations=medication_guidance_data.get("pregnancy_considerations"),
+                    deescalation_info=medication_guidance_data.get("deescalation_info"),
+                    therapy_focus_info=medication_guidance_data.get("therapy_focus_info")
+                )
+            
             # Create medication recommendation
             therapy_options.append(MedicationRecommendation(
                 active_ingredients=active_ingredients,
@@ -320,19 +292,22 @@ DOSIERUNGS-REGELN:
                 duration_upper_bound=option_data.get("duration_upper_bound"),
                 duration_unit=option_data.get("duration_unit", "Tage"),
                 route=option_data.get("route", "p.o."),
-                notes=option_data.get("notes")
+                notes=option_data.get("notes"),
+                clinical_guidance=medication_clinical_guidance
             ))
         
-        # Parse clinical guidance
-        guidance_data = therapy_data.get("clinical_guidance", {})
-        clinical_guidance = ClinicalGuidance(
-            monitoring_parameters=guidance_data.get("monitoring_parameters", []),
-            relevant_side_effects=guidance_data.get("relevant_side_effects", []),
-            drug_interactions=guidance_data.get("drug_interactions", []),
-            pregnancy_considerations=guidance_data.get("pregnancy_considerations"),
-            deescalation_info=guidance_data.get("deescalation_info"),
-            therapy_focus_info=guidance_data.get("therapy_focus_info")
-        )
+        # Parse therapy-level clinical guidance (now optional)
+        therapy_guidance_data = therapy_data.get("clinical_guidance", {})
+        therapy_clinical_guidance = None
+        if therapy_guidance_data and any(therapy_guidance_data.values()):
+            therapy_clinical_guidance = ClinicalGuidance(
+                monitoring_parameters=therapy_guidance_data.get("monitoring_parameters", []),
+                relevant_side_effects=therapy_guidance_data.get("relevant_side_effects", []),
+                drug_interactions=therapy_guidance_data.get("drug_interactions", []),
+                pregnancy_considerations=therapy_guidance_data.get("pregnancy_considerations"),
+                deescalation_info=therapy_guidance_data.get("deescalation_info"),
+                therapy_focus_info=therapy_guidance_data.get("therapy_focus_info")
+            )
         
         # Parse source citations
         source_citations = []
@@ -359,7 +334,7 @@ DOSIERUNGS-REGELN:
         # Create final recommendation
         return TherapyRecommendation(
             therapy_options=therapy_options,
-            clinical_guidance=clinical_guidance,
+            clinical_guidance=therapy_clinical_guidance,
             source_citations=source_citations,
             therapy_rationale=therapy_data.get("therapy_rationale", ""),
             confidence_level=therapy_data.get("confidence_level", "Mittel"),

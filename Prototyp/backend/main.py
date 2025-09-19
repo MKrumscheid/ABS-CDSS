@@ -19,6 +19,24 @@ from fhir_service import FHIRService
 from therapy_context_builder import TherapyContextBuilder
 from therapy_llm_service import TherapyLLMService
 
+# Helper functions for formatting medication data
+def format_frequency(option):
+    """Format frequency bounds into human-readable string"""
+    if option.frequency_upper_bound and option.frequency_upper_bound != option.frequency_lower_bound:
+        return f"{option.frequency_lower_bound}-{option.frequency_upper_bound}x {option.frequency_unit}"
+    else:
+        return f"{option.frequency_lower_bound}x {option.frequency_unit}"
+
+def format_duration(option):
+    """Format duration bounds into human-readable string"""
+    if option.duration_lower_bound is None:
+        return "Therapiedauer nicht spezifiziert"
+    
+    if option.duration_upper_bound and option.duration_upper_bound != option.duration_lower_bound:
+        return f"{option.duration_lower_bound}-{option.duration_upper_bound} {option.duration_unit}"
+    else:
+        return f"{option.duration_lower_bound} {option.duration_unit}"
+
 # Initialize FastAPI app
 app = FastAPI(
     title="RAG Test Pipeline - Clinical Decision Support",
@@ -309,11 +327,35 @@ async def generate_therapy_recommendation(request: dict):
         # Transform to match frontend expectations
         recommendations = []
         for i, option in enumerate(therapy_recommendation.therapy_options):
+            # Format structured medication data for frontend
+            medication_data = {
+                "active_ingredients": [
+                    {"name": ing.name, "strength": ing.strength} 
+                    for ing in option.active_ingredients
+                ],
+                "frequency": format_frequency(option),
+                "duration": format_duration(option),
+                "route": option.route,
+                "notes": option.notes,
+                # Add structured data for table display
+                "structured_dosing": {
+                    "frequency_lower": option.frequency_lower_bound,
+                    "frequency_upper": option.frequency_upper_bound,
+                    "frequency_unit": option.frequency_unit,
+                    "duration_lower": option.duration_lower_bound,
+                    "duration_upper": option.duration_upper_bound,
+                    "duration_unit": option.duration_unit,
+                    "route": option.route
+                },
+                # Add medication-specific clinical guidance
+                "clinical_guidance": option.clinical_guidance.dict() if option.clinical_guidance else None
+            }
+            
             recommendations.append({
                 "name": f"Therapie Option {i+1}",
                 "priority": i+1,
-                "medications": [option.dict()],
-                "clinical_guidance": therapy_recommendation.clinical_guidance.dict(),
+                "medications": [medication_data],
+                "clinical_guidance": therapy_recommendation.clinical_guidance.dict() if therapy_recommendation.clinical_guidance else None,
                 "sources": [citation.dict() for citation in therapy_recommendation.source_citations]
             })
         

@@ -10,6 +10,26 @@ class Severity(str, Enum):
     MODERATE = "MITTELSCHWER" 
     SEVERE = "SCHWER"
     SEPTIC = "SEPTISCH"
+    
+    def get_display_name(self) -> str:
+        """Get human-readable display name for the severity"""
+        display_names = {
+            "LEICHT": "Leicht",
+            "MITTELSCHWER": "Mittelschwer",
+            "SCHWER": "Schwer", 
+            "SEPTISCH": "Septisch"
+        }
+        return display_names.get(self.value, self.value)
+    
+    def get_synonyms(self) -> List[str]:
+        """Get search synonyms for this severity"""
+        synonyms = {
+            "LEICHT": ["leicht", "mild", "niedriggradig"],
+            "MITTELSCHWER": ["mittelschwer", "moderat", "moderate", "mäßig"],
+            "SCHWER": ["schwer", "severe", "hochgradig", "schwerwiegend"],
+            "SEPTISCH": ["septisch", "Schock"]
+        }
+        return synonyms.get(self.value, [self.value])
 
 class RiskFactor(str, Enum):
     PRIOR_ANTIBIOTICS_3M = "ANTIBIOTISCHE_VORBEHANDLUNG"
@@ -22,6 +42,42 @@ class Indication(str, Enum):
     CAP = "AMBULANT_ERWORBENE_PNEUMONIE"
     HAP = "NOSOKOMIAL_ERWORBENE_PNEUMONIE"
     AECOPD = "AKUTE_EXAZERBATION_COPD"
+    
+    def get_display_name(self) -> str:
+        """Get human-readable display name for the indication"""
+        display_names = {
+            "AMBULANT_ERWORBENE_PNEUMONIE": "CAP (Ambulant erworbene Pneumonie)",
+            "NOSOKOMIAL_ERWORBENE_PNEUMONIE": "HAP (Nosokomial erworbene Pneumonie)", 
+            "AKUTE_EXAZERBATION_COPD": "AECOPD (Akute Exazerbation der COPD)"
+        }
+        return display_names.get(self.value, self.value)
+    
+    def get_synonyms(self) -> List[str]:
+        """Get search synonyms for this indication"""
+        synonyms = {
+            "AMBULANT_ERWORBENE_PNEUMONIE": [
+                "CAP", 
+                "ambulant erworbene Pneumonie", 
+                "community-acquired pneumonia",
+                "Pneumonie ambulant",
+                "ambulante Pneumonie"
+            ],
+            "NOSOKOMIAL_ERWORBENE_PNEUMONIE": [
+                "HAP", 
+                "nosokomial erworbene Pneumonie", 
+                "hospital-acquired pneumonia",
+                "nosokomiale Pneumonie",
+                "Krankenhaus-Pneumonie"
+            ],
+            "AKUTE_EXAZERBATION_COPD": [
+                "AECOPD",
+                "Akute Exazerbation der COPD",
+                "COPD Exazerbation",
+                "chronisch obstruktive Lungenerkrankung",
+                "COPD"
+            ]
+        }
+        return synonyms.get(self.value, [self.value])
 
 class InfectionSite(str, Enum):
     BLOOD = "BLUT"
@@ -141,9 +197,9 @@ class MedicationRecommendation(BaseModel):
     frequency_upper_bound: Optional[int] = Field(None, ge=1)  # Maximum times per day (if range)
     frequency_unit: str = Field(default="täglich")  # "täglich", "alle 8h", etc.
     
-    # Duration bounds (e.g., "5 Tage" or "5-7 Tage")
-    duration_lower_bound: int = Field(..., ge=1)  # Minimum duration
-    duration_upper_bound: Optional[int] = Field(None, ge=1)  # Maximum duration (if range)
+    # Duration bounds (e.g., "5 Tage" or "5-7 Tage") - Optional if not specified in guidelines
+    duration_lower_bound: Optional[int] = Field(None, ge=0)  # Minimum duration (null if not specified)
+    duration_upper_bound: Optional[int] = Field(None, ge=0)  # Maximum duration (null if not specified)
     duration_unit: str = Field(default="Tage")  # "Tage", "Wochen", etc.
     
     # Route of administration
@@ -151,6 +207,9 @@ class MedicationRecommendation(BaseModel):
     
     # Additional notes for this specific medication
     notes: Optional[str] = None
+    
+    # Clinical guidance specific to this medication
+    clinical_guidance: Optional[ClinicalGuidance] = None
 
 class ClinicalGuidance(BaseModel):
     """Model for additional clinical guidance and safety information"""
@@ -185,8 +244,8 @@ class TherapyRecommendation(BaseModel):
     # List of 1-5 recommended therapy options
     therapy_options: List[MedicationRecommendation] = Field(..., min_items=1, max_items=5)
     
-    # Clinical guidance and safety information
-    clinical_guidance: ClinicalGuidance
+    # Clinical guidance and safety information (optional, for therapy-wide guidance)
+    clinical_guidance: Optional[ClinicalGuidance] = None
     
     # Source citations that support these recommendations
     source_citations: List[SourceCitation]

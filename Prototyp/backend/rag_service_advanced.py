@@ -802,41 +802,43 @@ class AdvancedRAGService:
         """Build MUST query parts - core context that MUST be present"""
         must_parts = []
         
-        # Indication with synonyms
-        indication_synonyms = {
-            Indication.CAP: [
-                "CAP", 
-                "ambulant erworbene Pneumonie", 
-                "community-acquired pneumonia",
-                "Pneumonie ambulant"
-            ],
-            Indication.HAP: [
-                "HAP", 
-                "nosokomial erworbene Pneumonie", 
-                "hospital-acquired pneumonia",
-                "Pneumonie nosokomial"
-            ],
-            Indication.AECOPD: [
-                "AECOPD",
-                "Akute Exazerbation der COPD",
-                "COPD Exazerbation",
-                "chronisch obstruktive Lungenerkrankung",
-                "COPD"
-            ]
-        }
-        
-        synonyms = indication_synonyms.get(query.indication, [str(query.indication)])
+        # Indication with synonyms - use centralized method
+        if hasattr(query.indication, 'get_synonyms'):
+            synonyms = query.indication.get_synonyms()
+        else:
+            # Fallback for string values
+            indication_synonyms = {
+                Indication.CAP: [
+                    "CAP", 
+                    "ambulant erworbene Pneumonie", 
+                    "community-acquired pneumonia",
+                ],
+                Indication.HAP: [
+                    "HAP", 
+                    "nosokomial erworbene Pneumonie", 
+                    "hospital-acquired pneumonia",
+                ],
+                Indication.AECOPD: [
+                    "AECOPD",
+                    "Akute Exazerbation der COPD",
+                    "chronisch obstruktive Lungenerkrankung",
+                ]
+            }
+            synonyms = indication_synonyms.get(query.indication, [str(query.indication)])
         must_parts.extend(synonyms)
         
-        # Severity with synonyms
-        severity_synonyms = {
-            "LEICHT": ["leicht", "mild", "niedriggradig"],
-            "MITTELSCHWER": ["mittelschwer", "moderat", "moderate", "mäßig"],
-            "SCHWER": ["schwer", "severe", "hochgradig", "schwerwiegend"],
-            "SEPTISCH": ["septisch", "Schock"]
-        }
-        
-        severity_terms = severity_synonyms.get(query.severity, [query.severity])
+        # Severity with synonyms - use centralized method
+        if hasattr(query.severity, 'get_synonyms'):
+            severity_terms = query.severity.get_synonyms()
+        else:
+            # Fallback for string values
+            severity_synonyms = {
+                "LEICHT": ["leicht", "mild", "niedriggradig"],
+                "MITTELSCHWER": ["mittelschwer", "moderat", "moderate", "mäßig"],
+                "SCHWER": ["schwer", "severe", "hochgradig", "schwerwiegend"],
+                "SEPTISCH": ["septisch", "Schock"]
+            }
+            severity_terms = severity_synonyms.get(query.severity, [query.severity])
         must_parts.extend(severity_terms)
         
         return must_parts
@@ -961,47 +963,43 @@ class AdvancedRAGService:
     def _build_negative_query(self, query: ClinicalQuery) -> List[str]:
         """Build NEGATIVE query parts - terms to avoid (opposite indication synonyms)"""
         
-        # Define all indication synonyms in a centralized way for easy extension
-        indication_synonyms = {
-            Indication.CAP: [
-                "CAP", 
-                "ambulant erworbene Pneumonie", 
-                "community-acquired pneumonia",
-                "Pneumonie ambulant",
-                "ambulante Pneumonie"
-            ],
-            Indication.HAP: [
-                "HAP", 
-                "nosokomial erworbene Pneumonie", 
-                "hospital-acquired pneumonia",
-                "nosokomiale Pneumonie",
-                "Krankenhaus-Pneumonie"
-            ],
-            Indication.AECOPD: [
-                "AECOPD",
-                "Akute Exazerbation der COPD",
-                "COPD Exazerbation",
-                "chronisch obstruktive Lungenerkrankung",
-                "COPD"
-            ]
-        }
-        
         negative_terms = []
         
-        # For CAP: add HAP and AECOPD terms as negative
-        if query.indication == Indication.CAP:
-            negative_terms.extend(indication_synonyms[Indication.HAP])
-            negative_terms.extend(indication_synonyms[Indication.AECOPD])
-            
-        # For HAP: add CAP and AECOPD terms as negative  
-        elif query.indication == Indication.HAP:
-            negative_terms.extend(indication_synonyms[Indication.CAP])
-            negative_terms.extend(indication_synonyms[Indication.AECOPD])
-            
-        # For AECOPD: add CAP and HAP terms as negative
-        elif query.indication == Indication.AECOPD:
-            negative_terms.extend(indication_synonyms[Indication.CAP])
-            negative_terms.extend(indication_synonyms[Indication.HAP])
+        # Get all available indications for cross-reference
+        from models import Indication  # Import to ensure we have the enum
+        all_indications = [Indication.CAP, Indication.HAP, Indication.AECOPD]
+        
+        # For each indication, add all OTHER indications as negative terms
+        for indication in all_indications:
+            if indication != query.indication:
+                if hasattr(indication, 'get_synonyms'):
+                    negative_terms.extend(indication.get_synonyms())
+                else:
+                    # Fallback - use centralized synonyms
+                    indication_synonyms = {
+                        Indication.CAP: [
+                            "CAP", 
+                            "ambulant erworbene Pneumonie", 
+                            "community-acquired pneumonia",
+                            "Pneumonie ambulant",
+                            "ambulante Pneumonie"
+                        ],
+                        Indication.HAP: [
+                            "HAP", 
+                            "nosokomial erworbene Pneumonie", 
+                            "hospital-acquired pneumonia",
+                            "nosokomiale Pneumonie",
+                            "Krankenhaus-Pneumonie"
+                        ],
+                        Indication.AECOPD: [
+                            "AECOPD",
+                            "Akute Exazerbation der COPD",
+                            "COPD Exazerbation",
+                            "chronisch obstruktive Lungenerkrankung",
+                            "COPD"
+                        ]
+                    }
+                    negative_terms.extend(indication_synonyms.get(indication, []))
         
         return negative_terms
 

@@ -19,22 +19,30 @@ class TherapyContextBuilder:
     
     def _format_indication(self, indication):
         """Format indication with human-readable description"""
+        if hasattr(indication, 'get_display_name'):
+            return indication.get_display_name()
+        # Fallback for string values
         indication_map = {
             "AMBULANT_ERWORBENE_PNEUMONIE": "CAP (Ambulant erworbene Pneumonie)",
             "NOSOKOMIAL_ERWORBENE_PNEUMONIE": "HAP (Nosokomial erworbene Pneumonie)", 
             "AKUTE_EXAZERBATION_COPD": "AECOPD (Akute Exazerbation der COPD)"
         }
-        return indication_map.get(str(indication).replace("Indication.", ""), str(indication))
+        indication_str = str(indication).replace("Indication.", "")
+        return indication_map.get(indication_str, str(indication))
     
     def _format_severity(self, severity):
         """Format severity with human-readable description"""
+        if hasattr(severity, 'get_display_name'):
+            return severity.get_display_name()
+        # Fallback for string values
         severity_map = {
             "LEICHT": "Leicht",
             "MITTELSCHWER": "Mittelschwer",
             "SCHWER": "Schwer", 
             "SEPTISCH": "Septisch"
         }
-        return severity_map.get(str(severity).replace("Severity.", ""), str(severity))
+        severity_str = str(severity).replace("Severity.", "")
+        return severity_map.get(severity_str, str(severity))
     
     def build_therapy_context(
         self, 
