@@ -1,0 +1,262 @@
+import React, { useState } from "react";
+import { Box, Typography, Paper, Button, Alert, Snackbar } from "@mui/material";
+import { Save as SaveIcon } from "@mui/icons-material";
+import TherapyRequestForm from "../components/TherapyRequest/TherapyRequestForm";
+import TherapyResults from "../components/TherapyResults/TherapyResults";
+import SaveRecommendationDialog from "../components/SaveRecommendation/SaveRecommendationDialog";
+import { therapyAPI } from "../services/api";
+
+function TherapyRecommendation() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  // Form data
+  const [requestData, setRequestData] = useState(null);
+  const [therapyRecommendation, setTherapyRecommendation] = useState(null);
+  const [patientData, setPatientData] = useState(null);
+
+  // Dialog states
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+
+  const handleFormSubmit = async (formData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("Submitting therapy request:", formData);
+
+      // Generate therapy recommendation
+      const recommendation = await therapyAPI.generateRecommendation(formData);
+
+      console.log("Raw backend response:", recommendation);
+      console.log(
+        "therapy_options from backend:",
+        recommendation.therapy_options
+      );
+      console.log(
+        "therapy_options length:",
+        recommendation.therapy_options?.length
+      );
+
+      // Transform backend response to match frontend expectations
+      const transformedRecommendation = {
+        ...recommendation,
+        // Map therapy_options to recommendations for compatibility
+        recommendations: recommendation.therapy_options || [],
+        // Ensure therapy_options is also available
+        therapy_options: recommendation.therapy_options || [],
+      };
+
+      console.log("Transformed recommendation:", transformedRecommendation);
+      console.log(
+        "Transformed recommendations length:",
+        transformedRecommendation.recommendations?.length
+      );
+
+      setRequestData(formData);
+      setTherapyRecommendation(transformedRecommendation);
+      setPatientData(recommendation.patient_data || null);
+
+      console.log(
+        "Therapy recommendation received:",
+        transformedRecommendation
+      );
+    } catch (err) {
+      console.error("Error generating therapy recommendation:", err);
+
+      // Safely handle error response
+      let errorMessage =
+        "Fehler beim Generieren der Therapie-Empfehlung. Bitte versuchen Sie es erneut.";
+
+      if (err.response?.data?.detail) {
+        const detail = err.response.data.detail;
+        if (typeof detail === "string") {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((d) => d.msg || d).join(", ");
+        } else if (detail.msg) {
+          errorMessage = detail.msg;
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveRecommendation = async (title) => {
+    if (!requestData || !therapyRecommendation) {
+      setError("Keine Daten zum Speichern verfügbar");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const saveData = {
+        title: title || undefined,
+        request_data: requestData,
+        therapy_recommendation: therapyRecommendation,
+        patient_data: patientData,
+      };
+
+      await therapyAPI.saveRecommendation(saveData);
+
+      setSuccess("Therapie-Empfehlung erfolgreich gespeichert!");
+      setSaveDialogOpen(false);
+    } catch (err) {
+      console.error("Error saving therapy recommendation:", err);
+
+      // Safely handle error response
+      let errorMessage =
+        "Fehler beim Speichern der Therapie-Empfehlung. Bitte versuchen Sie es erneut.";
+
+      if (err.response?.data?.detail) {
+        const detail = err.response.data.detail;
+        if (typeof detail === "string") {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((d) => d.msg || d).join(", ");
+        } else if (detail.msg) {
+          errorMessage = detail.msg;
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStartNew = () => {
+    setRequestData(null);
+    setTherapyRecommendation(null);
+    setPatientData(null);
+    setError(null);
+    setSuccess(null);
+  };
+
+  const handleCloseSnackbar = () => {
+    setError(null);
+    setSuccess(null);
+  };
+
+  return (
+    <Box sx={{ width: "100%" }}>
+      {/* Header */}
+      <Box sx={{ mb: 4, textAlign: "center" }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{
+            fontWeight: 700,
+            color: "primary.main",
+            mb: 2,
+          }}
+        >
+          Therapie-Empfehlung
+        </Typography>
+        <Typography
+          variant="h6"
+          color="text.secondary"
+          sx={{ maxWidth: 600, mx: "auto" }}
+        >
+          Erhalten Sie evidenzbasierte Antibiotikatherapie-Empfehlungen
+          basierend auf aktuellen Leitlinien
+        </Typography>
+      </Box>
+
+      {/* Content */}
+      <Box sx={{ width: "100%" }}>
+        {/* Therapy Request Form - Always visible */}
+        <TherapyRequestForm onSubmit={handleFormSubmit} loading={loading} />
+
+        {/* Results - Show when available */}
+        {therapyRecommendation && (
+          <Box sx={{ mt: 4 }}>
+            <TherapyResults
+              therapyRecommendation={therapyRecommendation}
+              patientData={patientData}
+              requestData={requestData}
+            />
+
+            {/* Action Buttons */}
+            <Paper
+              sx={{
+                p: 3,
+                mt: 3,
+                display: "flex",
+                gap: 2,
+                justifyContent: "center",
+              }}
+            >
+              <Button
+                variant="outlined"
+                onClick={handleStartNew}
+                sx={{ minWidth: 150 }}
+              >
+                Neue Anfrage
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                onClick={() => setSaveDialogOpen(true)}
+                sx={{ minWidth: 150 }}
+              >
+                Speichern
+              </Button>
+            </Paper>
+          </Box>
+        )}
+      </Box>
+
+      {/* Save Dialog */}
+      <SaveRecommendationDialog
+        open={saveDialogOpen}
+        onClose={() => setSaveDialogOpen(false)}
+        onSave={handleSaveRecommendation}
+        loading={loading}
+      />
+
+      {/* Snackbars for feedback */}
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity="error"
+          onClose={handleCloseSnackbar}
+          sx={{ width: "100%" }}
+        >
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={!!success}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity="success"
+          onClose={handleCloseSnackbar}
+          sx={{ width: "100%" }}
+        >
+          {success}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
+}
+
+export default TherapyRecommendation;

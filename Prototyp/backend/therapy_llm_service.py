@@ -33,7 +33,7 @@ class TherapyLLMService:
             api_key=os.getenv("NOVITA_API_KEY")
         )
         
-        self.model = os.getenv("NOVITA_MODEL", "openai/gpt-oss-20b")
+        self.model = os.getenv("NOVITA_MODEL", "openai/gpt-oss-120b")
         self.max_tokens = int(os.getenv("NOVITA_MAX_TOKENS", "4000"))  # Safe default within API limits
         self.temperature = float(os.getenv("NOVITA_TEMPERATURE", "0.6"))
         
@@ -193,7 +193,7 @@ Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt im folgenden Format:
           "strength": "Stärke mit Einheit",
           "frequency_lower_bound": Integer (mindestens 1),
           "frequency_upper_bound": Integer_oder_null,
-          "frequency_unit": "z.B. täglich oder alle 8h",
+          "frequency_unit": "z.B. täglich oder wöchentlich",
           "duration_lower_bound": Integer_oder_null,
           "duration_upper_bound": Integer_oder_null,
           "duration_unit": "z.B. Tage oder Wochen",

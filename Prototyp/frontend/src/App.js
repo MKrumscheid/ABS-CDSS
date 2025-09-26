@@ -235,7 +235,7 @@ function App() {
   // LLM Configuration states
   const [llmConfig, setLlmConfig] = useState({
     endpoint: "https://api.novita.ai/v3/openai/chat/completions",
-    model: "openai/gpt-oss-20b",
+    model: "openai/gpt-oss-120b",
     max_tokens: 32000,
     temperature: 0.6,
   });

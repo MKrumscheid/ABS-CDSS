@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -8,16 +8,19 @@ import aiofiles
 import os
 from pathlib import Path
 from openai import OpenAI
+from sqlalchemy.orm import Session
 
 from models import (
     ClinicalQuery, RAGResponse, Indication, Severity, InfectionSite, RiskFactor,
     PatientSearchQuery, PatientSearchResult, PatientDetailData, 
-    TherapyRecommendationRequest, TherapyRecommendation, LLMConfiguration
+    TherapyRecommendationRequest, TherapyRecommendation, LLMConfiguration,
+    SaveTherapyRecommendationRequest, SavedTherapyRecommendationResponse, SavedTherapyRecommendationListItem
 )
 from rag_service_advanced import AdvancedRAGService
 from fhir_service import FHIRService
 from therapy_context_builder import TherapyContextBuilder
 from therapy_llm_service import TherapyLLMService
+from database import get_db, create_tables, SavedTherapyRecommendation
 
 # Helper functions for formatting medication data
 def format_frequency(option):
@@ -47,7 +50,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:4000", "http://127.0.0.1:4000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -58,6 +61,13 @@ rag_service = AdvancedRAGService()
 fhir_service = FHIRService()
 therapy_context_builder = TherapyContextBuilder(rag_service, fhir_service)
 therapy_llm_service = TherapyLLMService()
+
+# Initialize database
+try:
+    create_tables()
+    print("Database tables initialized successfully")
+except Exception as e:
+    print(f"Warning: Database initialization failed: {e}")
 
 # Serve static files for frontend
 try:
@@ -374,6 +384,7 @@ async def generate_therapy_recommendation(request: dict):
         # Create response that matches frontend expectations
         response_data = {
             "recommendations": recommendations,
+            "therapy_options": [option.dict() for option in therapy_recommendation.therapy_options],  # Add therapy_options
             "therapy_rationale": therapy_recommendation.therapy_rationale,
             "confidence_level": therapy_recommendation.confidence_level,
             "warnings": therapy_recommendation.warnings,
@@ -515,8 +526,8 @@ async def get_llm_configuration():
             "status": "success",
             "config": {
                 "endpoint": getattr(therapy_llm_service, 'endpoint', 'https://api.novita.ai/v3/openai/chat/completions'),
-                "model": getattr(therapy_llm_service, 'model', 'openai/gpt-oss-20b'),
-                "max_tokens": getattr(therapy_llm_service, 'max_tokens', 4000),
+                "model": getattr(therapy_llm_service, 'model', 'openai/gpt-oss-120b'),
+                "max_tokens": getattr(therapy_llm_service, 'max_tokens', 24000),
                 "temperature": getattr(therapy_llm_service, 'temperature', 0.6)
             }
         }
@@ -657,6 +668,140 @@ async def get_patient_details(patient_id: str):
             "message": f"Error retrieving patient details: {str(e)}"
         }
 
+# ==== Saved Therapy Recommendations Endpoints ====
+
+@app.post("/therapy/save", response_model=SavedTherapyRecommendationResponse)
+async def save_therapy_recommendation(
+    save_request: SaveTherapyRecommendationRequest,
+    db: Session = Depends(get_db)
+):
+    """Save a therapy recommendation"""
+    try:
+        # Create new saved recommendation
+        saved_recommendation = SavedTherapyRecommendation(
+            title=save_request.title,
+            request_data=save_request.request_data,
+            therapy_recommendation=save_request.therapy_recommendation,
+            patient_data=save_request.patient_data
+        )
+        
+        db.add(saved_recommendation)
+        db.commit()
+        db.refresh(saved_recommendation)
+        
+        return SavedTherapyRecommendationResponse(
+            id=saved_recommendation.id,
+            title=saved_recommendation.title,
+            created_at=saved_recommendation.created_at,
+            request_data=saved_recommendation.request_data,
+            therapy_recommendation=saved_recommendation.therapy_recommendation,
+            patient_data=saved_recommendation.patient_data
+        )
+        
+    except Exception as e:
+        print(f"Error saving therapy recommendation: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to save therapy recommendation: {str(e)}")
+
+@app.get("/therapy/saved", response_model=List[SavedTherapyRecommendationListItem])
+async def get_saved_therapy_recommendations(db: Session = Depends(get_db)):
+    """Get list of saved therapy recommendations (summary view)"""
+    try:
+        saved_recommendations = db.query(SavedTherapyRecommendation).order_by(
+            SavedTherapyRecommendation.created_at.desc()
+        ).all()
+        
+        result = []
+        for recommendation in saved_recommendations:
+            # Extract indication display name from request_data
+            indication_display = "Unbekannte Indikation"
+            patient_id = None
+            
+            if recommendation.request_data:
+                # Try to get indication from different possible locations
+                clinical_query = recommendation.request_data.get("clinical_query", {})
+                indication = (
+                    recommendation.request_data.get("indication") or  # Direct in request_data
+                    clinical_query.get("indication")                 # Or in clinical_query
+                )
+                patient_id = recommendation.request_data.get("patient_id")
+                
+                if indication:
+                    try:
+                        indication_enum = Indication(indication)
+                        indication_display = indication_enum.get_display_name()
+                    except ValueError:
+                        # If enum lookup fails, use the raw value
+                        indication_display = indication
+            
+            result.append(SavedTherapyRecommendationListItem(
+                id=recommendation.id,
+                title=recommendation.title,
+                created_at=recommendation.created_at,
+                indication_display=indication_display,
+                patient_id=patient_id
+            ))
+        
+        return result
+        
+    except Exception as e:
+        print(f"Error fetching saved therapy recommendations: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch saved recommendations: {str(e)}")
+
+@app.get("/therapy/saved/{recommendation_id}", response_model=SavedTherapyRecommendationResponse)
+async def get_saved_therapy_recommendation(
+    recommendation_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get a specific saved therapy recommendation"""
+    try:
+        recommendation = db.query(SavedTherapyRecommendation).filter(
+            SavedTherapyRecommendation.id == recommendation_id
+        ).first()
+        
+        if not recommendation:
+            raise HTTPException(status_code=404, detail="Saved recommendation not found")
+        
+        return SavedTherapyRecommendationResponse(
+            id=recommendation.id,
+            title=recommendation.title,
+            created_at=recommendation.created_at,
+            request_data=recommendation.request_data,
+            therapy_recommendation=recommendation.therapy_recommendation,
+            patient_data=recommendation.patient_data
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error fetching saved therapy recommendation: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch saved recommendation: {str(e)}")
+
+@app.delete("/therapy/saved/{recommendation_id}")
+async def delete_saved_therapy_recommendation(
+    recommendation_id: int,
+    db: Session = Depends(get_db)
+):
+    """Delete a saved therapy recommendation"""
+    try:
+        recommendation = db.query(SavedTherapyRecommendation).filter(
+            SavedTherapyRecommendation.id == recommendation_id
+        ).first()
+        
+        if not recommendation:
+            raise HTTPException(status_code=404, detail="Saved recommendation not found")
+        
+        db.delete(recommendation)
+        db.commit()
+        
+        return {"message": "Saved recommendation deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting saved therapy recommendation: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete saved recommendation: {str(e)}")
+
+
 # Serve React app for any other routes
 @app.get("/{full_path:path}")
 async def serve_react_app(full_path: str):
@@ -668,6 +813,7 @@ async def serve_react_app(full_path: str):
         return FileResponse(str(index_file))
     else:
         return {"message": "Frontend not built. Please build React app first."}
+
 
 if __name__ == "__main__":
     print("Starting RAG Test Pipeline API server...")

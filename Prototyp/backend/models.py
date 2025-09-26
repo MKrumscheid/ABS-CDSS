@@ -411,9 +411,34 @@ class LLMConfiguration(BaseModel):
     """Model for LLM configuration settings"""
     endpoint: str = Field(default="https://api.novita.ai/v3/openai/chat/completions", 
                          description="LLM API endpoint URL")
-    model: str = Field(default="openai/gpt-oss-20b", 
+    model: str = Field(default="openai/gpt-oss-120b", 
                       description="Model name to use")
     max_tokens: int = Field(default=16000, ge=1000, le=32768, 
                            description="Maximum tokens for response")
     temperature: float = Field(default=0.6, ge=0.0, le=1.0, 
                               description="Temperature for response generation")
+
+# ==== Saved Therapy Recommendation Models ====
+class SaveTherapyRecommendationRequest(BaseModel):
+    """Model for saving therapy recommendation"""
+    title: Optional[str] = Field(None, max_length=200, description="Optional title for saved recommendation")
+    request_data: dict = Field(..., description="Original request data")
+    therapy_recommendation: dict = Field(..., description="LLM therapy recommendation response")
+    patient_data: Optional[dict] = Field(None, description="Patient data from FHIR")
+
+class SavedTherapyRecommendationResponse(BaseModel):
+    """Model for saved therapy recommendation response"""
+    id: int
+    title: Optional[str]
+    created_at: datetime
+    request_data: dict
+    therapy_recommendation: dict
+    patient_data: Optional[dict]
+
+class SavedTherapyRecommendationListItem(BaseModel):
+    """Model for saved therapy recommendation list item (summary)"""
+    id: int
+    title: Optional[str]
+    created_at: datetime
+    indication_display: str = Field(..., description="Human readable indication")
+    patient_id: Optional[str] = Field(None, description="Patient ID if available")
