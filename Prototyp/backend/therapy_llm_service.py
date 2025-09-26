@@ -91,11 +91,10 @@ class TherapyLLMService:
             llm_response = response.choices[0].message.content
             logger.info(f"Received LLM response: {len(llm_response)} characters")
             
-            # Debug: Log the complete LLM response for troubleshooting
-            print(f"=== DEBUG LLM RESPONSE ===")
-            print(f"Response length: {len(llm_response)}")
-            print(f"Full response:\n{llm_response}")
-            print(f"=== DEBUG LLM RESPONSE END ===")
+            # Debug: Log the complete LLM response 
+            print(f"=== DEBUG COMPLETE LLM RESPONSE ===")
+            print(llm_response)
+            print(f"=== END LLM RESPONSE ===")
             
             # Clean the response to handle potential control characters
             try:
@@ -106,13 +105,21 @@ class TherapyLLMService:
                 # Try to parse JSON
                 therapy_data = json.loads(cleaned_response)
                 
+                # Debug: Show parsed structure
+                print(f"=== DEBUG PARSED JSON STRUCTURE ===")
+                for i, option in enumerate(therapy_data.get("therapy_options", [])):
+                    print(f"Option {i+1}:")
+                    clinical_guidance = option.get("clinical_guidance", {})
+                    print(f"  - Has clinical_guidance: {clinical_guidance is not None}")
+                    if clinical_guidance:
+                        print(f"  - deescalation_focus_info: {clinical_guidance.get('deescalation_focus_info')}")
+                print(f"=== END PARSED JSON ===)")
+                
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse LLM JSON response: {e}")
                 logger.error(f"Response length: {len(llm_response)}")
                 logger.error(f"Character at error position: '{llm_response[e.pos] if e.pos < len(llm_response) else 'EOF'}'")
                 logger.error(f"Context around error (±50 chars): '{llm_response[max(0,e.pos-50):e.pos+50]}'")
-                logger.error(f"First 500 chars: {llm_response[:500]}")
-                logger.error(f"Last 500 chars: {llm_response[-500:]}")
                 
                 # Try to extract JSON from response if it's embedded in text
                 try:
@@ -122,10 +129,6 @@ class TherapyLLMService:
                     
                     if start_idx != -1 and end_idx > start_idx:
                         json_part = llm_response[start_idx:end_idx]
-                        print(f"=== DEBUG EXTRACTED JSON ===")
-                        print(f"Extracted JSON part:\n{json_part}")
-                        print(f"=== DEBUG EXTRACTED JSON END ===")
-                        
                         # Clean and parse extracted JSON
                         cleaned_json = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', json_part)
                         therapy_data = json.loads(cleaned_json)
@@ -185,23 +188,25 @@ Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt im folgenden Format:
   "therapy_options": [
     {
       "active_ingredients": [
-        {"name": "Wirkstoffname", "strength": "Stärke mit Einheit"}
+        {
+          "name": "Wirkstoffname", 
+          "strength": "Stärke mit Einheit",
+          "frequency_lower_bound": Integer (mindestens 1),
+          "frequency_upper_bound": Integer_oder_null,
+          "frequency_unit": "z.B. täglich oder alle 8h",
+          "duration_lower_bound": Integer_oder_null,
+          "duration_upper_bound": Integer_oder_null,
+          "duration_unit": "z.B. Tage oder Wochen",
+          "route": "z.B. p.o., i.v., i.m."
+        }
       ],
-      "frequency_lower_bound": Integer (mindestens 1),
-      "frequency_upper_bound": Integer_oder_null,
-      "frequency_unit": "z.B. täglich oder wöchentlich",
-      "duration_lower_bound": Integer (mindestens 1),
-      "duration_upper_bound": Integer_oder_null,
-      "duration_unit": "z.B. Tage oder Wochen",
-      "route": "z.B. p.o., oder i.v.",
-      "notes": "Medikamentenspezifische Hinweise (z.B. Einnahme mit der Nahrung, Besonderheiten, Anpassung), NICHT Therapiedauer wiederholen",
+      "notes": "Medikamentenspezifische Hinweise für die gesamte Kombinationstherapie",
       "clinical_guidance": {
-        "monitoring_parameters": ["NUR für DIESES spezifische Antibiotikum relevante Monitoring Parameter aus den Leitlinien"],
-        "relevant_side_effects": ["NUR für DIESES spezifische Antibiotikum relevante Nebenwirkungen, besonders bei vorhandenen Komorbiditäten"],
-        "drug_interactions": ["NUR wenn Patient das mit DIESEM Antibiotikum interagierende Medikament einnimmt"],
-        "pregnancy_considerations": "Text oder null - nur wenn für DIESES Antibiotikum relevant UND Patient weiblich ist.",
-        "deescalation_info": "Deeskalations-Strategie für DIESES Antibiotikum",
-        "therapy_focus_info": "Spezifische Therapiehinweise für DIESES Antibiotikum"
+        "monitoring_parameters": ["Monitoring Parameter für diese Therapie"],
+        "relevant_side_effects": ["Relevante Nebenwirkungen"],
+        "drug_interactions": ["Nur wenn Patient interagierende Medikamente einnimmt"],
+        "pregnancy_considerations": "Text oder null - nur wenn relevant UND Patient weiblich ist",
+        "deescalation_focus_info": "Kombinierte Deeskalations- und Fokussierungs-Strategie für diese Therapie"
       }
     }
   ],
@@ -279,12 +284,26 @@ DOSIERUNGS-REGELN:
         # Parse therapy options
         therapy_options = []
         for option_data in therapy_data.get("therapy_options", []):
-            # Parse active ingredients
+            # Parse active ingredients with individual dosing parameters
             active_ingredients = []
             for ingredient_data in option_data.get("active_ingredients", []):
+                # Handle None values for optional fields
+                duration_unit = ingredient_data.get("duration_unit")
+                if duration_unit is None and (ingredient_data.get("duration_lower_bound") is None):
+                    duration_unit = None  # No duration specified
+                elif duration_unit is None:
+                    duration_unit = "Tage"  # Default if duration is specified but unit is missing
+                
                 active_ingredients.append(ActiveIngredient(
                     name=ingredient_data.get("name", ""),
-                    strength=ingredient_data.get("strength", "")
+                    strength=ingredient_data.get("strength", ""),
+                    frequency_lower_bound=ingredient_data.get("frequency_lower_bound", 1),
+                    frequency_upper_bound=ingredient_data.get("frequency_upper_bound"),
+                    frequency_unit=ingredient_data.get("frequency_unit", "täglich"),
+                    duration_lower_bound=ingredient_data.get("duration_lower_bound"),
+                    duration_upper_bound=ingredient_data.get("duration_upper_bound"),
+                    duration_unit=duration_unit,
+                    route=ingredient_data.get("route", "p.o.")
                 ))
             
             # Parse clinical guidance for this specific medication
@@ -296,20 +315,12 @@ DOSIERUNGS-REGELN:
                     relevant_side_effects=medication_guidance_data.get("relevant_side_effects", []),
                     drug_interactions=medication_guidance_data.get("drug_interactions", []),
                     pregnancy_considerations=medication_guidance_data.get("pregnancy_considerations"),
-                    deescalation_info=medication_guidance_data.get("deescalation_info"),
-                    therapy_focus_info=medication_guidance_data.get("therapy_focus_info")
+                    deescalation_focus_info=medication_guidance_data.get("deescalation_focus_info")
                 )
             
             # Create medication recommendation
             therapy_options.append(MedicationRecommendation(
                 active_ingredients=active_ingredients,
-                frequency_lower_bound=option_data.get("frequency_lower_bound", 1),
-                frequency_upper_bound=option_data.get("frequency_upper_bound"),
-                frequency_unit=option_data.get("frequency_unit", "täglich"),
-                duration_lower_bound=option_data.get("duration_lower_bound", 1),
-                duration_upper_bound=option_data.get("duration_upper_bound"),
-                duration_unit=option_data.get("duration_unit", "Tage"),
-                route=option_data.get("route", "p.o."),
                 notes=option_data.get("notes"),
                 clinical_guidance=medication_clinical_guidance
             ))
@@ -323,8 +334,7 @@ DOSIERUNGS-REGELN:
                 relevant_side_effects=therapy_guidance_data.get("relevant_side_effects", []),
                 drug_interactions=therapy_guidance_data.get("drug_interactions", []),
                 pregnancy_considerations=therapy_guidance_data.get("pregnancy_considerations"),
-                deescalation_info=therapy_guidance_data.get("deescalation_info"),
-                therapy_focus_info=therapy_guidance_data.get("therapy_focus_info")
+                deescalation_focus_info=therapy_guidance_data.get("deescalation_focus_info")
             )
         
         # Parse source citations

@@ -321,29 +321,29 @@ class PatientDetailData(BaseModel):
 # ==== Therapy Recommendation Models ====
 
 class ActiveIngredient(BaseModel):
-    """Model for active pharmaceutical ingredients in therapy recommendations"""
+    """Model for active pharmaceutical ingredients in therapy recommendations with individual dosing"""
     name: str  # e.g., "Amoxicillin", "Clavulansäure"
     strength: str  # e.g., "1000mg", "125mg"
-
-class MedicationRecommendation(BaseModel):
-    """Model for individual medication recommendations with dosing bounds"""
-    # Active ingredients (1-3 per medication, combined with "/")
-    active_ingredients: List[ActiveIngredient] = Field(..., min_items=1, max_items=3)
     
-    # Frequency bounds (e.g., "3x täglich" or "3-4x täglich")
+    # Individual dosing parameters for this specific ingredient
     frequency_lower_bound: int = Field(..., ge=1)  # Minimum times per day
     frequency_upper_bound: Optional[int] = Field(None, ge=1)  # Maximum times per day (if range)
     frequency_unit: str = Field(default="täglich")  # "täglich", "alle 8h", etc.
     
-    # Duration bounds (e.g., "5 Tage" or "5-7 Tage") - Optional if not specified in guidelines
-    duration_lower_bound: Optional[int] = Field(None, ge=0)  # Minimum duration (null if not specified)
-    duration_upper_bound: Optional[int] = Field(None, ge=0)  # Maximum duration (null if not specified)
-    duration_unit: str = Field(default="Tage")  # "Tage", "Wochen", etc.
+    # Duration bounds for this ingredient
+    duration_lower_bound: Optional[int] = Field(None, ge=0)  # Minimum duration
+    duration_upper_bound: Optional[int] = Field(None, ge=0)  # Maximum duration
+    duration_unit: Optional[str] = Field(default="Tage")  # "Tage", "Wochen", etc. - Optional wenn keine Dauer
     
-    # Route of administration
+    # Route of administration for this ingredient
     route: str = Field(default="i.v.")  # "p.o.", "i.v.", "i.m.", etc.
+
+class MedicationRecommendation(BaseModel):
+    """Model for individual medication recommendations"""
+    # Active ingredients (1-3 per medication, each with individual dosing parameters)
+    active_ingredients: List[ActiveIngredient] = Field(..., min_items=1, max_items=3)
     
-    # Additional notes for this specific medication
+    # Additional notes for this specific medication combination
     notes: Optional[str] = None
     
     # Clinical guidance specific to this medication
@@ -363,11 +363,8 @@ class ClinicalGuidance(BaseModel):
     # Pregnancy considerations (only if patient is pregnant)
     pregnancy_considerations: Optional[str] = None  # e.g., "Kontraindiziert in der Schwangerschaft"
     
-    # De-escalation information
-    deescalation_info: Optional[str] = None  # e.g., "Nach Erregernachweis auf gezieltes Antibiotikum umstellen"
-    
-    # Therapy focus information
-    therapy_focus_info: Optional[str] = None  # e.g., "Bei Besserung auf orale Therapie umstellen"
+    # De-escalation and therapy focus information (combined)
+    deescalation_focus_info: Optional[str] = None  # e.g., "Nach Erregernachweis auf gezieltes Antibiotikum umstellen. Bei Besserung auf orale Therapie umstellen"
 
 class SourceCitation(BaseModel):
     """Model for source citations with guideline and page information"""

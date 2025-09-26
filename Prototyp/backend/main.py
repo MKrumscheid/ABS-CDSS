@@ -339,30 +339,27 @@ async def generate_therapy_recommendation(request: dict):
             max_options=max_therapy_options
         )
         
-        # Transform to match frontend expectations
+        # Transform to match frontend expectations with new structure
         recommendations = []
         for i, option in enumerate(therapy_recommendation.therapy_options):
-            # Format structured medication data for frontend
+            # Format active ingredients with their individual dosing parameters
             medication_data = {
                 "active_ingredients": [
-                    {"name": ing.name, "strength": ing.strength} 
-                    for ing in option.active_ingredients
+                    {
+                        "name": ingredient.name,
+                        "strength": ingredient.strength,
+                        "frequency_lower_bound": ingredient.frequency_lower_bound,
+                        "frequency_upper_bound": ingredient.frequency_upper_bound, 
+                        "frequency_unit": ingredient.frequency_unit,
+                        "duration_lower_bound": ingredient.duration_lower_bound,
+                        "duration_upper_bound": ingredient.duration_upper_bound,
+                        "duration_unit": ingredient.duration_unit,
+                        "route": ingredient.route
+                    }
+                    for ingredient in option.active_ingredients
                 ],
-                "frequency": format_frequency(option),
-                "duration": format_duration(option),
-                "route": option.route,
                 "notes": option.notes,
-                # Add structured data for table display
-                "structured_dosing": {
-                    "frequency_lower": option.frequency_lower_bound,
-                    "frequency_upper": option.frequency_upper_bound,
-                    "frequency_unit": option.frequency_unit,
-                    "duration_lower": option.duration_lower_bound,
-                    "duration_upper": option.duration_upper_bound,
-                    "duration_unit": option.duration_unit,
-                    "route": option.route
-                },
-                # Add medication-specific clinical guidance
+                # Add medication-specific clinical guidance with new field structure
                 "clinical_guidance": option.clinical_guidance.dict() if option.clinical_guidance else None
             }
             

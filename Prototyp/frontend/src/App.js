@@ -2058,7 +2058,7 @@ function App() {
                                           >
                                             {/* Medication Header */}
                                             <div className="row mb-3">
-                                              <div className="col-md-8">
+                                              <div className="col-12">
                                                 <div className="mb-2">
                                                   <h6 className="text-primary mb-1">
                                                     {medication.active_ingredients.map(
@@ -2081,99 +2081,63 @@ function App() {
                                                   </h6>
                                                 </div>
                                               </div>
-                                              <div className="col-md-4 text-end">
-                                                <span className="badge bg-primary">
-                                                  {medication.route}
-                                                </span>
-                                              </div>
                                             </div>
 
-                                            {/* Structured Dosing Table */}
-                                            {medication.structured_dosing && (
-                                              <div className="table-responsive">
-                                                <table className="table table-sm table-bordered">
-                                                  <thead className="table-light">
-                                                    <tr>
-                                                      <th>Wirkstoff</th>
-                                                      <th>Stärke</th>
-                                                      <th>Häufigkeit</th>
-                                                      <th>Therapiedauer</th>
-                                                      <th>Applikationsweg</th>
-                                                    </tr>
-                                                  </thead>
-                                                  <tbody>
-                                                    {medication.active_ingredients.map(
-                                                      (ingredient, ingIdx) => (
-                                                        <tr key={ingIdx}>
-                                                          <td>
-                                                            <strong>
-                                                              {ingredient.name}
-                                                            </strong>
-                                                          </td>
-                                                          <td>
-                                                            {
-                                                              ingredient.strength
-                                                            }
-                                                          </td>
-                                                          <td>
-                                                            {medication
-                                                              .structured_dosing
-                                                              .frequency_upper &&
-                                                            medication
-                                                              .structured_dosing
-                                                              .frequency_upper !==
-                                                              medication
-                                                                .structured_dosing
-                                                                .frequency_lower
-                                                              ? `${medication.structured_dosing.frequency_lower}-${medication.structured_dosing.frequency_upper}x ${medication.structured_dosing.frequency_unit}`
-                                                              : `${medication.structured_dosing.frequency_lower}x ${medication.structured_dosing.frequency_unit}`}
-                                                          </td>
-                                                          <td>
-                                                            {medication
-                                                              .structured_dosing
-                                                              .duration_lower ? (
-                                                              medication
-                                                                .structured_dosing
-                                                                .duration_upper &&
-                                                              medication
-                                                                .structured_dosing
-                                                                .duration_upper !==
-                                                                medication
-                                                                  .structured_dosing
-                                                                  .duration_lower ? (
-                                                                `${medication.structured_dosing.duration_lower}-${medication.structured_dosing.duration_upper} ${medication.structured_dosing.duration_unit}`
-                                                              ) : (
-                                                                `${medication.structured_dosing.duration_lower} ${medication.structured_dosing.duration_unit}`
-                                                              )
+                                            {/* Structured Dosing Table - New Structure with Individual Dosing per Ingredient */}
+                                            <div className="table-responsive">
+                                              <table className="table table-sm table-bordered">
+                                                <thead className="table-light">
+                                                  <tr>
+                                                    <th>Wirkstoff</th>
+                                                    <th>Stärke</th>
+                                                    <th>Häufigkeit</th>
+                                                    <th>Therapiedauer</th>
+                                                    <th>Applikationsweg</th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody>
+                                                  {medication.active_ingredients.map(
+                                                    (ingredient, ingIdx) => (
+                                                      <tr key={ingIdx}>
+                                                        <td>
+                                                          <strong>
+                                                            {ingredient.name}
+                                                          </strong>
+                                                        </td>
+                                                        <td>
+                                                          {ingredient.strength}
+                                                        </td>
+                                                        <td>
+                                                          {ingredient.frequency_upper &&
+                                                          ingredient.frequency_upper !==
+                                                            ingredient.frequency_lower_bound
+                                                            ? `${ingredient.frequency_lower_bound}-${ingredient.frequency_upper}x ${ingredient.frequency_unit}`
+                                                            : `${ingredient.frequency_lower_bound}x ${ingredient.frequency_unit}`}
+                                                        </td>
+                                                        <td>
+                                                          {ingredient.duration_lower_bound ? (
+                                                            ingredient.duration_upper_bound &&
+                                                            ingredient.duration_upper_bound !==
+                                                              ingredient.duration_lower_bound ? (
+                                                              `${ingredient.duration_lower_bound}-${ingredient.duration_upper_bound} ${ingredient.duration_unit}`
                                                             ) : (
-                                                              <span className="text-muted">
-                                                                Nicht
-                                                                spezifiziert
-                                                              </span>
-                                                            )}
-                                                          </td>
-                                                          <td>
-                                                            {
-                                                              medication
-                                                                .structured_dosing
-                                                                .route
-                                                            }
-                                                          </td>
-                                                        </tr>
-                                                      )
-                                                    )}
-                                                  </tbody>
-                                                </table>
-                                              </div>
-                                            )}
-
-                                            {/* Legacy format fallback */}
-                                            {!medication.structured_dosing && (
-                                              <div className="text-muted small">
-                                                {medication.frequency} •{" "}
-                                                {medication.duration}
-                                              </div>
-                                            )}
+                                                              `${ingredient.duration_lower_bound} ${ingredient.duration_unit}`
+                                                            )
+                                                          ) : (
+                                                            <span className="text-muted">
+                                                              Nicht spezifiziert
+                                                            </span>
+                                                          )}
+                                                        </td>
+                                                        <td>
+                                                          {ingredient.route}
+                                                        </td>
+                                                      </tr>
+                                                    )
+                                                  )}
+                                                </tbody>
+                                              </table>
+                                            </div>
 
                                             {/* Medication Notes */}
                                             {medication.notes && (
@@ -2309,9 +2273,7 @@ function App() {
                                                 {(medication.clinical_guidance
                                                   .pregnancy_considerations ||
                                                   medication.clinical_guidance
-                                                    .deescalation_info ||
-                                                  medication.clinical_guidance
-                                                    .therapy_focus_info) && (
+                                                    .deescalation_focus_info) && (
                                                   <div className="row mt-3">
                                                     {medication
                                                       .clinical_guidance
@@ -2332,33 +2294,17 @@ function App() {
 
                                                     {medication
                                                       .clinical_guidance
-                                                      .deescalation_info && (
+                                                      .deescalation_focus_info && (
                                                       <div className="col-12 mb-2">
                                                         <div className="alert alert-info mb-2">
                                                           <strong>
-                                                            📉 Deeskalation:
+                                                            📉🎯
+                                                            Deeskalation/Fokussierung:
                                                           </strong>{" "}
                                                           {
                                                             medication
                                                               .clinical_guidance
-                                                              .deescalation_info
-                                                          }
-                                                        </div>
-                                                      </div>
-                                                    )}
-
-                                                    {medication
-                                                      .clinical_guidance
-                                                      .therapy_focus_info && (
-                                                      <div className="col-12 mb-2">
-                                                        <div className="alert alert-primary mb-2">
-                                                          <strong>
-                                                            🎯 Therapiefokus:
-                                                          </strong>{" "}
-                                                          {
-                                                            medication
-                                                              .clinical_guidance
-                                                              .therapy_focus_info
+                                                              .deescalation_focus_info
                                                           }
                                                         </div>
                                                       </div>
@@ -2548,32 +2494,17 @@ function App() {
                                             )}
 
                                             {recommendation.clinical_guidance
-                                              .deescalation_info && (
+                                              .deescalation_focus_info && (
                                               <div className="col-12 mb-2">
                                                 <div className="alert alert-info mb-2">
                                                   <strong>
-                                                    📉 Deeskalation:
+                                                    📉🎯
+                                                    Deeskalation/Fokussierung:
                                                   </strong>{" "}
                                                   {
                                                     recommendation
                                                       .clinical_guidance
-                                                      .deescalation_info
-                                                  }
-                                                </div>
-                                              </div>
-                                            )}
-
-                                            {recommendation.clinical_guidance
-                                              .therapy_focus_info && (
-                                              <div className="col-12 mb-2">
-                                                <div className="alert alert-primary mb-2">
-                                                  <strong>
-                                                    🎯 Therapiefokus:
-                                                  </strong>{" "}
-                                                  {
-                                                    recommendation
-                                                      .clinical_guidance
-                                                      .therapy_focus_info
+                                                      .deescalation_focus_info
                                                   }
                                                 </div>
                                               </div>
