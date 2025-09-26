@@ -91,6 +91,12 @@ class TherapyLLMService:
             llm_response = response.choices[0].message.content
             logger.info(f"Received LLM response: {len(llm_response)} characters")
             
+            # Debug: Log the complete LLM response for troubleshooting
+            print(f"=== DEBUG LLM RESPONSE ===")
+            print(f"Response length: {len(llm_response)}")
+            print(f"Full response:\n{llm_response}")
+            print(f"=== DEBUG LLM RESPONSE END ===")
+            
             # Clean the response to handle potential control characters
             try:
                 # Remove control characters that might break JSON parsing
@@ -103,6 +109,8 @@ class TherapyLLMService:
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse LLM JSON response: {e}")
                 logger.error(f"Response length: {len(llm_response)}")
+                logger.error(f"Character at error position: '{llm_response[e.pos] if e.pos < len(llm_response) else 'EOF'}'")
+                logger.error(f"Context around error (±50 chars): '{llm_response[max(0,e.pos-50):e.pos+50]}'")
                 logger.error(f"First 500 chars: {llm_response[:500]}")
                 logger.error(f"Last 500 chars: {llm_response[-500:]}")
                 
@@ -114,6 +122,10 @@ class TherapyLLMService:
                     
                     if start_idx != -1 and end_idx > start_idx:
                         json_part = llm_response[start_idx:end_idx]
+                        print(f"=== DEBUG EXTRACTED JSON ===")
+                        print(f"Extracted JSON part:\n{json_part}")
+                        print(f"=== DEBUG EXTRACTED JSON END ===")
+                        
                         # Clean and parse extracted JSON
                         cleaned_json = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', json_part)
                         therapy_data = json.loads(cleaned_json)
@@ -164,7 +176,7 @@ WICHTIGE HINWEISE:
 - Antworte AUSSCHLIESSLICH auf DEUTSCH und verwende deutsche medizinische Begriffe
 - WICHTIG: Interaktionen nur erwähnen, wenn der Patient das interagierende Medikament einnimmt
 - WICHTIG: Monitoring-Parameter nur für die tatsächlich verschriebenen Antibiotika relevant
-- WICHTIG: Allgemeine Infektions-Monitoring in therapy_focus_info erwähnen
+
 
 AUSGABEFORMAT:
 Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt im folgenden Format:
@@ -187,7 +199,7 @@ Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt im folgenden Format:
         "monitoring_parameters": ["NUR für DIESES spezifische Antibiotikum relevante Monitoring Parameter aus den Leitlinien"],
         "relevant_side_effects": ["NUR für DIESES spezifische Antibiotikum relevante Nebenwirkungen, besonders bei vorhandenen Komorbiditäten"],
         "drug_interactions": ["NUR wenn Patient das mit DIESEM Antibiotikum interagierende Medikament einnimmt"],
-        "pregnancy_considerations": "Text oder null - nur wenn für DIESES Antibiotikum relevant",
+        "pregnancy_considerations": "Text oder null - nur wenn für DIESES Antibiotikum relevant UND Patient weiblich ist.",
         "deescalation_info": "Deeskalations-Strategie für DIESES Antibiotikum",
         "therapy_focus_info": "Spezifische Therapiehinweise für DIESES Antibiotikum"
       }
@@ -239,10 +251,16 @@ DOSIERUNGS-REGELN:
         
         # Task instruction
         prompt_parts.append("=== AUFGABE ===")
-        prompt_parts.append(f"Erstelle ein bis maximal {max_options} Therapieoptionen für diese klinische Situation (je nachdem wie viele valide Therapien tatsächlich zur Auswahl stehen).")
+        prompt_parts.append(f"Analysiere die verfügbaren Quellen und erstelle zwischen 1 und {max_options} Therapieoptionen für diese klinische Situation.")
+        prompt_parts.append("WICHTIG: Die Anzahl der Therapieoptionen soll der Quellenlage angemessen sein:")
+        prompt_parts.append("- Bei umfangreichen, klaren Leitlinien mit mehreren validen Alternativen: 3-5 Optionen")
+        prompt_parts.append("- Bei mäßiger Quellenlage oder spezifischen Indikationen: 2-3 Optionen") 
+        prompt_parts.append("- Bei begrenzter Quellenlage oder sehr spezifischen Fällen: 1-2 Optionen")
+        prompt_parts.append("- Erstelle NUR Therapien, die durch die bereitgestellten Quellen gut begründet sind")
+        prompt_parts.append("")
         prompt_parts.append("Berücksichtige:")
         prompt_parts.append("- Die bereitgestellten Leitlinien und Dosierungstabellen")
-        prompt_parts.append("- Patientenspezifische Faktoren (Allergien, Schwangerschaft, etc.)")
+        prompt_parts.append("- Patientenspezifische Faktoren (Allergien, Schwangerschaft, etc.). Achte bei Allergien auch auf den Schweregrad der Allergie, bzw. Unverträglichkeit und entscheide ob wirklich eine Kontraindikation vorliegt oder nicht, da Patienten lebensrettende Antibiotika nicht aufgrund leichter Unverträglichkeitsreaktionen vorbehalten werden sollen.")
         prompt_parts.append("- Mögliche Arzneimittelinteraktionen")
         prompt_parts.append("- Notwendige Überwachungsparameter")
         prompt_parts.append("- Deeskalations- und Fokussierungsstrategien")

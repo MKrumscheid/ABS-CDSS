@@ -71,25 +71,158 @@ function App() {
   const [patientSearchLoading, setPatientSearchLoading] = useState(false);
   const [patientDetailsLoading, setPatientDetailsLoading] = useState(false);
 
-  // Available indications - easily extensible
+  // Available indications - organized by category for better UX
   const availableIndicationOptions = [
+    // Respiratorische Infektionen
     {
-      value: "CAP",
-      label: "CAP (Ambulant erworbene Pneumonie)",
+      category: "Respiratorische Infektionen",
+      options: [
+        { value: "CAP", label: "CAP (Ambulant erworbene Pneumonie)" },
+        { value: "HAP", label: "HAP (Nosokomial erworbene Pneumonie)" },
+        {
+          value: "AKUTE_EXAZERBATION_COPD",
+          label: "AECOPD (Akute Exazerbation der COPD)",
+        },
+      ],
     },
+    // HNO-Infektionen
     {
-      value: "HAP",
-      label: "HAP (Nosokomial erworbene Pneumonie)",
+      category: "HNO-Infektionen",
+      options: [
+        { value: "OTITIS_EXTERNA_MALIGNA", label: "Otitis externa maligna" },
+        {
+          value: "OSTEOMYELITIS_SCHAEDELBASIS",
+          label: "Osteomyelitis der Schädelbasis",
+        },
+        { value: "MASTOIDITIS", label: "Mastoiditis" },
+        { value: "EPIGLOTTITIS", label: "Epiglottitis" },
+        {
+          value: "OHRMUSCHELPERICHONDRITIS",
+          label: "Ohrmuschelperichondritis",
+        },
+        { value: "NASENFURUNKEL", label: "Nasenfurunkel" },
+        { value: "PERITONSILLITIS", label: "Peritonsillitis" },
+        { value: "PERITONSILLARABSZESS", label: "Peritonsillarabszess" },
+        {
+          value: "BAKTERIELLE_SINUSITIDEN_UND_KOMPLIKATIONEN",
+          label: "Bakterielle Sinusitiden und deren Komplikationen",
+        },
+        { value: "SIALADENITIS", label: "Sialadenitis" },
+        {
+          value: "ZERVIKOFAZIALE_AKTINOMYKOSE",
+          label: "Zervikofaziale Aktinomykose",
+        },
+      ],
     },
+    // Dentale Infektionen
     {
-      value: "AKUTE_EXAZERBATION_COPD",
-      label: "AECOPD (Akute Exazerbation der COPD)",
+      category: "Dentale Infektionen",
+      options: [
+        {
+          value: "ODONTOGENE_INFEKTIONEN_AUSBREITUNGSTENDENZ",
+          label: "Odontogene Infektionen mit Ausbreitungstendenz",
+        },
+        { value: "OSTEOMYELITIS_KIEFER", label: "Osteomyelitis der Kiefer" },
+      ],
+    },
+    // Abdominale Infektionen
+    {
+      category: "Abdominale Infektionen",
+      options: [
+        { value: "PERITONITIS", label: "Peritonitis" },
+        {
+          value: "NEKROTISIERENDE_PANKREATITIS_INFIZIERTE_NEKROSEN",
+          label: "Nekrotisierende Pankreatitis mit infizierten Nekrosen",
+        },
+        {
+          value: "INVASIVE_INTRAABDOMINELLE_MYKOSEN",
+          label: "Invasive intraabdominelle Mykosen",
+        },
+      ],
+    },
+    // Urogenitale Infektionen
+    {
+      category: "Urogenitale Infektionen",
+      options: [
+        {
+          value: "AKUTE_UNKOMPLIZIERTE_PYELONEPHRITIS",
+          label: "Akute unkomplizierte Pyelonephritis",
+        },
+        {
+          value: "KOMPLIZIERTE_NOSOKOMIALE_HARNWEGSINFEKTION",
+          label: "Komplizierte bzw. nosokomiale Harnwegsinfektion",
+        },
+        { value: "UROSEPSIS", label: "Urosepsis" },
+        { value: "AKUTE_PROSTATITIS", label: "Akute Prostatitis" },
+        { value: "PROSTATAABSZESS", label: "Prostataabszess" },
+        { value: "AKUTE_EPIDIDYMITIS", label: "Akute Epididymitis" },
+        { value: "EPIDIDYMOORCHITIS", label: "Epididymoorchitis" },
+        { value: "ENDOMETRITIS", label: "Endometritis" },
+        { value: "SALPINGITIS", label: "Salpingitis" },
+        { value: "TUBOOVARIALABSZESS", label: "Tuboovarialabszess" },
+        { value: "PELVEOPERITONITIS", label: "Pelveoperitonitis" },
+      ],
+    },
+    // Haut- und Weichteilinfektionen
+    {
+      category: "Haut- und Weichteilinfektionen",
+      options: [
+        { value: "INFIZIERTE_BISSWUNDEN", label: "Infizierte Bisswunden" },
+      ],
+    },
+    // Knochen- und Gelenkinfektionen
+    {
+      category: "Knochen- und Gelenkinfektionen",
+      options: [
+        {
+          value: "HAEMATOGENE_OSTEOMYELITIS",
+          label: "Hämatogene Osteomyelitis",
+        },
+        { value: "SPONDYLODISCITIS", label: "Spondylodiscitis" },
+        {
+          value: "POSTTRAUMATISCHE_POSTOPERATIVE_OSTEOMYELITIS",
+          label: "Posttraumatische/postoperative Osteomyelitis",
+        },
+        { value: "STERNUMOSTEOMYELITIS", label: "Sternumosteomyelitis" },
+        { value: "BAKTERIELLE_ARTHRITIS", label: "Bakterielle Arthritis" },
+        {
+          value: "ENDOPROTHESEN_FREMDKOERPER_ASSOZIIERTE_INFEKTIONEN",
+          label: "Endoprothesen-/Fremdkörper-assoziierte Infektionen",
+        },
+      ],
+    },
+    // Systemische Infektionen
+    {
+      category: "Systemische Infektionen",
+      options: [
+        { value: "SEPSIS", label: "Sepsis" },
+        {
+          value: "BAKTERIELLE_ENDOKARDITIS",
+          label: "Bakterielle Endokarditis",
+        },
+        { value: "BAKTERIELLE_MENINGITIS", label: "Bakterielle Meningitis" },
+      ],
+    },
+    // Gastrointestinale Infektionen
+    {
+      category: "Gastrointestinale Infektionen",
+      options: [
+        {
+          value: "BAKTERIELLE_GASTROINTESTINALE_INFEKTIONEN",
+          label: "Bakterielle gastrointestinale Infektionen",
+        },
+      ],
     },
   ];
 
+  // Flatten options for easier access
+  const allIndicationOptions = availableIndicationOptions.flatMap(
+    (group) => group.options
+  );
+
   // Therapy recommendation states
   const [therapyForm, setTherapyForm] = useState({
-    indication: "CAP",
+    indication: "CAP", // Use a valid frontend value that gets mapped to backend
     severity: "MITTELSCHWER",
     infection_site: "",
     risk_factors: [],
@@ -117,7 +250,7 @@ function App() {
   const [indicationSearch, setIndicationSearch] = useState("");
   const [indicationDropdownOpen, setIndicationDropdownOpen] = useState(false);
   const [searchForm, setSearchForm] = useState({
-    indication: "CAP",
+    indication: "OTITIS_EXTERNA_MALIGNA", // Use a valid indication value from the backend
     severity: "MITTELSCHWER",
     infection_site: "",
     risk_factors: [],
@@ -231,10 +364,7 @@ function App() {
 
     // Map form values to backend format
     const testPayload = {
-      indication:
-        searchForm.indication === "CAP"
-          ? "AMBULANT_ERWORBENE_PNEUMONIE"
-          : "NOSOKOMIAL_ERWORBENE_PNEUMONIE",
+      indication: searchForm.indication, // Use the actual selected indication value
       severity: searchForm.severity,
       infection_site: searchForm.infection_site || null,
       risk_factors: searchForm.risk_factors.map((factor) => factor),
@@ -434,11 +564,14 @@ function App() {
 
     // Map frontend values to backend enum values
     const mapIndication = (indication) => {
+      // Most indications have the same value in frontend and backend
+      // Only special cases need explicit mapping
       const mapping = {
         CAP: "AMBULANT_ERWORBENE_PNEUMONIE",
         HAP: "NOSOKOMIAL_ERWORBENE_PNEUMONIE",
+        AKUTE_EXAZERBATION_COPD: "AKUTE_EXAZERBATION_COPD", // Already matches
       };
-      return mapping[indication] || indication;
+      return mapping[indication] || indication; // Return as-is for new indications
     };
 
     const mapSeverity = (severity) => {
@@ -539,14 +672,21 @@ function App() {
     setTherapyLoading(true);
     setTherapyResults(null);
 
+    // Map frontend values to backend enum values
+    const mapIndication = (indication) => {
+      // Most indications have the same value in frontend and backend
+      // Only special cases need explicit mapping
+      const mapping = {
+        CAP: "AMBULANT_ERWORBENE_PNEUMONIE",
+        HAP: "NOSOKOMIAL_ERWORBENE_PNEUMONIE",
+        AKUTE_EXAZERBATION_COPD: "AKUTE_EXAZERBATION_COPD", // Already matches
+      };
+      return mapping[indication] || indication; // Return as-is for new indications
+    };
+
     // Map form values to backend format
     const therapyPayload = {
-      indication:
-        therapyForm.indication === "CAP"
-          ? "AMBULANT_ERWORBENE_PNEUMONIE"
-          : therapyForm.indication === "HAP"
-          ? "NOSOKOMIAL_ERWORBENE_PNEUMONIE"
-          : "AKUTE_EXAZERBATION_COPD",
+      indication: mapIndication(therapyForm.indication), // Use the mapping function
       severity: therapyForm.severity,
       infection_site: therapyForm.infection_site || null,
       risk_factors: therapyForm.risk_factors.map((factor) => factor),
@@ -835,14 +975,12 @@ function App() {
                               id="select-all-indications"
                               checked={
                                 selectedIndications.length ===
-                                availableIndicationOptions.length
+                                allIndicationOptions.length
                               }
                               onChange={(e) => {
                                 if (e.target.checked) {
                                   setSelectedIndications(
-                                    availableIndicationOptions.map(
-                                      (ind) => ind.value
-                                    )
+                                    allIndicationOptions.map((ind) => ind.value)
                                   );
                                 } else {
                                   setSelectedIndications([]);
@@ -857,55 +995,81 @@ function App() {
                             </label>
                           </div>
 
-                          {/* Filtered Indications */}
-                          {availableIndicationOptions
-                            .filter(
+                          {/* Grouped and Filtered Indications */}
+                          {availableIndicationOptions.map((group) => {
+                            // Filter group options based on search
+                            const filteredOptions = group.options.filter(
                               (indication) =>
                                 indication.label
                                   .toLowerCase()
                                   .includes(indicationSearch.toLowerCase()) ||
                                 indication.value
                                   .toLowerCase()
+                                  .includes(indicationSearch.toLowerCase()) ||
+                                group.category
+                                  .toLowerCase()
                                   .includes(indicationSearch.toLowerCase())
-                            )
-                            .map((indication) => (
-                              <div
-                                key={indication.value}
-                                className="form-check"
-                              >
-                                <input
-                                  className="form-check-input"
-                                  type="checkbox"
-                                  id={`indication-${indication.value}`}
-                                  checked={selectedIndications.includes(
-                                    indication.value
-                                  )}
-                                  onChange={(e) =>
-                                    handleIndicationChange(
-                                      indication.value,
-                                      e.target.checked
-                                    )
-                                  }
-                                />
-                                <label
-                                  className="form-check-label"
-                                  htmlFor={`indication-${indication.value}`}
-                                >
-                                  {indication.label}
-                                </label>
+                            );
+
+                            // Only show group if it has matching options
+                            if (filteredOptions.length === 0) return null;
+
+                            return (
+                              <div key={group.category} className="mb-3">
+                                {/* Category Header */}
+                                <div className="fw-bold text-primary border-bottom mb-2">
+                                  📋 {group.category}
+                                </div>
+
+                                {/* Category Options */}
+                                {filteredOptions.map((indication) => (
+                                  <div
+                                    key={indication.value}
+                                    className="form-check ms-3"
+                                  >
+                                    <input
+                                      className="form-check-input"
+                                      type="checkbox"
+                                      id={`indication-${indication.value}`}
+                                      checked={selectedIndications.includes(
+                                        indication.value
+                                      )}
+                                      onChange={(e) =>
+                                        handleIndicationChange(
+                                          indication.value,
+                                          e.target.checked
+                                        )
+                                      }
+                                    />
+                                    <label
+                                      className="form-check-label"
+                                      htmlFor={`indication-${indication.value}`}
+                                      style={{ fontSize: "0.9em" }}
+                                    >
+                                      {indication.label}
+                                    </label>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
+                            );
+                          })}
 
                           {/* No results message */}
-                          {availableIndicationOptions.filter(
-                            (indication) =>
-                              indication.label
-                                .toLowerCase()
-                                .includes(indicationSearch.toLowerCase()) ||
-                              indication.value
-                                .toLowerCase()
-                                .includes(indicationSearch.toLowerCase())
-                          ).length === 0 && (
+                          {availableIndicationOptions.every(
+                            (group) =>
+                              group.options.filter(
+                                (indication) =>
+                                  indication.label
+                                    .toLowerCase()
+                                    .includes(indicationSearch.toLowerCase()) ||
+                                  indication.value
+                                    .toLowerCase()
+                                    .includes(indicationSearch.toLowerCase()) ||
+                                  group.category
+                                    .toLowerCase()
+                                    .includes(indicationSearch.toLowerCase())
+                              ).length === 0
+                          ) && (
                             <div className="text-muted text-center py-2">
                               Keine Indikationen gefunden
                             </div>
@@ -921,7 +1085,7 @@ function App() {
                       <small className="text-muted">✅ Ausgewählt: </small>
                       <div className="d-flex flex-wrap gap-1 mt-1">
                         {selectedIndications.map((indicationValue) => {
-                          const indication = availableIndicationOptions.find(
+                          const indication = allIndicationOptions.find(
                             (ind) => ind.value === indicationValue
                           );
                           return (
@@ -1059,9 +1223,17 @@ function App() {
                           </td>
                           <td>{guideline.title}</td>
                           <td>
-                            <span className="badge bg-primary me-1">
-                              {guideline.indications.join(", ")}
-                            </span>
+                            {guideline.indications.map((indication, index) => (
+                              <span
+                                key={index}
+                                className="badge bg-primary me-1 mb-1"
+                                style={{ fontSize: "0.75em" }}
+                              >
+                                {allIndicationOptions.find(
+                                  (opt) => opt.value === indication
+                                )?.label || indication}
+                              </span>
+                            ))}
                           </td>
                           <td>
                             <span className="badge bg-secondary">
@@ -1398,6 +1570,16 @@ function App() {
                                   </tr>
                                   <tr>
                                     <td>
+                                      <strong>GFR:</strong>
+                                    </td>
+                                    <td>
+                                      {selectedPatient.gfr
+                                        ? `${selectedPatient.gfr} ml/min/1.73m²`
+                                        : "Nicht verfügbar"}
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>
                                       <strong>Schwangerschaft:</strong>
                                     </td>
                                     <td>{selectedPatient.pregnancy_status}</td>
@@ -1562,15 +1744,18 @@ function App() {
                           }))
                         }
                       >
-                        <option value="CAP">
-                          CAP - Ambulant erworbene Pneumonie
-                        </option>
-                        <option value="HAP">
-                          HAP - Nosokomial erworbene Pneumonie
-                        </option>
-                        <option value="AKUTE_EXAZERBATION_COPD">
-                          AECOPD - Akute Exazerbation der COPD
-                        </option>
+                        {availableIndicationOptions.map((group) => (
+                          <optgroup key={group.category} label={group.category}>
+                            {group.options.map((indication) => (
+                              <option
+                                key={indication.value}
+                                value={indication.value}
+                              >
+                                {indication.label}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
                       </select>
                     </div>
 
@@ -1812,6 +1997,24 @@ function App() {
                                 </div>
                               )}
                             </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Patient Data Display */}
+                      {therapyResults.patient_summary && (
+                        <div className="alert alert-info mb-4">
+                          <h6 className="alert-heading">
+                            Aktuelle Patientendaten
+                          </h6>
+                          <div className="small">
+                            {therapyResults.patient_summary
+                              .split("\n")
+                              .map((line, index) => (
+                                <div key={index}>
+                                  <span>{line}</span>
+                                </div>
+                              ))}
                           </div>
                         </div>
                       )}
@@ -2541,15 +2744,18 @@ function App() {
                           }))
                         }
                       >
-                        <option value="CAP">
-                          Ambulant erworbene Pneumonie
-                        </option>
-                        <option value="HAP">
-                          Nosokomial erworbene Pneumonie
-                        </option>
-                        <option value="AKUTE_EXAZERBATION_COPD">
-                          Akute Exazerbation der COPD
-                        </option>
+                        {availableIndicationOptions.map((group) => (
+                          <optgroup key={group.category} label={group.category}>
+                            {group.options.map((indication) => (
+                              <option
+                                key={indication.value}
+                                value={indication.value}
+                              >
+                                {indication.label}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
                       </select>
                     </div>
 
@@ -2780,15 +2986,18 @@ function App() {
                           }))
                         }
                       >
-                        <option value="CAP">
-                          CAP - Ambulant erworbene Pneumonie
-                        </option>
-                        <option value="HAP">
-                          HAP - Nosokomial erworbene Pneumonie
-                        </option>
-                        <option value="AKUTE_EXAZERBATION_COPD">
-                          AECOPD - Akute Exazerbation der COPD
-                        </option>
+                        {availableIndicationOptions.map((group) => (
+                          <optgroup key={group.category} label={group.category}>
+                            {group.options.map((indication) => (
+                              <option
+                                key={indication.value}
+                                value={indication.value}
+                              >
+                                {indication.label}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
                       </select>
                     </div>
 

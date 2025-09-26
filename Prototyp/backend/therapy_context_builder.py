@@ -340,6 +340,8 @@ class TherapyContextBuilder:
             physical_params.append(f"Größe: {patient_data['height']} cm")
         if patient_data.get("bmi"):
             physical_params.append(f"BMI: {patient_data['bmi']}")
+        if patient_data.get("gfr"):
+            physical_params.append(f"GFR: {patient_data['gfr']} ml/min/1.73m²")
         if physical_params:
             summary_lines.append(", ".join(physical_params))
         
@@ -356,7 +358,7 @@ class TherapyContextBuilder:
         # Allergies (critical for drug selection)
         allergies = patient_data.get("allergies", [])
         if allergies:
-            summary_lines.append(f"🚨 ALLERGIEN: {', '.join(allergies)}")
+            summary_lines.append(f"Allergien: {', '.join(allergies)}")
         else:
             summary_lines.append("Allergien: Keine bekannt")
         
@@ -454,6 +456,23 @@ class TherapyContextBuilder:
                         additional_sections.append("")
             except (ValueError, TypeError):
                 logger.warning(f"Could not parse patient age: {patient_data.get('age')}")
+        
+        # Include kidney dosing adjustment table if patient GFR ≤ 60
+        if patient_data and patient_data.get("gfr"):
+            try:
+                patient_gfr = float(patient_data["gfr"])
+                if patient_gfr <= 60:
+                    kidney_dosing_html = self._load_additional_info("Anpassung Nierenfunktion Tabelle HTML.html")
+                    if kidney_dosing_html:
+                        additional_sections.append("=== DOSIERUNGSANPASSUNG BEI NIERENINSUFFIZIENZ ===")
+                        additional_sections.append("(Quelle: Interne Dosierungstabelle für Antiinfektiva)")
+                        additional_sections.append(f"RELEVANT wegen eingeschränkter Nierenfunktion: GFR {patient_gfr} ml/min/1.73m² (≤ 60)")
+                        additional_sections.append("")
+                        additional_sections.append("WICHTIGE DOSIERUNGSANPASSUNGEN:")
+                        additional_sections.append(kidney_dosing_html)
+                        additional_sections.append("")
+            except (ValueError, TypeError):
+                logger.warning(f"Could not parse patient GFR: {patient_data.get('gfr')}")
         
         return "\n".join(additional_sections)
     

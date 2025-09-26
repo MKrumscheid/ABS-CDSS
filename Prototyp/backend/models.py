@@ -39,45 +39,183 @@ class RiskFactor(str, Enum):
     CATHETER = "KATHETER"
 
 class Indication(str, Enum):
+    # Existing diagnoses
     CAP = "AMBULANT_ERWORBENE_PNEUMONIE"
     HAP = "NOSOKOMIAL_ERWORBENE_PNEUMONIE"
     AECOPD = "AKUTE_EXAZERBATION_COPD"
     
+    # New diagnoses - alphabetically organized
+    ACUTE_EPIDIDYMITIS = "AKUTE_EPIDIDYMITIS"
+    ACUTE_PROSTATITIS = "AKUTE_PROSTATITIS"
+    ACUTE_UNCOMPLICATED_PYELONEPHRITIS = "AKUTE_UNKOMPLIZIERTE_PYELONEPHRITIS"
+    BACTERIAL_ARTHRITIS = "BAKTERIELLE_ARTHRITIS"
+    BACTERIAL_ENDOCARDITIS = "BAKTERIELLE_ENDOKARDITIS"
+    BACTERIAL_GASTROINTESTINAL_INFECTIONS = "BAKTERIELLE_GASTROINTESTINALE_INFEKTIONEN"
+    BACTERIAL_MENINGITIS = "BAKTERIELLE_MENINGITIS"
+    BACTERIAL_SINUSITIS_AND_COMPLICATIONS = "BAKTERIELLE_SINUSITIDEN_UND_KOMPLIKATIONEN"
+    ENDOMETRITIS = "ENDOMETRITIS"
+    ENDOPROSTHESIS_FOREIGN_BODY_INFECTIONS = "ENDOPROTHESEN_FREMDKOERPER_ASSOZIIERTE_INFEKTIONEN"
+    EPIDIDYMO_ORCHITIS = "EPIDIDYMOORCHITIS"
+    EPIGLOTTITIS = "EPIGLOTTITIS"
+    HEMATOGENOUS_OSTEOMYELITIS = "HAEMATOGENE_OSTEOMYELITIS"
+    INFECTED_BITE_WOUNDS = "INFIZIERTE_BISSWUNDEN"
+    INVASIVE_INTRAABDOMINAL_MYCOSES = "INVASIVE_INTRAABDOMINELLE_MYKOSEN"
+    COMPLICATED_NOSOCOMIAL_UTI = "KOMPLIZIERTE_NOSOKOMIALE_HARNWEGSINFEKTION"
+    MASTOIDITIS = "MASTOIDITIS"
+    NASAL_FURUNCLE = "NASENFURUNKEL"
+    NECROTIZING_PANCREATITIS_INFECTED_NECROSIS = "NEKROTISIERENDE_PANKREATITIS_INFIZIERTE_NEKROSEN"
+    ODONTOGENIC_INFECTIONS_SPREADING = "ODONTOGENE_INFEKTIONEN_AUSBREITUNGSTENDENZ"
+    AURICULAR_PERICHONDRITIS = "OHRMUSCHELPERICHONDRITIS"
+    JAW_OSTEOMYELITIS = "OSTEOMYELITIS_KIEFER"
+    SKULL_BASE_OSTEOMYELITIS = "OSTEOMYELITIS_SCHAEDELBASIS"
+    MALIGNANT_OTITIS_EXTERNA = "OTITIS_EXTERNA_MALIGNA"
+    PELVEOPERITONITIS = "PELVEOPERITONITIS"
+    PERITONITIS = "PERITONITIS"
+    PERITONSILLITIS = "PERITONSILLITIS"
+    PERITONSILLAR_ABSCESS = "PERITONSILLARABSZESS"
+    POSTTRAUMATIC_POSTOPERATIVE_OSTEOMYELITIS = "POSTTRAUMATISCHE_POSTOPERATIVE_OSTEOMYELITIS"
+    PROSTATE_ABSCESS = "PROSTATAABSZESS"
+    SALPINGITIS = "SALPINGITIS"
+    SEPSIS = "SEPSIS"
+    SIALADENITIS = "SIALADENITIS"
+    SPONDYLODISCITIS = "SPONDYLODISCITIS"
+    STERNAL_OSTEOMYELITIS = "STERNUMOSTEOMYELITIS"
+    TUBO_OVARIAN_ABSCESS = "TUBOOVARIALABSZESS"
+    UROSEPSIS = "UROSEPSIS"
+    CERVICOFACIAL_ACTINOMYCOSIS = "ZERVIKOFAZIALE_AKTINOMYKOSE"
+    
     def get_display_name(self) -> str:
         """Get human-readable display name for the indication"""
         display_names = {
+            # Existing
             "AMBULANT_ERWORBENE_PNEUMONIE": "CAP (Ambulant erworbene Pneumonie)",
             "NOSOKOMIAL_ERWORBENE_PNEUMONIE": "HAP (Nosokomial erworbene Pneumonie)", 
-            "AKUTE_EXAZERBATION_COPD": "AECOPD (Akute Exazerbation der COPD)"
+            "AKUTE_EXAZERBATION_COPD": "AECOPD (Akute Exazerbation der COPD)",
+            
+            # HNO-Infektionen
+            "OTITIS_EXTERNA_MALIGNA": "Otitis externa maligna",
+            "OSTEOMYELITIS_SCHAEDELBASIS": "Osteomyelitis der Schädelbasis",
+            "MASTOIDITIS": "Mastoiditis",
+            "EPIGLOTTITIS": "Epiglottitis",
+            "OHRMUSCHELPERICHONDRITIS": "Ohrmuschelperichondritis", 
+            "NASENFURUNKEL": "Nasenfurunkel",
+            "PERITONSILLITIS": "Peritonsillitis",
+            "PERITONSILLARABSZESS": "Peritonsillarabszess",
+            "BAKTERIELLE_SINUSITIDEN_UND_KOMPLIKATIONEN": "Bakterielle Sinusitiden und deren Komplikationen",
+            "SIALADENITIS": "Sialadenitis",
+            "ZERVIKOFAZIALE_AKTINOMYKOSE": "Zervikofaziale Aktinomykose",
+            
+            # Dental
+            "ODONTOGENE_INFEKTIONEN_AUSBREITUNGSTENDENZ": "Odontogene Infektionen mit Ausbreitungstendenz",
+            "OSTEOMYELITIS_KIEFER": "Osteomyelitis der Kiefer",
+            
+            # Abdominale Infektionen
+            "PERITONITIS": "Peritonitis",
+            "NEKROTISIERENDE_PANKREATITIS_INFIZIERTE_NEKROSEN": "Nekrotisierende Pankreatitis mit infizierten Nekrosen",
+            "INVASIVE_INTRAABDOMINELLE_MYKOSEN": "Invasive intraabdominelle Mykosen",
+            
+            # Urogenitale Infektionen
+            "AKUTE_UNKOMPLIZIERTE_PYELONEPHRITIS": "Akute unkomplizierte Pyelonephritis",
+            "KOMPLIZIERTE_NOSOKOMIALE_HARNWEGSINFEKTION": "Komplizierte bzw. nosokomiale Harnwegsinfektion",
+            "UROSEPSIS": "Urosepsis",
+            "AKUTE_PROSTATITIS": "Akute Prostatitis",
+            "PROSTATAABSZESS": "Prostataabszess",
+            "AKUTE_EPIDIDYMITIS": "Akute Epididymitis",
+            "EPIDIDYMOORCHITIS": "Epididymoorchitis",
+            "ENDOMETRITIS": "Endometritis",
+            "SALPINGITIS": "Salpingitis",
+            "TUBOOVARIALABSZESS": "Tuboovarialabszess",
+            "PELVEOPERITONITIS": "Pelveoperitonitis",
+            
+            # Haut und Weichteile
+            "INFIZIERTE_BISSWUNDEN": "Infizierte Bisswunden",
+            
+            # Knochen und Gelenke
+            "HAEMATOGENE_OSTEOMYELITIS": "Hämatogene Osteomyelitis",
+            "SPONDYLODISCITIS": "Spondylodiscitis",
+            "POSTTRAUMATISCHE_POSTOPERATIVE_OSTEOMYELITIS": "Posttraumatische/postoperative Osteomyelitis",
+            "STERNUMOSTEOMYELITIS": "Sternumosteomyelitis",
+            "BAKTERIELLE_ARTHRITIS": "Bakterielle Arthritis",
+            "ENDOPROTHESEN_FREMDKOERPER_ASSOZIIERTE_INFEKTIONEN": "Endoprothesen-/Fremdkörper-assoziierte Infektionen",
+            
+            # Systemische Infektionen
+            "SEPSIS": "Sepsis",
+            "BAKTERIELLE_ENDOKARDITIS": "Bakterielle Endokarditis",
+            "BAKTERIELLE_MENINGITIS": "Bakterielle Meningitis",
+            
+            # Gastrointestinale Infektionen
+            "BAKTERIELLE_GASTROINTESTINALE_INFEKTIONEN": "Bakterielle gastrointestinale Infektionen"
         }
         return display_names.get(self.value, self.value)
     
     def get_synonyms(self) -> List[str]:
-        """Get search synonyms for this indication"""
-        synonyms = {
-            "AMBULANT_ERWORBENE_PNEUMONIE": [
-                "CAP", 
-                "ambulant erworbene Pneumonie", 
-                "community-acquired pneumonia",
-                "Pneumonie ambulant",
-                "ambulante Pneumonie"
-            ],
-            "NOSOKOMIAL_ERWORBENE_PNEUMONIE": [
-                "HAP", 
-                "nosokomial erworbene Pneumonie", 
-                "hospital-acquired pneumonia",
-                "nosokomiale Pneumonie",
-                "Krankenhaus-Pneumonie"
-            ],
-            "AKUTE_EXAZERBATION_COPD": [
-                "AECOPD",
-                "Akute Exazerbation der COPD",
-                "COPD Exazerbation",
-                "chronisch obstruktive Lungenerkrankung",
-                "COPD"
-            ]
+        """Get search synonyms for this indication using external synonyms dictionary"""
+        from synonyms import get_synonyms_for_indication
+        return get_synonyms_for_indication(self.value)
+    
+    def get_category(self) -> str:
+        """Get the medical category for this indication"""
+        categories = {
+            # Respiratorische Infektionen
+            "AMBULANT_ERWORBENE_PNEUMONIE": "Respiratorische Infektionen",
+            "NOSOKOMIAL_ERWORBENE_PNEUMONIE": "Respiratorische Infektionen",
+            "AKUTE_EXAZERBATION_COPD": "Respiratorische Infektionen",
+            
+            # HNO-Infektionen
+            "OTITIS_EXTERNA_MALIGNA": "HNO-Infektionen",
+            "OSTEOMYELITIS_SCHAEDELBASIS": "HNO-Infektionen",
+            "MASTOIDITIS": "HNO-Infektionen",
+            "EPIGLOTTITIS": "HNO-Infektionen",
+            "OHRMUSCHELPERICHONDRITIS": "HNO-Infektionen",
+            "NASENFURUNKEL": "HNO-Infektionen",
+            "PERITONSILLITIS": "HNO-Infektionen",
+            "PERITONSILLARABSZESS": "HNO-Infektionen",
+            "BAKTERIELLE_SINUSITIDEN_UND_KOMPLIKATIONEN": "HNO-Infektionen",
+            "SIALADENITIS": "HNO-Infektionen",
+            "ZERVIKOFAZIALE_AKTINOMYKOSE": "HNO-Infektionen",
+            
+            # Dentale Infektionen
+            "ODONTOGENE_INFEKTIONEN_AUSBREITUNGSTENDENZ": "Dentale Infektionen",
+            "OSTEOMYELITIS_KIEFER": "Dentale Infektionen",
+            
+            # Abdominale Infektionen
+            "PERITONITIS": "Abdominale Infektionen",
+            "NEKROTISIERENDE_PANKREATITIS_INFIZIERTE_NEKROSEN": "Abdominale Infektionen",
+            "INVASIVE_INTRAABDOMINELLE_MYKOSEN": "Abdominale Infektionen",
+            
+            # Urogenitale Infektionen
+            "AKUTE_UNKOMPLIZIERTE_PYELONEPHRITIS": "Urogenitale Infektionen",
+            "KOMPLIZIERTE_NOSOKOMIALE_HARNWEGSINFEKTION": "Urogenitale Infektionen",
+            "UROSEPSIS": "Urogenitale Infektionen",
+            "AKUTE_PROSTATITIS": "Urogenitale Infektionen",
+            "PROSTATAABSZESS": "Urogenitale Infektionen",
+            "AKUTE_EPIDIDYMITIS": "Urogenitale Infektionen",
+            "EPIDIDYMOORCHITIS": "Urogenitale Infektionen",
+            "ENDOMETRITIS": "Urogenitale Infektionen",
+            "SALPINGITIS": "Urogenitale Infektionen",
+            "TUBOOVARIALABSZESS": "Urogenitale Infektionen",
+            "PELVEOPERITONITIS": "Urogenitale Infektionen",
+            
+            # Haut und Weichteile
+            "INFIZIERTE_BISSWUNDEN": "Haut- und Weichteilinfektionen",
+            
+            # Knochen und Gelenke
+            "HAEMATOGENE_OSTEOMYELITIS": "Knochen- und Gelenkinfektionen",
+            "SPONDYLODISCITIS": "Knochen- und Gelenkinfektionen",
+            "POSTTRAUMATISCHE_POSTOPERATIVE_OSTEOMYELITIS": "Knochen- und Gelenkinfektionen",
+            "STERNUMOSTEOMYELITIS": "Knochen- und Gelenkinfektionen",
+            "BAKTERIELLE_ARTHRITIS": "Knochen- und Gelenkinfektionen",
+            "ENDOPROTHESEN_FREMDKOERPER_ASSOZIIERTE_INFEKTIONEN": "Knochen- und Gelenkinfektionen",
+            
+            # Systemische Infektionen
+            "SEPSIS": "Systemische Infektionen",
+            "BAKTERIELLE_ENDOKARDITIS": "Systemische Infektionen",
+            "BAKTERIELLE_MENINGITIS": "Systemische Infektionen",
+            
+            # Gastrointestinale Infektionen
+            "BAKTERIELLE_GASTROINTESTINALE_INFEKTIONEN": "Gastrointestinale Infektionen"
         }
-        return synonyms.get(self.value, [self.value])
+        return categories.get(self.value, "Sonstige")
 
 class InfectionSite(str, Enum):
     BLOOD = "BLUT"

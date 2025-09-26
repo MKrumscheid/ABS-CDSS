@@ -17,7 +17,7 @@ from models import RAGChunk, GuidelineMetadata, ClinicalQuery, RAGResult, RAGRes
 class MarkdownPageSplitter:
     """Markdown-aware page splitter with overlap for medical guidelines"""
     
-    def __init__(self, overlap_sentences: int = 3):
+    def __init__(self, overlap_sentences: int = 8):
         self.overlap_sentences = overlap_sentences
         self.page_delimiter = "---"
     
@@ -263,7 +263,7 @@ class AdvancedRAGService:
         print(f"Embedding model loaded successfully on {self.device}")
         
         # Markdown page splitter
-        self.page_splitter = MarkdownPageSplitter(overlap_sentences=3)
+        self.page_splitter = MarkdownPageSplitter(overlap_sentences=8)
         
         # FAISS index
         self.index = None
@@ -485,7 +485,7 @@ class AdvancedRAGService:
     def _create_text_page_with_overlap(self, pages: List[str], current_index: int) -> str:
         """Create a text page chunk with overlap from previous and next pages"""
         current_page = pages[current_index].strip()
-        overlap_sentences = 3  # Same as markdown splitter
+        overlap_sentences = 8  # Same as markdown splitter
         
         # Get overlap from previous page (last N sentences)
         prev_overlap = ""
@@ -550,7 +550,7 @@ class AdvancedRAGService:
         sentences = [s.strip() for s in sentences if s.strip()]
         
         chunk_size = 16000
-        overlap_sentences = 4  # Overlap for traditional chunking
+        overlap_sentences = 8  # Overlap for traditional chunking
         current_chunk_sentences = []
         chunk_index = 0
         
@@ -628,9 +628,6 @@ class AdvancedRAGService:
         # Build search query
         search_text = self._build_search_query(query)
         
-        # Get negative terms for filtering
-        negative_terms = self._build_negative_query(query)
-        
         # Get query embedding
         query_embedding = self.embedding_model.encode([search_text], convert_to_numpy=True)
         
@@ -672,13 +669,19 @@ class AdvancedRAGService:
             if search_k > 0:
                 scores, indices = self.index.search(query_embedding.astype('float32'), self.index.ntotal)
                 
-                # Filter to only this guideline's chunks and apply negative scoring
+                # Filter to only this guideline's chunks - rely on positive lexical boosting only
                 for score, idx in zip(scores[0], indices[0]):
                     if idx in chunk_indices:
                         chunk = self.chunks_metadata[idx]
                         
-                        # Apply negative scoring for opposite indication terms
-                        adjusted_score = self._apply_negative_scoring(chunk.snippet, negative_terms, float(score))
+                        # Start with original semantic score (no negative adjustments)
+                        adjusted_score = float(score)
+                        
+                        # Add fuzzy matching boost for chunks: lexical substring matching
+                        lexical_boost = self._calculate_lexical_boost_for_chunk(query, chunk.snippet)
+                        if lexical_boost > 0:
+                            print(f"🎯 CHUNK LEXICAL BOOST: +{lexical_boost} for chunk {chunk.chunk_id}")
+                            adjusted_score += lexical_boost
                         
                         result = RAGResult(
                             chunk_id=chunk.chunk_id,
@@ -725,27 +728,117 @@ class AdvancedRAGService:
             metadata=response_metadata if response_metadata else None
         )
     
-    def _apply_negative_scoring(self, text: str, negative_terms: List[str], original_score: float) -> float:
-        """Apply negative scoring for chunks containing opposite indication terms"""
-        if not negative_terms:
-            return original_score
+    def _calculate_lexical_boost_for_chunk(self, query: ClinicalQuery, chunk_text: str) -> float:
+        """Calculate lexical matching boost for chunks using all indication synonyms"""
+        boost = 0.0
+        text_lower = chunk_text.lower()
         
-        text_lower = text.lower()
-        negative_count = 0
+        # Get all synonyms for the indication from the MUST query part
+        from synonyms import INDICATION_SYNONYMS
         
-        for term in negative_terms:
-            if term.lower() in text_lower:
-                negative_count += 1
+        # Get query indication as string
+        query_indication = str(query.indication.value if hasattr(query.indication, 'value') else query.indication)
         
-        # Reduce score based on negative term frequency
-        # More negative terms = bigger penalty
-        if negative_count > 0:
-            penalty_factor = 0.8 ** negative_count  # Exponential penalty
-            adjusted_score = original_score * penalty_factor
-            print(f"⚠️ Negative terms found ({negative_count}): {original_score:.3f} → {adjusted_score:.3f}")
-            return adjusted_score
+        # Find synonyms for this indication
+        indication_synonyms = []
+        for indication_key, synonyms in INDICATION_SYNONYMS.items():
+            if (indication_key == query_indication or 
+                indication_key.lower() == query_indication.lower() or
+                indication_key.replace('_', '').lower() == query_indication.replace('_', '').lower()):
+                indication_synonyms = synonyms
+                break
         
-        return original_score
+        if not indication_synonyms:
+            # Fallback: use the indication itself
+            indication_synonyms = [query_indication.replace('_', ' ')]
+        
+        # Test all synonyms for matches
+        best_match_score = 0.0
+        matched_synonym = None
+        
+        for synonym in indication_synonyms:
+            synonym_lower = synonym.lower()
+            
+            # 1. Complete exact match (+500 points)
+            if synonym_lower in text_lower:
+                match_score = 500.0
+                if match_score > best_match_score:
+                    best_match_score = match_score
+                    matched_synonym = synonym
+            
+            # 2. Partial word match - count matching words (+50 points per word)
+            elif len(synonym_lower.split()) > 1:  # Only for multi-word synonyms
+                synonym_words = synonym_lower.split()
+                matching_words = sum(1 for word in synonym_words if len(word) > 2 and word in text_lower)
+                
+                if matching_words > 0:
+                    match_score = matching_words * 50.0
+                    if match_score > best_match_score:
+                        best_match_score = match_score
+                        matched_synonym = f"{matching_words}/{len(synonym_words)} words from '{synonym}'"
+        
+        # Apply the best match score
+        if best_match_score > 0:
+            boost += best_match_score
+            print(f"🎯 CHUNK LEXICAL BOOST: +{best_match_score} for '{matched_synonym}'")
+        
+        return boost
+    
+    def _calculate_lexical_boost_for_dosing_table(self, query: ClinicalQuery, table) -> float:
+        """Calculate lexical matching boost for dosing tables using all indication synonyms"""
+        boost = 0.0
+        table_name = table.table_name.lower()
+        
+        # Get all synonyms for the indication 
+        from synonyms import INDICATION_SYNONYMS
+        
+        # Get query indication as string
+        query_indication = str(query.indication.value if hasattr(query.indication, 'value') else query.indication)
+        
+        # Find synonyms for this indication
+        indication_synonyms = []
+        for indication_key, synonyms in INDICATION_SYNONYMS.items():
+            if (indication_key == query_indication or 
+                indication_key.lower() == query_indication.lower() or
+                indication_key.replace('_', '').lower() == query_indication.replace('_', '').lower()):
+                indication_synonyms = synonyms
+                break
+        
+        if not indication_synonyms:
+            # Fallback: use the indication itself
+            indication_synonyms = [query_indication.replace('_', ' ')]
+        
+        # Test all synonyms for matches
+        best_match_score = 0.0
+        matched_synonym = None
+        
+        for synonym in indication_synonyms:
+            synonym_lower = synonym.lower()
+            
+            # 1. Complete exact match (+1000 points for dosing tables - higher priority)
+            if synonym_lower in table_name:
+                match_score = 1000.0
+                if match_score > best_match_score:
+                    best_match_score = match_score
+                    matched_synonym = synonym
+            
+            # 2. Partial word match - count matching words (+100 points per word)
+            elif len(synonym_lower.split()) > 1:  # Only for multi-word synonyms
+                synonym_words = synonym_lower.split()
+                matching_words = sum(1 for word in synonym_words if len(word) > 2 and word in table_name)
+                
+                if matching_words > 0:
+                    match_score = matching_words * 100.0
+                    if match_score > best_match_score:
+                        best_match_score = match_score
+                        matched_synonym = f"{matching_words}/{len(synonym_words)} words from '{synonym}'"
+        
+        # Apply the best match score and show only the winning match
+        if best_match_score > 0:
+            boost += best_match_score
+            print(f"🎯 DOSING TABLE LEXICAL BOOST: +{best_match_score} for '{matched_synonym}'")
+        
+        return boost
     
     def _build_search_query(self, query: ClinicalQuery) -> str:
         """Build structured German search query from clinical parameters using MUST/SHOULD/BOOST/NEGATIVE pattern"""
@@ -759,10 +852,7 @@ class AdvancedRAGService:
         # BOOST: Therapy/dosage/table anchors
         boost_parts = self._build_boost_query()
         
-        # NEGATIVE: Terms to avoid (opposite indication)
-        negative_parts = self._build_negative_query(query)
-        
-        # Combine all parts with appropriate weighting
+        # Combine all parts with appropriate weighting (removed negative boosting)
         # For embeddings, we concatenate with implicit importance through order and repetition
         query_parts = []
         
@@ -785,15 +875,11 @@ class AdvancedRAGService:
         # We'll handle this in the embedding similarity calculation instead
         final_query = " ".join(query_parts)
         
-        # Debug logging for query structure
+        # Debug logging for query structure (removed negative boosting)
         print(f"🔍 Query Debug:")
         print(f"  MUST: {must_parts}")
         print(f"  SHOULD: {should_parts}")
         print(f"  BOOST: {boost_parts}...")  # Show first 10 boost terms
-        print(f"  NEGATIVE: {negative_parts}")
-        print(f"  FINAL: {final_query}...")  # Show first 200 chars
-        
-        return final_query
         print(f"  FINAL: {final_query[:200]}...")  # Show first 200 chars
         
         return final_query
@@ -806,25 +892,9 @@ class AdvancedRAGService:
         if hasattr(query.indication, 'get_synonyms'):
             synonyms = query.indication.get_synonyms()
         else:
-            # Fallback for string values
-            indication_synonyms = {
-                Indication.CAP: [
-                    "CAP", 
-                    "ambulant erworbene Pneumonie", 
-                    "community-acquired pneumonia",
-                ],
-                Indication.HAP: [
-                    "HAP", 
-                    "nosokomial erworbene Pneumonie", 
-                    "hospital-acquired pneumonia",
-                ],
-                Indication.AECOPD: [
-                    "AECOPD",
-                    "Akute Exazerbation der COPD",
-                    "chronisch obstruktive Lungenerkrankung",
-                ]
-            }
-            synonyms = indication_synonyms.get(query.indication, [str(query.indication)])
+            # Fallback for string values - import synonyms dictionary
+            from synonyms import get_synonyms_for_indication
+            synonyms = get_synonyms_for_indication(str(query.indication))
         must_parts.extend(synonyms)
         
         # Severity with synonyms - use centralized method
@@ -959,49 +1029,6 @@ class AdvancedRAGService:
         ]
         
         return boost_parts
-    
-    def _build_negative_query(self, query: ClinicalQuery) -> List[str]:
-        """Build NEGATIVE query parts - terms to avoid (opposite indication synonyms)"""
-        
-        negative_terms = []
-        
-        # Get all available indications for cross-reference
-        from models import Indication  # Import to ensure we have the enum
-        all_indications = [Indication.CAP, Indication.HAP, Indication.AECOPD]
-        
-        # For each indication, add all OTHER indications as negative terms
-        for indication in all_indications:
-            if indication != query.indication:
-                if hasattr(indication, 'get_synonyms'):
-                    negative_terms.extend(indication.get_synonyms())
-                else:
-                    # Fallback - use centralized synonyms
-                    indication_synonyms = {
-                        Indication.CAP: [
-                            "CAP", 
-                            "ambulant erworbene Pneumonie", 
-                            "community-acquired pneumonia",
-                            "Pneumonie ambulant",
-                            "ambulante Pneumonie"
-                        ],
-                        Indication.HAP: [
-                            "HAP", 
-                            "nosokomial erworbene Pneumonie", 
-                            "hospital-acquired pneumonia",
-                            "nosokomiale Pneumonie",
-                            "Krankenhaus-Pneumonie"
-                        ],
-                        Indication.AECOPD: [
-                            "AECOPD",
-                            "Akute Exazerbation der COPD",
-                            "COPD Exazerbation",
-                            "chronisch obstruktive Lungenerkrankung",
-                            "COPD"
-                        ]
-                    }
-                    negative_terms.extend(indication_synonyms.get(indication, []))
-        
-        return negative_terms
 
     def _get_chunks_by_guideline_and_indication(self, indication: Indication) -> Dict[str, List[int]]:
         """Group chunk indices by guideline for the specified indication"""
@@ -1028,100 +1055,46 @@ class AdvancedRAGService:
         return valid_indices
     
     def _search_dosing_tables(self, query: ClinicalQuery, top_k: int = 5) -> List:
-        """Search for relevant dosing tables based on clinical query"""
+        """Search dosing tables using lexical matching on ALL tables, then semantic scores for ranking"""
         if not self.dosing_tables or not self.dosing_index:
             return []
         
         try:
-            # Build search query for dosing tables (focus on clinical context)
+            # Build search query for dosing tables
             search_text = self._build_dosing_search_query(query)
             
-            # Get query embedding
+            # Get query embedding for semantic search
             query_embedding = self.embedding_model.encode([search_text], convert_to_numpy=True)
             
-            # Search in dosing index
-            scores, indices = self.dosing_index.search(query_embedding.astype('float32'), min(top_k * 2, len(self.dosing_tables)))
+            # Get semantic scores for ALL dosing tables
+            all_scores, all_indices = self.dosing_index.search(query_embedding.astype('float32'), len(self.dosing_tables))
             
-            # Filter and score results based on clinical context matching
+            # Apply lexical matching to ALL dosing tables
             results = []
-            for score, idx in zip(scores[0], indices[0]):
+            query_indication = str(query.indication.value if hasattr(query.indication, 'value') else query.indication)
+            
+            for score, idx in zip(all_scores[0], all_indices[0]):
                 if idx < len(self.dosing_tables):
                     table = self.dosing_tables[idx]
                     
-                    # Calculate clinical context match score
-                    context_score = self._calculate_clinical_context_match(query, table.clinical_context)
+                    # Start with semantic similarity score
+                    final_score = float(score)
                     
-                    # Combine semantic similarity with clinical context matching
-                    # For medical dosing tables, clinical context is MUCH MORE important than semantic similarity
-                    combined_score = float(score) * 0.3 + context_score * 0.7
+                    # Apply lexical fuzzy matching boost to ALL tables
+                    lexical_boost = self._calculate_lexical_boost_for_dosing_table(query, table)
+                    final_score += lexical_boost
                     
-                    # Additional penalties and boosts for specific scenarios
-                    print(f"🔍 DEBUG - Before penalty check:")
-                    print(f"   table.clinical_context: {table.clinical_context}")
-                    print(f"   has indication: {table.clinical_context.get('indication')}")
-                    print(f"   has table_name: {table.clinical_context.get('table_name')}")
-                    
-                    # Always process indication penalties, even if table_name is missing
-                    query_indication = str(query.indication.value if hasattr(query.indication, 'value') else query.indication)
-                    table_indication = table.clinical_context.get('indication')
-                    table_name = table.clinical_context.get('table_name', 'NO_TABLE_NAME').lower()
-                    
-                    # Map query indication to expected values
-                    query_indication_mapped = None
-                    if 'nosokomial' in query_indication.lower() or 'hap' in query_indication.lower():
-                        query_indication_mapped = 'HAP'
-                    elif 'ambulant' in query_indication.lower() or 'cap' in query_indication.lower():
-                        query_indication_mapped = 'CAP'
-                    elif ('aecopd' in query_indication.lower() or 'copd' in query_indication.lower() or 
-                          'akute_exazerbation' in query_indication.lower()):
-                        query_indication_mapped = 'AECOPD'
-                    
-                    print(f"🎯 PENALTY CHECK - Query: {query_indication} → Mapped: {query_indication_mapped}, Table: {table_indication}")
-                    
-                    # Define available indications (should match frontend options)
-                    available_indications = ['CAP', 'HAP', 'AECOPD']  # Added AECOPD
-                    
-                    # Penalty system
-                    if table_indication is None:
-                        print(f"🚫 NO INDICATION in table - Heavy penalty by 0.05x")
-                        combined_score *= 0.05  # Heavy penalty for tables without indication
-                    elif query_indication_mapped == table_indication:
-                        print(f"✅ PERFECT MATCH - Boosting score by 1.3x")
-                        combined_score *= 1.3
-                    elif table_indication in available_indications:
-                        print(f"❌ WRONG INDICATION - Penalizing score by 0.1x")
-                        combined_score *= 0.1  # Heavy penalty for wrong indication
-                    else:
-                        print(f"🚫 UNSUPPORTED INDICATION - Penalizing score by 0.05x")
-                        combined_score *= 0.05  # Even heavier penalty for unsupported indications
-                    
-                    # Handle "ohne/mit" risk factor scenarios
-                    if query.risk_factors and table_name != 'no_table_name':
-                        has_ohne = any(word in table_name for word in ['ohne', 'kein', 'keine', 'nicht'])
-                        has_mit = any(word in table_name for word in ['mit', 'für', 'bei', 'risikofaktoren'])
-                        print(f"🎲 RISK FACTORS - has_ohne: {has_ohne}, has_mit: {has_mit}")
-                        
-                        if has_ohne:
-                            print(f"⬇️ OHNE penalty - score *= 0.2")
-                            combined_score *= 0.2  # Heavy penalty for "ohne" when risk factors present
-                        elif has_mit:
-                            print(f"⬆️ MIT boost - score *= 1.4")
-                            combined_score *= 1.4  # Boost for "mit" when risk factors present
-                    
-                    print(f"📊 FINAL SCORE: {combined_score}")
-                    print("=" * 50)
-                    
-                    # Create result with combined score
+                    # Create result with final score
                     result_table = DosingTable(
                         table_id=table.table_id,
                         table_name=table.table_name,
                         table_html=table.table_html,
-                        score=combined_score,
-                        clinical_context=table.clinical_context
+                        score=final_score,
+                        clinical_context={'table_name': table.table_name}  # Keep only table name
                     )
                     results.append(result_table)
             
-            # Sort by combined score and return top_k
+            # Sort by final score (semantic + lexical) and return top_k
             results.sort(key=lambda x: x.score, reverse=True)
             final_results = results[:top_k]
             
@@ -1164,99 +1137,6 @@ class AdvancedRAGService:
             query_parts.append(query.free_text)
         
         return " ".join(query_parts)
-    
-    def _calculate_clinical_context_match(self, query: ClinicalQuery, table_context: Dict) -> float:
-        """Calculate how well the table's clinical context matches the query with improved weighting"""
-        if not table_context:
-            return 0.0
-        
-        score = 0.0
-        max_score = 0.0
-        
-        # INDICATION - HIGHEST PRIORITY (60% weight - increased!)
-        max_score += 0.6
-        if table_context.get('indication'):
-            query_indication = str(query.indication.value if hasattr(query.indication, 'value') else query.indication)
-            table_indication = table_context['indication'].lower()
-            query_indication_lower = query_indication.lower()
-            
-            # Perfect match for specific indication types
-            if table_indication == query_indication_lower:
-                score += 0.6  # Perfect match
-            elif query_indication_lower in table_indication or table_indication in query_indication_lower:
-                score += 0.45  # Strong partial match
-           
-        
-        # RISK FACTORS - HIGH PRIORITY (25% weight) with intelligent "ohne/mit" handling
-        max_score += 0.25
-        if table_context.get('table_name') or table_context.get('keywords'):
-            table_name = table_context.get('table_name', '').lower()
-            table_keywords = [kw.lower() for kw in table_context.get('keywords', [])]
-            
-            if query.risk_factors:
-                # Check if table explicitly mentions "ohne Risikofaktoren" or similar
-                has_ohne_keywords = any(word in table_name for word in ['ohne', 'kein', 'keine', 'nicht'])
-                has_mit_keywords = any(word in table_name for word in ['mit', 'für', 'bei'])
-                
-                risk_factor_matches = 0
-                total_risk_factors = len(query.risk_factors)
-                
-                # Check each risk factor against table content
-                for risk_factor in query.risk_factors:
-                    risk_lower = risk_factor.lower()
-                    
-                    # Check in table name and keywords
-                    found_in_name = any(term in table_name for term in risk_lower.split())
-                    found_in_keywords = any(any(term in keyword for term in risk_lower.split()) for keyword in table_keywords)
-                    
-                    if found_in_name or found_in_keywords:
-                        risk_factor_matches += 1
-                
-                # Calculate base risk score
-                if total_risk_factors > 0:
-                    risk_score = (risk_factor_matches / total_risk_factors) * 0.25
-                    
-                    # Apply intelligent modifiers
-                    if has_ohne_keywords and risk_factor_matches > 0:
-                        # Table says "ohne" but we have risk factors -> heavy penalty
-                        risk_score *= 0.05
-                    elif has_mit_keywords and risk_factor_matches > 0:
-                        # Table says "mit" and we have matching risk factors -> boost
-                        risk_score *= 1.8
-                    elif not has_ohne_keywords and not has_mit_keywords and risk_factor_matches > 0:
-                        # Neutral table with risk factor matches -> moderate boost
-                        risk_score *= 1.3
-                    
-                    score += min(risk_score, 0.25)  # Cap at max possible score
-            else:
-                # No risk factors in query
-                if any(word in table_name for word in ['ohne', 'kein', 'keine']):
-                    score += 0.15  # Credit for "ohne" tables when no risk factors specified
-        
-        # SEVERITY - MEDIUM PRIORITY (10% weight - reduced)
-        max_score += 0.10
-        if table_context.get('severity') and query.severity:
-            table_severity = table_context['severity'].lower()
-            query_severity = query.severity.lower()
-            
-            if table_severity == query_severity:
-                score += 0.10
-            elif any(term in table_severity for term in query_severity.split()) or any(term in query_severity for term in table_severity.split()):
-                score += 0.05
-        
-        # INFECTION SITE - LOW PRIORITY (5% weight)
-        max_score += 0.05
-        if table_context.get('infection_site') and query.infection_site:
-            table_site = table_context['infection_site'].lower()
-            query_site = query.infection_site.lower()
-            
-            if table_site == query_site:
-                score += 0.05
-            elif any(term in table_site for term in query_site.split()) or any(term in query_site for term in table_site.split()):
-                score += 0.025
-        
-        # Normalize score
-        return score / max_score if max_score > 0 else 0.0
     
     def _save_index(self):
         """Save FAISS index to disk"""
@@ -1481,7 +1361,7 @@ class AdvancedRAGService:
                 llm_optimized_html = self._optimize_table_for_llm(table_html)
                 
                 # Extract clinical context from table name
-                clinical_context = self._extract_clinical_context_from_name(table_name)
+                clinical_context = {'table_name': table_name}  # Simplified - only keep table name
                 
                 table_data = {
                     'table_id': f"dosing_table_{len(tables) + 1:02d}",
@@ -1520,66 +1400,6 @@ DOSING TABLE (LLM Format):
 END OF DOSING TABLE
 """
         return formatted_table.strip()
-    
-    def _extract_clinical_context_from_name(self, table_name: str) -> Dict:
-        """Extract clinical context (indication, severity, infection_site) from table name"""
-        context = {
-            'indication': None,
-            'severity': None,
-            'infection_site': None,
-            'keywords': [],
-            'table_name': table_name  # Add the original table name for better matching
-        }
-        
-        name_lower = table_name.lower()
-        
-        # Define all possible indications in one place for flexible system
-        # This list should match the available indications in the frontend
-        indication_patterns = {
-            'CAP': ['cap', 'ambulant', 'community-acquired'],
-            'HAP': ['hap', 'nosokomial', 'hospital-acquired'],
-            'AECOPD': ['aecopd', 'copd'],
-            # Future indications can be easily added here
-        }
-        
-        # Extract indication using flexible pattern matching
-        for indication_key, patterns in indication_patterns.items():
-            if any(term in name_lower for term in patterns):
-                context['indication'] = indication_key
-                break  # Take first match
-        
-        # Extract severity
-        if any(term in name_lower for term in ['leicht', 'mild']):
-            context['severity'] = 'LEICHT'
-        elif any(term in name_lower for term in ['mittelschwer', 'moderat']):
-            context['severity'] = 'MITTELSCHWER'
-        elif any(term in name_lower for term in ['schwer', 'severe']):
-            context['severity'] = 'SCHWER'
-        elif any(term in name_lower for term in ['septisch', 'septic', 'schock']):
-            context['severity'] = 'SEPTISCH'
-        
-        # Extract infection site
-        if any(term in name_lower for term in ['pneumonie', 'lunge', 'respiratorisch']):
-            context['infection_site'] = 'LUNGE'
-        elif any(term in name_lower for term in ['harnweg', 'uti', 'urogenital']):
-            context['infection_site'] = 'HARNTRAKT'
-        elif any(term in name_lower for term in ['bakteriämie', 'sepsis', 'blut']):
-            context['infection_site'] = 'BLUT'
-        
-        # Extract additional keywords for matching
-        keywords = []
-        keyword_patterns = [
-            'initialtherapie', 'antibiotika', 'therapie', 'behandlung',
-            'hospitalisiert', 'intensiv', 'beatmung', 'risiko'
-        ]
-        
-        for keyword in keyword_patterns:
-            if keyword in name_lower:
-                keywords.append(keyword)
-        
-        context['keywords'] = keywords
-        
-        return context
     
     def _process_dosing_tables(self, tables_data: List[Dict]):
         """Process and embed dosing table names for semantic search"""

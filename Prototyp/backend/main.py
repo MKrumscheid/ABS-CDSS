@@ -125,22 +125,34 @@ async def upload_guideline(
     
     try:
         for ind in indications.split(','):
-            ind = ind.strip().upper()
-            if ind in ['CAP', 'AMBULANT_ERWORBENE_PNEUMONIE']:
-                indication_list.append(Indication.CAP)
-            elif ind in ['HAP', 'NOSOKOMIAL_ERWORBENE_PNEUMONIE']:
-                indication_list.append(Indication.HAP)
-            elif ind in ['AECOPD', 'AKUTE_EXAZERBATION_COPD']:
-                indication_list.append(Indication.AECOPD)
-            else:
+            ind = ind.strip()
+            
+            # Try to find the indication in the Indication enum
+            indication_found = False
+            for indication_enum in Indication:
+                # Check if the indication matches either the enum name or value
+                enum_value = indication_enum.value if hasattr(indication_enum, 'value') else indication_enum.name
+                if (ind.upper() == indication_enum.name.upper() or 
+                    ind.upper() == enum_value.upper()):
+                    indication_list.append(indication_enum)
+                    indication_found = True
+                    print(f"✅ Matched indication '{ind}' to enum {indication_enum.name}")
+                    break
+            
+            if not indication_found:
                 # Log unknown indication but don't fail
                 print(f"Warning: Unknown indication '{ind}' ignored")
+                print(f"Available indications: {[i.name for i in Indication]}")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid indications: {e}")
     
     # Ensure at least one valid indication was parsed
     if not indication_list:
-        raise HTTPException(status_code=400, detail="Keine gültige Indikation erkannt. Verfügbare Optionen: CAP, HAP, AECOPD")
+        available_indications = [i.name for i in Indication]
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Keine gültige Indikation erkannt. Verfügbare Optionen: {', '.join(available_indications[:10])}... (insgesamt {len(available_indications)} verfügbar)"
+        )
     
     try:
         # Read file content
@@ -178,13 +190,19 @@ async def get_stats():
 
 @app.get("/indications")
 async def get_indications():
-    """Get available indications"""
-    return {
-        "indications": [
-            {"value": "CAP", "label": "Ambulant erworbene Pneumonie"},
-            {"value": "HAP", "label": "Nosokomial erworbene Pneumonie"}
-        ]
-    }
+    """Get available indications dynamically from the Indication enum"""
+    indications = []
+    for indication_enum in Indication:
+        # Get display name using the method from models.py
+        display_name = indication_enum.get_display_name()
+        # Use the enum value (which the frontend expects) instead of the enum name
+        enum_value = indication_enum.value if hasattr(indication_enum, 'value') else indication_enum.name
+        indications.append({
+            "value": enum_value,
+            "label": display_name
+        })
+    
+    return {"indications": indications}
 
 @app.post("/test-query")
 async def test_query_generation(query: ClinicalQuery):
@@ -197,7 +215,6 @@ async def test_query_generation(query: ClinicalQuery):
         must_parts = rag_service._build_must_query(query)
         should_parts = rag_service._build_should_query(query)
         boost_parts = rag_service._build_boost_query()
-        negative_parts = rag_service._build_negative_query(query)
         
         return {
             "status": "success",
@@ -213,14 +230,12 @@ async def test_query_generation(query: ClinicalQuery):
                 "must_terms": must_parts,
                 "should_terms": should_parts,
                 "boost_terms": boost_parts,
-                "negative_terms": negative_parts,
                 "final_query": search_text,
                 "query_length": len(search_text),
                 "term_counts": {
                     "must": len(must_parts),
                     "should": len(should_parts), 
-                    "boost": len(boost_parts),
-                    "negative": len(negative_parts)
+                    "boost": len(boost_parts)
                 }
             }
         }
@@ -285,7 +300,7 @@ async def generate_therapy_recommendation(request: dict):
         suspected_pathogens = request.get("suspected_pathogens", [])
         free_text = request.get("free_text")
         patient_id = request.get("patient_id")
-        max_therapy_options = request.get("max_therapy_options", 3)
+        max_therapy_options = request.get("max_therapy_options", 5)
         
         # Validate required fields
         if not indication:
@@ -372,6 +387,10 @@ async def generate_therapy_recommendation(request: dict):
                 "rag_results_count": len(context_data["rag_results"]),
                 "dosing_tables_count": len(context_data["dosing_tables"])
             },
+            # Add patient data summary for frontend display
+            "patient_data": context_data["patient_data"] if context_data["patient_data"] else None,
+            # Add formatted patient summary as shown to LLM
+            "patient_summary": therapy_context_builder._format_patient_summary(context_data["patient_data"]) if context_data["patient_data"] else None,
             # Add LLM prompt information for debugging
             "llm_debug": {
                 "system_prompt": therapy_recommendation.system_prompt,

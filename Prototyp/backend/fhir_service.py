@@ -29,6 +29,7 @@ class PatientData(BaseModel):
     allergies: List[str] = []
     medications: List[str] = []
     lab_values: List[Dict[str, Any]] = []
+    gfr: Optional[float] = None  # GFR in ml/min/1.73m² for kidney function assessment
 
 
 class FHIRService:
@@ -503,6 +504,11 @@ class FHIRService:
                     elif patient_data.gender == "Männlich":
                         patient_data.pregnancy_status = "Nicht Schwanger"
                 
+                # GFR CKD-EPI (Glomerular filtration rate)
+                elif loinc_code == "98979-8":
+                    if hasattr(obs, 'valueQuantity') and obs.valueQuantity and hasattr(obs.valueQuantity, 'value') and obs.valueQuantity.value:
+                        patient_data.gfr = float(obs.valueQuantity.value)
+                
                 # Lab values - add all other observations as lab values
                 else:
                     value_str = ""
@@ -561,32 +567,90 @@ class FHIRService:
         return condition_names
 
     def _parse_allergies(self, allergies: List) -> List[str]:
-        """Parse FHIR allergies to list of allergy names"""
-        allergy_names = []
+        """Parse FHIR allergies to list of detailed allergy descriptions"""
+        allergy_descriptions = []
         
         for allergy in allergies:
             try:
+                allergy_text = ""
+                
+                # Extract allergy name
                 if hasattr(allergy, 'code') and allergy.code:
                     if hasattr(allergy.code, 'text') and allergy.code.text:
-                        allergy_names.append(allergy.code.text)
+                        allergy_text = allergy.code.text
                     elif hasattr(allergy.code, 'coding') and allergy.code.coding:
                         # Try to get display text from coding
                         for coding in allergy.code.coding:
                             if hasattr(coding, 'display') and coding.display:
-                                allergy_names.append(coding.display)
+                                allergy_text = coding.display
                                 break
                         else:
                             # If no display, use code
                             if allergy.code.coding and len(allergy.code.coding) > 0:
                                 first_coding = allergy.code.coding[0]
                                 if hasattr(first_coding, 'code') and first_coding.code:
-                                    allergy_names.append(first_coding.code)
+                                    allergy_text = first_coding.code
+
+                if not allergy_text:
+                    continue
+
+                # Build detailed allergy description
+                allergy_details = [allergy_text]
+                
+                # Extract criticality
+                if hasattr(allergy, 'criticality') and allergy.criticality:
+                    criticality_map = {
+                        'low': 'niedrig',
+                        'high': 'hoch',
+                        'unable-to-assess': 'nicht bewertbar'
+                    }
+                    criticality_text = criticality_map.get(allergy.criticality, allergy.criticality)
+                    allergy_details.append(f"Schweregrad: {criticality_text}")
+                
+                # Extract type
+                if hasattr(allergy, 'type') and allergy.type:
+                    type_map = {
+                        'allergy': 'Allergie',
+                        'intolerance': 'Unverträglichkeit'
+                    }
+                    type_text = type_map.get(allergy.type, allergy.type)
+                    allergy_details.append(f"Art: {type_text}")
+                
+                # Extract manifestations
+                manifestations = []
+                if hasattr(allergy, 'reaction') and allergy.reaction:
+                    for reaction in allergy.reaction:
+                        if hasattr(reaction, 'manifestation') and reaction.manifestation:
+                            for manifestation in reaction.manifestation:
+                                if hasattr(manifestation, 'text') and manifestation.text:
+                                    manifestations.append(manifestation.text)
+                                elif hasattr(manifestation, 'coding') and manifestation.coding:
+                                    for coding in manifestation.coding:
+                                        if hasattr(coding, 'display') and coding.display:
+                                            manifestations.append(coding.display)
+                                            break
+                
+                if manifestations:
+                    allergy_details.append(f"Manifestation: {', '.join(manifestations)}")
+                
+                # Combine all details
+                detailed_description = f"{allergy_details[0]}"
+                if len(allergy_details) > 1:
+                    additional_info = " (" + "; ".join(allergy_details[1:]) + ")"
+                    detailed_description += additional_info
+                
+                allergy_descriptions.append(detailed_description)
                             
             except Exception as e:
                 print(f"Error parsing allergy: {str(e)}")
-                continue
+                # Fallback to basic parsing
+                try:
+                    if hasattr(allergy, 'code') and allergy.code and hasattr(allergy.code, 'text') and allergy.code.text:
+                        allergy_descriptions.append(allergy.code.text)
+                except:
+                    continue
                 
-        return allergy_names
+        return allergy_descriptions
 
     def _parse_medications(self, medication_statements: List, medications: Dict) -> List[str]:
         """Parse medication statements to get medication names"""
