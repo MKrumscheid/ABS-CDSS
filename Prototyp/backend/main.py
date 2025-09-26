@@ -9,6 +9,10 @@ import os
 from pathlib import Path
 from openai import OpenAI
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from models import (
     ClinicalQuery, RAGResponse, Indication, Severity, InfectionSite, RiskFactor,

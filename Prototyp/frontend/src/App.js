@@ -261,6 +261,7 @@ function App() {
   useEffect(() => {
     loadStats();
     loadGuidelines();
+    loadLlmConfig(); // Load current LLM configuration
 
     // Close dropdown when clicking outside
     const handleClickOutside = (event) => {
@@ -750,6 +751,19 @@ function App() {
     } catch (error) {
       console.error("Error saving LLM config:", error);
       alert("Fehler beim Speichern der LLM-Konfiguration: " + error.message);
+    }
+  };
+
+  const loadLlmConfig = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/therapy/config`);
+      if (response.data.status === "success" && response.data.config) {
+        setLlmConfig(response.data.config);
+        console.log("LLM config loaded:", response.data.config);
+      }
+    } catch (error) {
+      console.error("Error loading LLM config:", error);
+      // Use default values if loading fails
     }
   };
 
@@ -3351,10 +3365,10 @@ function App() {
                   onChange={(e) =>
                     handleLlmConfigChange("model", e.target.value)
                   }
-                  placeholder="openai/gpt-oss-20b"
+                  placeholder="openai/gpt-oss-120b"
                 />
                 <div className="form-text">
-                  Beispiele: openai/gpt-oss-20b,
+                  Beispiele: openai/gpt-oss-120b,
                   meta-llama/llama-3.1-70b-instruct, gpt-4o, gpt-3.5-turbo
                 </div>
               </div>

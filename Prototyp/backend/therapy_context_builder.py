@@ -462,14 +462,13 @@ class TherapyContextBuilder:
             try:
                 patient_gfr = float(patient_data["gfr"])
                 if patient_gfr <= 60:
-                    kidney_dosing_html = self._load_additional_info("Anpassung Nierenfunktion Tabelle HTML.html")
-                    if kidney_dosing_html:
+                    kidney_dosing_info = self._load_additional_info("Anpassung Nierenfunktion Tabelle.txt")
+                    if kidney_dosing_info:
                         additional_sections.append("=== DOSIERUNGSANPASSUNG BEI NIERENINSUFFIZIENZ ===")
                         additional_sections.append("(Quelle: Interne Dosierungstabelle für Antiinfektiva)")
                         additional_sections.append(f"RELEVANT wegen eingeschränkter Nierenfunktion: GFR {patient_gfr} ml/min/1.73m² (≤ 60)")
                         additional_sections.append("")
-                        additional_sections.append("WICHTIGE DOSIERUNGSANPASSUNGEN:")
-                        additional_sections.append(kidney_dosing_html)
+                        additional_sections.append(kidney_dosing_info)
                         additional_sections.append("")
             except (ValueError, TypeError):
                 logger.warning(f"Could not parse patient GFR: {patient_data.get('gfr')}")

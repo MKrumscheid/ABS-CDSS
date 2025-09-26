@@ -341,7 +341,7 @@ class ActiveIngredient(BaseModel):
 class MedicationRecommendation(BaseModel):
     """Model for individual medication recommendations"""
     # Active ingredients (1-3 per medication, each with individual dosing parameters)
-    active_ingredients: List[ActiveIngredient] = Field(..., min_items=1, max_items=3)
+    active_ingredients: List[ActiveIngredient] = Field(..., min_items=1, max_items=4)
     
     # Additional notes for this specific medication combination
     notes: Optional[str] = None
