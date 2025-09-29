@@ -21,9 +21,15 @@ COPY Prototyp/frontend/ ./
 RUN npm run build
 RUN mv build admin-build
 
-# Build Enduser Frontend (port 4000 equivalent)
+# Clean up for next build
+RUN rm -rf node_modules/.cache
+
+# Build Enduser Frontend (port 4000 equivalent)  
 RUN npm run build:enduser
 RUN mv build enduser-build
+
+# Verify builds exist
+RUN ls -la admin-build/ && ls -la enduser-build/
 
 # Stage 2: Python Backend with Static Files
 FROM python:3.11-slim AS production
