@@ -153,7 +153,22 @@ class FHIRService:
                     "type": "collection",
                     "entry": all_entries
                 }
-                return Bundle.model_validate(bundle_dict)
+                
+                # Try different Bundle creation methods for compatibility
+                try:
+                    # Try Pydantic v2 method first
+                    return Bundle.model_validate(bundle_dict)
+                except AttributeError:
+                    # Fallback to Pydantic v1 method
+                    try:
+                        return Bundle.parse_obj(bundle_dict)
+                    except AttributeError:
+                        # Fallback to direct constructor
+                        try:
+                            return Bundle(**bundle_dict)
+                        except Exception as constructor_error:
+                            print(f"All Bundle creation methods failed: {constructor_error}")
+                            return None
             
         except Exception as e:
             print(f"Exception getting patient bundle for {patient_id}: {str(e)}")
@@ -256,7 +271,9 @@ class FHIRService:
         
         # Parse medications
         try:
+            print(f"📋 Parsing medications: {len(medication_statements)} statements, {len(medications)} medication resources")
             patient_data.medications = self._parse_medications(medication_statements, medications)
+            print(f"✅ Parsed {len(patient_data.medications)} medications: {patient_data.medications}")
             if not patient_data.medications and (medication_statements or medications):
                 print(f"⚠️ WARNING: No medications parsed despite having {len(medication_statements)} statements and {len(medications)} medication resources")
         except Exception as e:
@@ -389,14 +406,44 @@ class FHIRService:
             if med_response.status_code == 200:
                 med_bundle = med_response.json()
                 if med_bundle.get('entry'):
+                    print(f"📋 Found {len(med_bundle['entry'])} medication statements in raw parsing")
                     for entry in med_bundle['entry']:
                         med_statement = entry.get('resource', {})
                         
                         # Try to get medication name from display
                         if med_statement.get('medicationReference', {}).get('display'):
-                            patient_data.medications.append(med_statement['medicationReference']['display'])
+                            med_name = med_statement['medicationReference']['display']
+                            patient_data.medications.append(med_name)
+                            print(f"✅ Found medication from display: {med_name}")
                         elif med_statement.get('medicationCodeableConcept', {}).get('text'):
-                            patient_data.medications.append(med_statement['medicationCodeableConcept']['text'])
+                            med_name = med_statement['medicationCodeableConcept']['text']
+                            patient_data.medications.append(med_name)
+                            print(f"✅ Found medication from CodeableConcept: {med_name}")
+                        else:
+                            # Try to resolve medication reference
+                            med_ref = med_statement.get('medicationReference', {}).get('reference')
+                            if med_ref and med_ref.startswith('Medication/'):
+                                med_id = med_ref.split('/')[-1]
+                                try:
+                                    med_resource_response = self.session.get(f"{self.base_url}/Medication/{med_id}")
+                                    if med_resource_response.status_code == 200:
+                                        med_resource = med_resource_response.json()
+                                        if med_resource.get('code', {}).get('text'):
+                                            med_name = med_resource['code']['text']
+                                            patient_data.medications.append(med_name)
+                                            print(f"✅ Found medication from referenced resource: {med_name}")
+                                        else:
+                                            print(f"⚠️ Medication resource {med_id} has no code.text")
+                                    else:
+                                        print(f"⚠️ Could not fetch medication resource {med_id}: {med_resource_response.status_code}")
+                                except Exception as med_resolve_error:
+                                    print(f"❌ Error resolving medication {med_id}: {med_resolve_error}")
+                            else:
+                                print(f"⚠️ Medication statement has no usable name or reference: {med_statement}")
+                else:
+                    print("📋 No medication entries found in raw parsing")
+            else:
+                print(f"❌ Failed to get medications in raw parsing: {med_response.status_code}")
             
             # Set default pregnancy status for males
             if patient_data.gender == "Männlich":
