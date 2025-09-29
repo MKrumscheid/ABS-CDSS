@@ -22,7 +22,7 @@ fhir.resources>=7.0.0
 
 # Vector database (CPU-only for cloud)
 faiss-cpu==1.7.4
-numpy>=1.24.0
+numpy>=1.24.0,<2.0.0  # Pin to 1.x for FAISS compatibility
 
 # Database (PostgreSQL for cloud)
 sqlalchemy>=2.0.0
