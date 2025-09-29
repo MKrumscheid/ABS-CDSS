@@ -53,18 +53,15 @@ COPY Prototyp/backend/requirements-prod.txt ./requirements.txt
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-# Copy backend source code
+# Copy backend source code (includes data directories)
 COPY Prototyp/backend/ ./
 
 # Copy built frontend applications
 COPY --from=frontend-builder /app/frontend/admin-build ./static/admin
 COPY --from=frontend-builder /app/frontend/enduser-build ./static/enduser
 
-# Create necessary directories and copy data files
-RUN mkdir -p data/embeddings data/guidelines data/additional_info data/dose_info
-COPY Prototyp/backend/data/additional_info/ ./data/additional_info/
-COPY Prototyp/backend/data/dose_info/ ./data/dose_info/
-COPY Prototyp/backend/data/guidelines/ ./data/guidelines/
+# Create additional directories if needed
+RUN mkdir -p data/embeddings
 
 # Create non-root user for security
 RUN groupadd -r appuser && useradd -r -g appuser appuser
