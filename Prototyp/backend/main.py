@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse, JSONResponse
 from typing import List, Optional
 import uvicorn
 import aiofiles
@@ -69,6 +69,26 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Global exception handler to prevent app crashes
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    """Handle uncaught exceptions to prevent app crashes"""
+    print(f"🚨 UNCAUGHT EXCEPTION: {str(exc)}")
+    import traceback
+    print(f"📋 UNCAUGHT EXCEPTION TRACEBACK: {traceback.format_exc()}")
+    
+    # Try to get request info for debugging
+    try:
+        print(f"🔍 Request URL: {request.url}")
+        print(f"🔍 Request method: {request.method}")
+    except:
+        print("🔍 Could not get request info")
+    
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal server error: {str(exc)}"}
+    )
 
 # Initialize services
 rag_service = AdvancedRAGService()
@@ -663,6 +683,14 @@ async def generate_therapy_recommendation(request: dict):
         print(f"🏥 Starting therapy recommendation generation...")
         start_time = time.time()
         
+        # Monitor system resources at start
+        try:
+            import psutil
+            memory_before = psutil.virtual_memory()
+            print(f"💾 Memory before: {memory_before.percent:.1f}% used, {memory_before.available/(1024**3):.1f}GB available")
+        except ImportError:
+            print("💾 psutil not available for memory monitoring")
+        
         # Extract parameters from request dict
         indication = request.get("indication")
         severity = request.get("severity")
@@ -694,14 +722,29 @@ async def generate_therapy_recommendation(request: dict):
         # 1. Build comprehensive context using TherapyContextBuilder
         print(f"🔍 Building therapy context...")
         context_start = time.time()
-        context_data = therapy_context_builder.build_therapy_context(
-            clinical_query=clinical_query,
-            patient_id=patient_id,
-            max_rag_results=5,  
-            max_dosing_tables=5  
-        )
-        context_time = time.time() - context_start
-        print(f"✅ Context built in {context_time:.2f}s")
+        
+        try:
+            context_data = therapy_context_builder.build_therapy_context(
+                clinical_query=clinical_query,
+                patient_id=patient_id,
+                max_rag_results=5,  
+                max_dosing_tables=5  
+            )
+            context_time = time.time() - context_start
+            print(f"✅ Context built in {context_time:.2f}s")
+        except Exception as context_error:
+            print(f"❌ Context building failed: {str(context_error)}")
+            import traceback
+            print(f"📋 Context error traceback: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"Context building failed: {str(context_error)}")
+        
+        # Monitor memory after context building
+        try:
+            import psutil
+            memory_after_context = psutil.virtual_memory()
+            print(f"💾 Memory after context: {memory_after_context.percent:.1f}% used, {memory_after_context.available/(1024**3):.1f}GB available")
+        except ImportError:
+            pass
         
         # 2. Check if we have sufficient context
         if not context_data.get("rag_results") and not context_data.get("dosing_tables"):
@@ -713,14 +756,30 @@ async def generate_therapy_recommendation(request: dict):
         # 3. Generate therapy recommendation using LLM
         print(f"🤖 Generating LLM recommendation...")
         llm_start = time.time()
-        therapy_recommendation = therapy_llm_service.generate_therapy_recommendation(
-            context_data=context_data,
-            max_options=max_therapy_options
-        )
-        llm_time = time.time() - llm_start
-        print(f"✅ LLM recommendation generated in {llm_time:.2f}s")
         
-        # Transform to match frontend expectations with new structure
+        try:
+            therapy_recommendation = therapy_llm_service.generate_therapy_recommendation(
+                context_data=context_data,
+                max_options=max_therapy_options
+            )
+            llm_time = time.time() - llm_start
+            print(f"✅ LLM recommendation generated in {llm_time:.2f}s")
+        except Exception as llm_error:
+            print(f"❌ LLM generation failed: {str(llm_error)}")
+            import traceback
+            print(f"📋 LLM error traceback: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"LLM generation failed: {str(llm_error)}")
+        
+        # Monitor memory after LLM
+        try:
+            import psutil
+            memory_after_llm = psutil.virtual_memory()
+            print(f"💾 Memory after LLM: {memory_after_llm.percent:.1f}% used, {memory_after_llm.available/(1024**3):.1f}GB available")
+        except ImportError:
+            pass
+        
+        # 4. Transform to match frontend expectations with new structure
+        print(f"📦 Formatting response...")
         recommendations = []
         for i, option in enumerate(therapy_recommendation.therapy_options):
             # Format active ingredients with their individual dosing parameters
@@ -753,7 +812,6 @@ async def generate_therapy_recommendation(request: dict):
             })
         
         # Create response that matches frontend expectations
-        print(f"📦 Formatting response...")
         response_data = {
             "recommendations": recommendations,
             "therapy_options": [option.dict() for option in therapy_recommendation.therapy_options],  # Add therapy_options
@@ -782,18 +840,35 @@ async def generate_therapy_recommendation(request: dict):
         total_time = time.time() - start_time
         print(f"🎉 Therapy recommendation completed in {total_time:.2f}s (context: {context_time:.2f}s, LLM: {llm_time:.2f}s)")
         
+        # Final memory check
+        try:
+            import psutil
+            memory_final = psutil.virtual_memory()
+            print(f"💾 Memory final: {memory_final.percent:.1f}% used, {memory_final.available/(1024**3):.1f}GB available")
+        except ImportError:
+            pass
+        
         return response_data
         
     except HTTPException:
         raise
     except Exception as e:
         total_time = time.time() - start_time if 'start_time' in locals() else 0
-        print(f"❌ Error after {total_time:.2f}s: {str(e)}")
+        print(f"❌ CRITICAL ERROR after {total_time:.2f}s: {str(e)}")
         import traceback
-        print(f"📋 Traceback: {traceback.format_exc()}")
+        print(f"📋 FULL TRACEBACK: {traceback.format_exc()}")
+        
+        # Try to get memory info for debugging
+        try:
+            import psutil
+            memory_error = psutil.virtual_memory()
+            print(f"💾 Memory at error: {memory_error.percent:.1f}% used, {memory_error.available/(1024**3):.1f}GB available")
+        except ImportError:
+            print("💾 Could not get memory info at error (psutil not available)")
+        
         raise HTTPException(
             status_code=500, 
-            detail=f"Fehler bei der Therapieempfehlung: {str(e)}"
+            detail=f"CRITICAL: Therapy recommendation failed: {str(e)}"
         )
 
 @app.post("/therapy/context")
