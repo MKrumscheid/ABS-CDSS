@@ -78,6 +78,18 @@ function TherapyRecommendation() {
         } else if (detail.msg) {
           errorMessage = detail.msg;
         }
+      } else if (err.response?.status === 503) {
+        // Special handling for 503 Service Unavailable (Koyeb timeout)
+        errorMessage = 
+          "⏱️ Zeitüberschreitung: Die Therapie-Empfehlung wird noch verarbeitet. " +
+          "Dies ist normal bei komplexen Anfragen und dauert normalerweise 1-3 Minuten. " +
+          "Bitte warten Sie einen Moment und versuchen Sie es dann erneut. " +
+          "Die Verarbeitung läuft im Hintergrund weiter.";
+      } else if (err.message?.includes('timeout')) {
+        errorMessage = 
+          "⏱️ Zeitüberschreitung: Die Anfrage dauert länger als erwartet. " +
+          "Dies ist normal bei komplexen Therapie-Empfehlungen. " +
+          "Bitte warten Sie einen Moment und versuchen Sie es erneut.";
       } else if (err.message) {
         errorMessage = err.message;
       }
@@ -228,14 +240,29 @@ function TherapyRecommendation() {
       {/* Snackbars for feedback */}
       <Snackbar
         open={!!error}
-        autoHideDuration={6000}
+        autoHideDuration={error?.includes('⏱️') ? 10000 : 6000} // Longer for timeout messages
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
-          severity="error"
+          severity={error?.includes('⏱️') ? 'warning' : 'error'}
           onClose={handleCloseSnackbar}
           sx={{ width: "100%" }}
+          action={
+            error?.includes('⏱️') && requestData ? (
+              <Button 
+                color="inherit" 
+                size="small" 
+                onClick={() => {
+                  setError(null);
+                  handleFormSubmit(requestData);
+                }}
+                disabled={loading}
+              >
+                Erneut versuchen
+              </Button>
+            ) : null
+          }
         >
           {error}
         </Alert>

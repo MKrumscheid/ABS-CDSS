@@ -1,11 +1,14 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from typing import List, Optional
 import uvicorn
 import aiofiles
 import os
+import time
+import json
+import asyncio
 from pathlib import Path
 from openai import OpenAI
 from sqlalchemy.orm import Session
@@ -117,6 +120,113 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "rag-test-pipeline"}
+
+@app.get("/health/detailed")
+async def detailed_health_check():
+    """Detailed health check including service dependencies"""
+    health_status = {
+        "status": "healthy",
+        "service": "rag-test-pipeline",
+        "timestamp": time.time(),
+        "checks": {}
+    }
+    
+    # Check RAG service
+    try:
+        # Quick test of RAG service
+        test_result = rag_service.search("test", top_k=1)
+        health_status["checks"]["rag_service"] = "healthy"
+    except Exception as e:
+        health_status["checks"]["rag_service"] = f"error: {str(e)}"
+        health_status["status"] = "degraded"
+    
+    # Check LLM service
+    try:
+        # Test if LLM service is accessible (without making a request)
+        if therapy_llm_service:
+            health_status["checks"]["llm_service"] = "healthy"
+        else:
+            health_status["checks"]["llm_service"] = "not_initialized"
+    except Exception as e:
+        health_status["checks"]["llm_service"] = f"error: {str(e)}"
+        health_status["status"] = "degraded"
+    
+    # Check FHIR service
+    try:
+        if fhir_service:
+            health_status["checks"]["fhir_service"] = "healthy"
+        else:
+            health_status["checks"]["fhir_service"] = "not_initialized"
+    except Exception as e:
+        health_status["checks"]["fhir_service"] = f"error: {str(e)}"
+        health_status["status"] = "degraded"
+    
+    return health_status
+
+@app.get("/debug/fhir")
+async def debug_fhir():
+    """Debug endpoint to check FHIR environment in production"""
+    import sys
+    
+    try:
+        # Check FHIR library
+        import fhir
+        fhir_available = True
+        fhir_location = fhir.__file__
+        try:
+            fhir_version = fhir.__version__
+        except:
+            fhir_version = "unknown"
+    except ImportError as e:
+        fhir_available = False
+        fhir_location = None
+        fhir_version = f"Import Error: {e}"
+    
+    # Check FHIR components
+    components = {}
+    fhir_modules = [
+        'fhir.resources',
+        'fhir.resources.R4B',
+        'fhir.resources.R4B.bundle',
+        'fhir.resources.R4B.patient',
+        'fhir.resources.R4B.medicationstatement',
+        'fhir.resources.R4B.medication',
+    ]
+    
+    for module in fhir_modules:
+        try:
+            __import__(module)
+            components[module] = "available"
+        except ImportError as e:
+            components[module] = f"error: {e}"
+    
+    # Test Bundle creation
+    bundle_test = {}
+    try:
+        from fhir.resources.R4B.bundle import Bundle
+        test_data = {
+            "resourceType": "Bundle",
+            "type": "collection",
+            "entry": []
+        }
+        bundle = Bundle(**test_data)
+        bundle_test["status"] = "success"
+        bundle_test["type"] = bundle.type
+    except Exception as e:
+        bundle_test["status"] = "error"
+        bundle_test["error"] = str(e)
+    
+    return {
+        "python_version": sys.version,
+        "python_executable": sys.executable,
+        "fhir": {
+            "available": fhir_available,
+            "version": fhir_version,
+            "location": fhir_location,
+            "components": components,
+            "bundle_test": bundle_test
+        }
+    }
 
 @app.get("/device-info")
 async def get_device_info():
@@ -337,10 +447,42 @@ async def list_guidelines():
 
 # ==== Therapy Recommendation Endpoints ====
 
+# Store for processing status
+processing_status = {}
+
+@app.get("/therapy/status")
+async def get_processing_status():
+    """Get current therapy processing statistics"""
+    try:
+        # Check if services are working
+        rag_healthy = rag_service is not None
+        llm_healthy = therapy_llm_service is not None
+        
+        return {
+            "status": "healthy" if rag_healthy and llm_healthy else "degraded",
+            "services": {
+                "rag_service": "healthy" if rag_healthy else "unavailable",
+                "llm_service": "healthy" if llm_healthy else "unavailable"
+            },
+            "info": {
+                "expected_processing_time": "60-180 seconds for complex therapy recommendations",
+                "koyeb_timeout_info": "Cloud platform may show 503 after 60s, but processing continues",
+                "recommendation": "Wait 2-3 minutes then retry if 503 error occurs"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
 @app.post("/therapy/recommend")
 async def generate_therapy_recommendation(request: dict):
     """Generate therapy recommendations based on clinical parameters"""
     try:
+        print(f"🏥 Starting therapy recommendation generation...")
+        start_time = time.time()
+        
         # Extract parameters from request dict
         indication = request.get("indication")
         severity = request.get("severity")
@@ -350,6 +492,8 @@ async def generate_therapy_recommendation(request: dict):
         free_text = request.get("free_text")
         patient_id = request.get("patient_id")
         max_therapy_options = request.get("max_therapy_options", 5)
+        
+        print(f"📋 Request params: indication={indication}, severity={severity}, patient_id={patient_id}")
         
         # Validate required fields
         if not indication:
@@ -368,12 +512,16 @@ async def generate_therapy_recommendation(request: dict):
         )
         
         # 1. Build comprehensive context using TherapyContextBuilder
+        print(f"🔍 Building therapy context...")
+        context_start = time.time()
         context_data = therapy_context_builder.build_therapy_context(
             clinical_query=clinical_query,
             patient_id=patient_id,
             max_rag_results=5,  
             max_dosing_tables=5  
         )
+        context_time = time.time() - context_start
+        print(f"✅ Context built in {context_time:.2f}s")
         
         # 2. Check if we have sufficient context
         if not context_data.get("rag_results") and not context_data.get("dosing_tables"):
@@ -383,10 +531,14 @@ async def generate_therapy_recommendation(request: dict):
             )
         
         # 3. Generate therapy recommendation using LLM
+        print(f"🤖 Generating LLM recommendation...")
+        llm_start = time.time()
         therapy_recommendation = therapy_llm_service.generate_therapy_recommendation(
             context_data=context_data,
             max_options=max_therapy_options
         )
+        llm_time = time.time() - llm_start
+        print(f"✅ LLM recommendation generated in {llm_time:.2f}s")
         
         # Transform to match frontend expectations with new structure
         recommendations = []
@@ -421,6 +573,7 @@ async def generate_therapy_recommendation(request: dict):
             })
         
         # Create response that matches frontend expectations
+        print(f"📦 Formatting response...")
         response_data = {
             "recommendations": recommendations,
             "therapy_options": [option.dict() for option in therapy_recommendation.therapy_options],  # Add therapy_options
@@ -446,11 +599,18 @@ async def generate_therapy_recommendation(request: dict):
             }
         }
         
+        total_time = time.time() - start_time
+        print(f"🎉 Therapy recommendation completed in {total_time:.2f}s (context: {context_time:.2f}s, LLM: {llm_time:.2f}s)")
+        
         return response_data
         
     except HTTPException:
         raise
     except Exception as e:
+        total_time = time.time() - start_time if 'start_time' in locals() else 0
+        print(f"❌ Error after {total_time:.2f}s: {str(e)}")
+        import traceback
+        print(f"📋 Traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=500, 
             detail=f"Fehler bei der Therapieempfehlung: {str(e)}"

@@ -255,7 +255,15 @@ class FHIRService:
         patient_data.allergies = self._parse_allergies(allergies)
         
         # Parse medications
-        patient_data.medications = self._parse_medications(medication_statements, medications)
+        try:
+            patient_data.medications = self._parse_medications(medication_statements, medications)
+            if not patient_data.medications and (medication_statements or medications):
+                print(f"⚠️ WARNING: No medications parsed despite having {len(medication_statements)} statements and {len(medications)} medication resources")
+        except Exception as e:
+            print(f"❌ ERROR in medication parsing: {str(e)}")
+            import traceback
+            print(f"📋 Medication parsing traceback: {traceback.format_exc()}")
+            patient_data.medications = []
         
         return patient_data
 
@@ -656,11 +664,12 @@ class FHIRService:
         """Parse medication statements to get medication names"""
         medication_names = []
         
-        for med_statement in medication_statements:
+        for i, med_statement in enumerate(medication_statements):
             try:
                 # Try to get medication from reference
                 if hasattr(med_statement, 'medicationReference') and med_statement.medicationReference:
                     ref_obj = med_statement.medicationReference
+                    
                     if hasattr(ref_obj, 'reference') and ref_obj.reference and ref_obj.reference.startswith('Medication/'):
                         med_id = ref_obj.reference.split('/')[-1]
                         
@@ -673,8 +682,10 @@ class FHIRService:
                             if hasattr(medication, 'code') and medication.code and hasattr(medication.code, 'text') and medication.code.text:
                                 medication_names.append(medication.code.text)
                             else:
+                                print(f"⚠️ WARNING: Medication {med_id} found but no code.text available")
                                 medication_names.append(f"Medikament ID: {med_id}")
                         else:
+                            print(f"⚠️ WARNING: Medication ID {med_id} referenced but not found in bundle")
                             medication_names.append(f"Medikament ID: {med_id}")
                 
                 # Try to get from medication codeable concept if available
@@ -686,9 +697,11 @@ class FHIRService:
                             if hasattr(coding, 'display') and coding.display:
                                 medication_names.append(coding.display)
                                 break
+                else:
+                    print(f"⚠️ WARNING: MedicationStatement {i+1} has no medicationReference or medicationCodeableConcept")
                         
             except Exception as e:
-                print(f"Error parsing medication statement: {str(e)}")
+                print(f"❌ ERROR parsing medication statement {i+1}: {str(e)}")
                 continue
                 
         return medication_names

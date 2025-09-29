@@ -36,7 +36,7 @@ export const therapyAPI = {
   // Generate therapy recommendation
   generateRecommendation: async (requestData) => {
     const response = await api.post("/therapy/recommend", requestData, {
-      timeout: 180000, // 3 minutes for therapy recommendation
+      timeout: 300000, // 5 minutes for therapy recommendation
     });
     return response.data;
   },

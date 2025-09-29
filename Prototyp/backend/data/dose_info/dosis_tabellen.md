@@ -400,7 +400,7 @@
 <td>8–15 Tage</td>
 </tr>
 <tr>
-<td>plus Fluorchinolon</td>
+<td>ENTWEDER plus Fluorchinolon</td>
 <td></td>
 <td></td>
 </tr>
@@ -415,7 +415,7 @@
 <td></td>
 </tr>
 <tr>
-<td>oder* plus Aminoglykosid und Makrolid</td>
+<td>ODER plus Aminoglykosid und Makrolid</td>
 <td></td>
 <td></td>
 </tr>
