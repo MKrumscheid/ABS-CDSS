@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { Box, Typography, Paper, Button, Alert, Snackbar } from "@mui/material";
 import { Save as SaveIcon } from "@mui/icons-material";
+import axios from "axios";
 import TherapyRequestForm from "../components/TherapyRequest/TherapyRequestForm";
 import TherapyResults from "../components/TherapyResults/TherapyResults";
 import SaveRecommendationDialog from "../components/SaveRecommendation/SaveRecommendationDialog";
 import { therapyAPI } from "../services/api";
+
+const API_BASE =
+  process.env.NODE_ENV === "production" ? "" : "http://localhost:8000";
 
 function TherapyRecommendation() {
   const [loading, setLoading] = useState(false);
@@ -26,8 +30,12 @@ function TherapyRecommendation() {
     try {
       console.log("Submitting therapy request:", formData);
 
-      // Generate therapy recommendation
-      const recommendation = await therapyAPI.generateRecommendation(formData);
+      // Use direct axios call like Admin frontend (no timeout restrictions)
+      const response = await axios.post(
+        `${API_BASE}/therapy/recommend`,
+        formData
+      );
+      const recommendation = response.data;
 
       console.log("Raw backend response:", recommendation);
       console.log(
@@ -65,33 +73,25 @@ function TherapyRecommendation() {
     } catch (err) {
       console.error("Error generating therapy recommendation:", err);
 
-      // Safely handle error response
-      let errorMessage =
-        "Fehler beim Generieren der Therapie-Empfehlung. Bitte versuchen Sie es erneut.";
-
+      // Handle error like Admin frontend
+      let errorMessage = err.message;
       if (err.response?.data?.detail) {
-        const detail = err.response.data.detail;
-        if (typeof detail === "string") {
-          errorMessage = detail;
-        } else if (Array.isArray(detail)) {
-          errorMessage = detail.map((d) => d.msg || d).join(", ");
-        } else if (detail.msg) {
-          errorMessage = detail.msg;
+        if (Array.isArray(err.response.data.detail)) {
+          errorMessage = err.response.data.detail
+            .map((error) => `${error.loc?.join(".") || "field"}: ${error.msg}`)
+            .join("; ");
+        } else if (typeof err.response.data.detail === "string") {
+          errorMessage = err.response.data.detail;
+        } else if (err.response.data.detail.msg) {
+          errorMessage = err.response.data.detail.msg;
         }
       } else if (err.response?.status === 503) {
         // Special handling for 503 Service Unavailable (Koyeb timeout)
-        errorMessage = 
+        errorMessage =
           "⏱️ Zeitüberschreitung: Die Therapie-Empfehlung wird noch verarbeitet. " +
           "Dies ist normal bei komplexen Anfragen und dauert normalerweise 1-3 Minuten. " +
           "Bitte warten Sie einen Moment und versuchen Sie es dann erneut. " +
           "Die Verarbeitung läuft im Hintergrund weiter.";
-      } else if (err.message?.includes('timeout')) {
-        errorMessage = 
-          "⏱️ Zeitüberschreitung: Die Anfrage dauert länger als erwartet. " +
-          "Dies ist normal bei komplexen Therapie-Empfehlungen. " +
-          "Bitte warten Sie einen Moment und versuchen Sie es erneut.";
-      } else if (err.message) {
-        errorMessage = err.message;
       }
 
       setError(errorMessage);
@@ -240,19 +240,19 @@ function TherapyRecommendation() {
       {/* Snackbars for feedback */}
       <Snackbar
         open={!!error}
-        autoHideDuration={error?.includes('⏱️') ? 10000 : 6000} // Longer for timeout messages
+        autoHideDuration={error?.includes("⏱️") ? 10000 : 6000} // Longer for timeout messages
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
-          severity={error?.includes('⏱️') ? 'warning' : 'error'}
+          severity={error?.includes("⏱️") ? "warning" : "error"}
           onClose={handleCloseSnackbar}
           sx={{ width: "100%" }}
           action={
-            error?.includes('⏱️') && requestData ? (
-              <Button 
-                color="inherit" 
-                size="small" 
+            error?.includes("⏱️") && requestData ? (
+              <Button
+                color="inherit"
+                size="small"
                 onClick={() => {
                   setError(null);
                   handleFormSubmit(requestData);

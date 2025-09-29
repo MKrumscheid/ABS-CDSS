@@ -476,6 +476,186 @@ async def get_processing_status():
             "message": str(e)
         }
 
+@app.post("/therapy/recommend-stream")
+async def generate_therapy_recommendation_stream(request: dict):
+    """Generate therapy recommendations with real-time progress updates via SSE"""
+    
+    async def generate_progress_stream():
+        try:
+            start_time = time.time()
+            yield f"data: {json.dumps({'type': 'progress', 'message': '🏥 Starte Therapieempfehlung...', 'timestamp': time.time()})}\n\n"
+            
+            # Extract parameters from request dict
+            indication = request.get("indication")
+            severity = request.get("severity")
+            infection_site = request.get("infection_site")
+            risk_factors = request.get("risk_factors", [])
+            suspected_pathogens = request.get("suspected_pathogens", [])
+            free_text = request.get("free_text")
+            patient_id = request.get("patient_id")
+            max_therapy_options = request.get("max_therapy_options", 5)
+            
+            # Validate required fields
+            if not indication:
+                yield f"data: {json.dumps({'type': 'error', 'message': 'indication is required'})}\n\n"
+                return
+            if not severity:
+                yield f"data: {json.dumps({'type': 'error', 'message': 'severity is required'})}\n\n"
+                return
+            
+            yield f"data: {json.dumps({'type': 'progress', 'message': '📋 Parameter validiert', 'timestamp': time.time()})}\n\n"
+            
+            # Create ClinicalQuery object
+            clinical_query = ClinicalQuery(
+                indication=indication,
+                severity=severity,
+                infection_site=infection_site,
+                risk_factors=risk_factors,
+                suspected_pathogens=suspected_pathogens,
+                free_text=free_text
+            )
+            
+            # Step 1: Build context
+            yield f"data: {json.dumps({'type': 'progress', 'message': '🔍 Suche relevante Leitlinien und Dosierungstabellen...', 'timestamp': time.time()})}\n\n"
+            
+            context_start = time.time()
+            context_data = therapy_context_builder.build_therapy_context(
+                clinical_query=clinical_query,
+                patient_id=patient_id,
+                max_rag_results=5,  
+                max_dosing_tables=5  
+            )
+            context_time = time.time() - context_start
+            
+            # Create progress message safely
+            rag_count = len(context_data.get("rag_results", []))
+            dosing_count = len(context_data.get("dosing_tables", []))
+            context_msg = f"✅ Kontext erstellt ({context_time:.1f}s) - {rag_count} Leitlinien, {dosing_count} Dosierungstabellen"
+            yield f"data: {json.dumps({'type': 'progress', 'message': context_msg, 'timestamp': time.time()})}\n\n"
+            
+            # Check if we have sufficient context
+            if not context_data.get("rag_results") and not context_data.get("dosing_tables"):
+                yield f"data: {json.dumps({'type': 'error', 'message': 'Keine relevanten Leitlinien oder Dosierungstabellen gefunden'})}\n\n"
+                return
+            
+            # Step 2: Generate LLM recommendation with progress updates
+            yield f"data: {json.dumps({'type': 'progress', 'message': '🤖 Generiere Therapieempfehlung mit KI...', 'timestamp': time.time()})}\n\n"
+            
+            # Start LLM generation in background
+            llm_start = time.time()
+            
+            # Create a task for LLM generation
+            async def generate_llm():
+                return therapy_llm_service.generate_therapy_recommendation(
+                    context_data=context_data,
+                    max_options=max_therapy_options
+                )
+            
+            # Start LLM task
+            llm_task = asyncio.create_task(generate_llm())
+            
+            # Send keep-alive messages every 25 seconds while waiting for LLM
+            while not llm_task.done():
+                try:
+                    # Wait for LLM or timeout after 25 seconds
+                    therapy_recommendation = await asyncio.wait_for(llm_task, timeout=25.0)
+                    break  # LLM finished
+                except asyncio.TimeoutError:
+                    # Send keep-alive message
+                    elapsed = time.time() - llm_start
+                    elapsed_msg = f"⏱️ KI arbeitet noch... ({elapsed:.0f}s vergangen)"
+                    yield f"data: {json.dumps({'type': 'progress', 'message': elapsed_msg, 'timestamp': time.time()})}\n\n"
+                    continue
+            
+            # Get the result
+            therapy_recommendation = await llm_task
+            llm_time = time.time() - llm_start
+            
+            llm_msg = f"✅ KI-Empfehlung generiert ({llm_time:.1f}s)"
+            yield f"data: {json.dumps({'type': 'progress', 'message': llm_msg, 'timestamp': time.time()})}\n\n"
+            
+            # Step 3: Format response
+            yield f"data: {json.dumps({'type': 'progress', 'message': '📦 Formatiere Antwort...', 'timestamp': time.time()})}\n\n"
+            
+            # Transform to match frontend expectations
+            recommendations = []
+            for i, option in enumerate(therapy_recommendation.therapy_options):
+                medication_data = {
+                    "active_ingredients": [
+                        {
+                            "name": ingredient.name,
+                            "strength": ingredient.strength,
+                            "frequency_lower_bound": ingredient.frequency_lower_bound,
+                            "frequency_upper_bound": ingredient.frequency_upper_bound, 
+                            "frequency_unit": ingredient.frequency_unit,
+                            "duration_lower_bound": ingredient.duration_lower_bound,
+                            "duration_upper_bound": ingredient.duration_upper_bound,
+                            "duration_unit": ingredient.duration_unit,
+                            "route": ingredient.route
+                        }
+                        for ingredient in option.active_ingredients
+                    ],
+                    "notes": option.notes,
+                    "clinical_guidance": option.clinical_guidance.dict() if option.clinical_guidance else None
+                }
+                
+                recommendations.append({
+                    "name": f"Therapie Option {i+1}",
+                    "priority": i+1,
+                    "medications": [medication_data],
+                    "clinical_guidance": therapy_recommendation.clinical_guidance.dict() if therapy_recommendation.clinical_guidance else None,
+                    "sources": [citation.dict() for citation in therapy_recommendation.source_citations]
+                })
+            
+            # Create final response
+            response_data = {
+                "recommendations": recommendations,
+                "therapy_options": [option.dict() for option in therapy_recommendation.therapy_options],
+                "therapy_rationale": therapy_recommendation.therapy_rationale,
+                "confidence_level": therapy_recommendation.confidence_level,
+                "warnings": therapy_recommendation.warnings,
+                "source_citations": [citation.dict() for citation in therapy_recommendation.source_citations],
+                "general_notes": therapy_recommendation.therapy_rationale,
+                "context_summary": {
+                    "patient_available": context_data["patient_data"] is not None,
+                    "rag_results_count": len(context_data["rag_results"]),
+                    "dosing_tables_count": len(context_data["dosing_tables"])
+                },
+                "patient_data": context_data["patient_data"] if context_data["patient_data"] else None,
+                "patient_summary": therapy_context_builder._format_patient_summary(context_data["patient_data"]) if context_data["patient_data"] else None,
+                "llm_debug": {
+                    "system_prompt": therapy_recommendation.system_prompt,
+                    "user_prompt": therapy_recommendation.user_prompt,
+                    "model": therapy_recommendation.llm_model
+                }
+            }
+            
+            total_time = time.time() - start_time
+            
+            # Send final result
+            yield f"data: {json.dumps({'type': 'result', 'data': response_data, 'total_time': total_time})}\n\n"
+            
+            final_msg = f"🎉 Therapieempfehlung abgeschlossen ({total_time:.1f}s)"
+            yield f"data: {json.dumps({'type': 'complete', 'message': final_msg})}\n\n"
+            
+        except Exception as e:
+            print(f"❌ Stream error: {str(e)}")
+            import traceback
+            print(f"📋 Traceback: {traceback.format_exc()}")
+            error_msg = f"Fehler bei der Therapieempfehlung: {str(e)}"
+            yield f"data: {json.dumps({'type': 'error', 'message': error_msg})}\n\n"
+    
+    return StreamingResponse(
+        generate_progress_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*"
+        }
+    )
+
 @app.post("/therapy/recommend")
 async def generate_therapy_recommendation(request: dict):
     """Generate therapy recommendations based on clinical parameters"""
