@@ -85,11 +85,17 @@ static_admin_path = Path(__file__).parent / "static" / "admin"
 static_enduser_path = Path(__file__).parent / "static" / "enduser"
 
 if static_admin_path.exists():
+    # Mount admin static assets first
+    admin_static = static_admin_path / "static"
+    if admin_static.exists():
+        app.mount("/admin/static", StaticFiles(directory=str(admin_static)), name="admin_static")
+        print("✅ Admin frontend static files mounted at /admin/static")
+    
     app.mount("/admin", StaticFiles(directory=str(static_admin_path), html=True), name="admin")
     print("✅ Admin frontend mounted at /admin")
 
 if static_enduser_path.exists():
-    # Mount static assets
+    # Mount enduser static assets
     enduser_static = static_enduser_path / "static"
     if enduser_static.exists():
         app.mount("/static", StaticFiles(directory=str(enduser_static)), name="static")

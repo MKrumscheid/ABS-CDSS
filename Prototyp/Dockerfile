@@ -18,6 +18,8 @@ RUN npm ci --only=production
 COPY Prototyp/frontend/ ./
 
 # Build Admin Frontend (port 3000 equivalent)
+ENV REACT_APP_MODE=admin
+ENV PUBLIC_URL=/admin
 RUN npm run build
 RUN mv build admin-build
 
@@ -25,6 +27,8 @@ RUN mv build admin-build
 RUN rm -rf node_modules/.cache
 
 # Build Enduser Frontend (port 4000 equivalent)  
+ENV REACT_APP_MODE=enduser
+ENV PUBLIC_URL=/
 RUN npm run build:enduser
 RUN mv build enduser-build
 
