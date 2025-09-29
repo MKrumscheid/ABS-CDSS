@@ -1,0 +1,63 @@
+# Koyeb deployment configuration for ABS-CDSS
+# This file configures the deployment of the clinical decision support system
+
+[app]
+name = "abs-cdss"
+
+[build]
+type = "docker"
+dockerfile = "Dockerfile"
+
+[deploy]
+instance_type = "nano"  # Free tier
+regions = ["fra"]       # Frankfurt for European users
+autoscaling = { min = 1, max = 1 }
+
+[deploy.ports]
+port = 8000
+protocol = "http"
+public = true
+
+[deploy.env]
+# Production environment settings
+ENVIRONMENT = "production"
+API_HOST = "0.0.0.0"
+API_PORT = "8000"
+
+# Embedding service configuration
+USE_ONLINE_EMBEDDINGS = "true"
+EMBEDDING_REQUESTS_PER_MINUTE = "45"
+EMBEDDING_MAX_RETRIES = "3"
+EMBEDDING_RETRY_DELAY = "2"
+
+# Novita AI configuration (secrets should be set in Koyeb UI)
+NOVITA_EMBEDDING_URL = "https://api.novita.ai/openai/v1/embeddings"
+NOVITA_EMBEDDING_MODEL = "qwen/qwen3-embedding-8b"
+NOVITA_API_BASE_URL = "https://api.novita.ai/openai"
+NOVITA_MODEL = "openai/gpt-oss-120b"
+NOVITA_MAX_TOKENS = "32768"
+NOVITA_TEMPERATURE = "0.7"
+
+# RAG Configuration
+CHUNK_SIZE = "512"
+CHUNK_OVERLAP = "50"
+DEFAULT_TOP_K = "5"
+FAISS_INDEX_TYPE = "IndexFlatIP"
+
+# Logging
+LOG_LEVEL = "INFO"
+
+[deploy.health_check]
+# Health check configuration
+path = "/health"
+port = 8000
+initial_delay_seconds = 30
+timeout_seconds = 10
+period_seconds = 30
+failure_threshold = 3
+success_threshold = 1
+
+[deploy.resources]
+# Resource limits for free tier
+cpu = "100m"      # 0.1 vCPU
+memory = "512Mi"  # 512MB RAM

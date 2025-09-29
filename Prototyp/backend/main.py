@@ -51,10 +51,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware
+# Add CORS middleware - Updated for cloud deployment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:4000", "http://127.0.0.1:4000"],
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000", 
+        "http://localhost:4000", 
+        "http://127.0.0.1:4000",
+        "https://*.koyeb.app",  # Allow all Koyeb subdomains
+        "*"  # For development - should be restricted in production
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -73,13 +80,29 @@ try:
 except Exception as e:
     print(f"Warning: Database initialization failed: {e}")
 
-# Serve static files for frontend
+# Mount static files for frontend applications (production)
+static_admin_path = Path(__file__).parent / "static" / "admin"
+static_enduser_path = Path(__file__).parent / "static" / "enduser"
+
+if static_admin_path.exists():
+    app.mount("/admin", StaticFiles(directory=str(static_admin_path), html=True), name="admin")
+    print("✅ Admin frontend mounted at /admin")
+
+if static_enduser_path.exists():
+    # Mount static assets
+    enduser_static = static_enduser_path / "static"
+    if enduser_static.exists():
+        app.mount("/static", StaticFiles(directory=str(enduser_static)), name="static")
+    print("✅ Enduser frontend static files mounted")
+
+# Legacy support for local development
 try:
     frontend_path = Path(__file__).parent.parent / "frontend" / "build"
-    if frontend_path.exists():
+    if frontend_path.exists() and not static_enduser_path.exists():
         app.mount("/static", StaticFiles(directory=str(frontend_path / "static")), name="static")
-except:
-    pass
+        print("✅ Development frontend mounted")
+except Exception as e:
+    print(f"Development frontend mount failed: {e}")
 
 @app.get("/")
 async def root():
@@ -806,17 +829,42 @@ async def delete_saved_therapy_recommendation(
         raise HTTPException(status_code=500, detail=f"Failed to delete saved recommendation: {str(e)}")
 
 
-# Serve React app for any other routes
+# Frontend routing for production deployment
 @app.get("/{full_path:path}")
-async def serve_react_app(full_path: str):
-    """Serve React frontend for any unmatched routes"""
-    frontend_path = Path(__file__).parent.parent / "frontend" / "build"
-    index_file = frontend_path / "index.html"
+async def serve_frontend_app(full_path: str):
+    """Serve frontend applications based on path"""
     
-    if index_file.exists():
-        return FileResponse(str(index_file))
-    else:
-        return {"message": "Frontend not built. Please build React app first."}
+    # Skip API routes
+    if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("openapi"):
+        raise HTTPException(status_code=404, detail="Not found")
+    
+    # Admin frontend
+    if full_path.startswith("admin") or full_path == "admin":
+        admin_index = Path(__file__).parent / "static" / "admin" / "index.html"
+        if admin_index.exists():
+            return FileResponse(str(admin_index))
+        # Fallback to development
+        dev_admin = Path(__file__).parent.parent / "frontend" / "build" / "index.html"
+        if dev_admin.exists():
+            return FileResponse(str(dev_admin))
+    
+    # Default: Enduser frontend (for root and all other paths)
+    enduser_index = Path(__file__).parent / "static" / "enduser" / "index.html"
+    if enduser_index.exists():
+        return FileResponse(str(enduser_index))
+    
+    # Fallback to development build
+    dev_frontend = Path(__file__).parent.parent / "frontend" / "build" / "index.html"
+    if dev_frontend.exists():
+        return FileResponse(str(dev_frontend))
+    
+    # No frontend available
+    return {
+        "message": "ABS-CDSS API Server", 
+        "status": "Frontend not built",
+        "admin": "/admin",
+        "api_docs": "/docs"
+    }
 
 
 if __name__ == "__main__":
