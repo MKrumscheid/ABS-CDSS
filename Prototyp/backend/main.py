@@ -202,6 +202,12 @@ async def upload_guideline(
         content = await file.read()
         text_content = content.decode('utf-8')
         
+        # Log start of processing for large files
+        chunk_count_estimate = len(text_content) // 1000  # Rough estimate
+        if chunk_count_estimate > 100:
+            print(f"⏰ Processing large file '{file.filename}' (~{chunk_count_estimate} chunks estimated)")
+            print(f"⏰ This may take 3-10 minutes due to rate limiting. Processing continues even if timeout occurs.")
+        
         # Process with RAG service
         result = rag_service.upload_guideline(
             content=text_content,

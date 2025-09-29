@@ -1,0 +1,693 @@
+﻿15. Antibiotika-Therapie beim alten Menschen 
+
+15. Antibiotika-Therapie beim alten Menschen 
+
+Peter Walger, Hans Jürgen Heppner 
+
+Einleitung 
+
+Altern der Bevölkerung bedeutet, dass sich die Zusammensetzung der Bevölkerung immer mehr in Rich-
+
+tung älterer Menschen verschiebt. Im Jahr 2050 wird der Anteil der über 65-Jährigen auf 30–40% geschätzt, 
+
+zugleich wird sich der Anteil der Hochbetagten (80 Jahre und älter) auf bis zu 15% erhöhen und sich damit 
+
+fast verdreifachen [1]. Dieser demographische Wandel führt zu einer Zunahme geriatrischer Patienten in 
+
+allen Bereichen der medizinischen Versorgung. So ist es von großer Bedeutung, die grundlegende Defini-
+
+tion des geriatrischen Patienten zu kennen (siehe Tabelle 15.1). 
+
+Tabelle 15.1: Definition des geriatrischen Patienten [2] 
+
+Geriatrische Patienten sind definiert durch: 
+
+• Geriatrietypische Multimorbidität und 
+• höheres Lebensalter* (überwiegend 70 Jahre oder älter) 
+
+* die geriatrietypische Multimorbidität ist hierbei vorrangig vor dem kalendarischen Alter zu sehen; 
+
+• oder allein durch das Alter 80 Jahre oder älter* 
+* auf Grund der alterstypisch erhöhten Vulnerabilität, z.B. wegen 
+
+− des Auftretens von Komplikationen und Folgeerkrankungen, 
+− der Gefahr der Chronifizierung sowie 
+− des erhöhten Risikos eines Verlustes der Autonomie mit Verschlechterung des Selbsthilfestatus 
+
+Der Anteil der akut zu versorgenden 90-jährigen Patienten steigt ebenfalls, beispielsweise in der Herz-
+
+chirurgie [3] oder der Alterstraumatologie [4]. Dies erfordert ein hohes Maß an geriatrischem Sachverstand 
+
+bei der Betreuung, wenn bei dieser vulnerablen Patientengruppe begleitende oder verkomplizierende Infek-
+
+tionen behandelt werden müssen [5]. Unter adäquater Therapie ist das Outcome bei erhaltener Funktio-
+
+nalität gut [6]. Daher ist es wichtig, die grundlegenden Besonderheiten in der antiinfektiven Therapie beim 
+
+alten Menschen zu kennen. 
+
+Multimorbidität, also das gleichzeitige Vorliegen mehrerer chronischer behandlungsbedürftiger Erkran-
+
+kungen, führt in der Konsequenz zur Multimedikation und damit zur Gefahr synergistischer Neben-
+
+wirkungen und unerwünschter Interaktionen bei der Antibiotika-Therapie. 
+
+Neben den physiologischen körperlichen Alternsveränderungen führt auch die Immunseneszenz zu einer 
+
+größeren Infektanfälligkeit in diesem Patientenkollektiv. Morbidität und Mortalität zahlreicher Infektions-
+
+krankheiten steigen mit zunehmendem Alter. Infektionen sind eine der Haupttodesursachen bei älteren 
+
+Patienten [7].  
+
+Die häufigste infektionsbedingte Todesursache bei Patienten >65 Jahre ist die ambulant erworbene 
+
+Pneumonie (CAP), wobei Pflegebedürftigkeit und insbesondere Bettlägerigkeit das Letalitätsrisiko deutlich 
+
+erhöhen [8]. Zahlreiche weitere Infektionen wie Harnwegsinfektionen, Sepsis, Haut- und Weichgewebe-
+
+infektionen, bakterielle Endokarditis, Cholezystitis und Divertikulitis zeigen steigende Inzidenzen. Atypische 
+
+klinische Manifestationen, z.B. durch Abschwächung der Fieberreaktion, unspezifische Allgemeinsymp-
+
+tome oder frühzeitige Beeinträchtigungen der Hirnfunktionen, erschweren die Diagnose und verzögern eine 
+
+rechtzeitige und adäquate Therapie [9], [10], [11]. 
+
+Seite 294 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+Ältere Patienten mit bakteriellen Infektionen weisen wegen eingeschränkter lokaler und systemischer Reak-
+
+tionen auf die Infektion andere klinische Merkmale auf als junge Patienten. Die Symptome einer akuten 
+
+Infektion beim älteren Patienten sind in der Regel „unspezifisch“ und „atypisch“. Das Kardinalsymptom 
+
+einer bakteriellen Infektion, Fieber, ist in über 30% der Fälle nicht vorhanden [12]. Die üblichen labor-
+
+chemischen Marker für die Detektion einer Infektion, wie Leukozytenzahl oder C-reaktives Protein (CRP), 
+
+können initial ebenfalls häufig normal oder nur minimal verändert sein [13]. CRP und Leukozytenzahl sind 
+
+daher bei geriatrischen Patienten unzuverlässige Parameter [14].  
+
+Schwerpunkte Antibiotika-assoziierter Nebenwirkungen im Alter 
+
+Durch physiologische Veränderungen ergeben sich im Alter Auswirkungen auf die Pharmakokinetik. Dies 
+
+betrifft sowohl die Freisetzung und Resorption des Arzneistoffes als auch die Verteilung durch die 
+
+Verschiebung von Fett- und Wassermasse im Alter und die (vornehmlich renale) Wirkstoffelimination. Eine 
+
+Zusammenfassung der wichtigsten alternsbedingten Veränderungen mit Auswirkungen auf die Pharma-
+
+kokinetik von Antiinfektiva zeigt Tabelle 15.2. 
+
+Tabelle 15.2: Pharmakokinetik und physiologisches Altern 
+
+Pharmakokinetik Alternsphysiologische Veränderungen Veränderung 
+
+Resorption Magensaftproduktion ↓ Konzentration säurelabiler Arzneistoffe ↑ 
+Magen-Darm-Motilität ↓ Konzentration schwacher Säuren ↓ 
+Magenentleerungsgeschwindigkeit↓ Verzögerte Resorption 
+Gastrointestinale Durchblutung ↓ 
+First-Pass-Effekt ↓ 
+
+Verteilung Anteil Körperfett ↑ Verteilungsvolumen von hydrophilen 
+Anteil Körperwasser ↓ Arzneistoffen ↓ 
+Muskelmasse ↓ Verteilungsvolumen von lipophilen 
+Herzleistung↓ Arzneistoffen ↑ 
+Albumin↓ 
+
+Hepatische Leberdurchblutung ↓ Hepatische Clearance ↓ 
+Metabolisierung Lebermasse ↓ Halbwertszeit ↑ 
+
+Renale Elimination Nierendurchblutung ↓ Renale Clearance ↓ 
+Glomeruläre Filtrationsrate ↓ Halbwertszeit ↑ 
+Tubuläre Exkretion und Rückresorption ↓ Gefahr der Kumulation 
+
+Über 30% der Menschen >70 Jahre haben mindestens fünf chronische Erkrankungen [11]. Ein extensiver 
+
+Gebrauch von verschriebenen und rezeptfreien OTC (=over-the-counter)-Medikamenten sowie von pflanz-
+
+lichen Präparationen ist typisch für alte Menschen. So nehmen 25% der Frauen über 65 Jahre (USA) fünf 
+
+verordnete Medikamente und 12% zehn oder mehr Medikamente ein. Dies erhöht zwangsläufig das 
+
+Komplikationsrisiko [15]. 
+
+Ähnliche Daten liegen für Deutschland vor. Über 70-Jährige nehmen durchschnittlich drei verschiedene 
+
+Medikamente pro Tag ein, die 80- bis 85-Jährigen erhalten die höchste Anzahl pro Tag [16], 35% der  
+
+>70-Jährigen erhalten 5 bis 8, 15% mehr als 13 verschiedene Medikamente [17]. Zusätzliche pflanzliche 
+
+oder sonstige Nahrungsergänzungsmittel nahmen 14% (1998) [18] bzw. 26–27% (2002) [19], [20] der 
+
+untersuchten Älteren ein. 
+
+Eine fiktive 79-jährige Patientin mit fünf der häufigsten Komorbiditäten (COPD, Diabetes mellitus Typ 2, 
+
+Hypertonie, Osteoporose, Osteoarthritis) erhält entsprechend den Leitlinien (USA 2005) täglich 
+
+12 Medikamente, nach komplizierten Einnahmeregeln mit unvorhersehbaren Interaktionen zwischen 
+
+Seite 295 von 341 
+
+
+
+15. Antibiotika-Therapie beim alten Menschen 
+
+Krankheiten und Medikamenten bzw. zwischen Medikamenten und mit zahlreichen unerwünschten Arznei-
+
+mittelwirkungen [21]. 
+
+Nebenwirkungen von Medikamenten sind bei älteren Patienten generell bis zu 3-mal häufiger als bei  
+
+30-Jährigen [22]. Bei der Einnahme von bis zu 5 Medikamenten besteht ein UAW-Risiko (Unerwünschte 
+
+Arzneimittel-Wirkungen) von 4%, bei 6–10 Medikamenten von 10% und bei 11–15 Medikamenten von 28% 
+
+[23]. UAWs finden sich insgesamt bei 14,6–35% der alten Patienten. 20–25% der geriatrischen stationären 
+
+Aufnahmen sind ursächlich Folge von UAWs. Antikoagulanzien, Nichtsteroidale Antiphlogistika (NSAID), 
+
+Antidiabetika, Diuretika und Digitalisglykoside sind am häufigsten mit UAWs assoziiert, die zur stationären 
+
+Aufnahme führen [24]. Interaktionen spielen bei rund 40% der UAWs eine Rolle. Ein niedriges Körper-
+
+gewicht ist besonders häufig mit UAWs assoziiert. Über 80% der UAW-assoziierten stationären Aufnahmen 
+
+sind vermeidbar [25], [26]. 
+
+Prävalenz von inadäquaten Verordnungen 
+
+Daten aus den USA, Kanada und Europa belegen einen hohen Anteil „Potentiell Inadäquater Medikationen“ 
+
+(PIM) bei alten Patienten, z.B. in den USA 1994: 23,5%, USA 1996: 20% (davon 3% aus der Beers-Liste 
+
+(historisch die erste publizierte PIM-Liste) der 11 „always avoid“-Präparate mit erhöhtem Risiko für Hospi-
+
+talisation und Tod), USA 2002: 19%, Europa 2005: ~20%. Der typische Patient für Polypharmazie mit 
+
+erhöhtem Anteil inadäquater Medikamente ist weiblich, >85 Jahre alt, alleinlebend und hat einen geringen 
+
+Gesundheitsstatus sowie niedrigen sozialen Status [27], [28]. 
+
+Die Beers Criteria [29] umfassen eine Liste inadäquater Medikationen bestehend aus drei Gruppen: 
+
+„always avoid“ (11 Medikamente), „rarely appropriate“ (8 Medikamente) und „some indication, but often 
+
+misused“ (14 Medikamente). In Anlehnung an diese Kriterien sind revidierte PIM-Listen in den USA, 
+
+Frankreich, den Niederlanden und Kanada publiziert worden [30], [31], [32], [33]. Das Risiko für UAW, die 
+
+zur stationären Aufnahme von älteren Patienten führen, ist demnach dann besonders erhöht, wenn 
+
+mehrere Arzneimittel gleichzeitig eingenommen werden (Interaktionsrisiko). Multimedikation, Verordnung 
+
+von Neuroleptika oder Antidementiva sind signifikante Risikofaktoren für UAWs bei Menschen aus 
+
+Altenheimen [34]. Eine auf die Verhältnisse in Deutschland zugeschnittene Aufstellung stellt die PRISCUS-
+
+Liste dar. Sie umfasst 83 Wirkstoffe, die als potenziell ungeeignet für Senioren gelten, und aus 18 ver-
+
+schiedenen Arzneistoffklassen eines breiten Spektrums an Behandlungsgebieten entstammen [35], [36]. 
+
+Allerdings wird hier zu Antibiotika mit Ausnahme von Nitrofurantoin keine dezidierte Stellung bezogen. 
+
+Durch die Polypharmazie kommt es generell zu einer Risikoerhöhung für unerwünschte Wirkungen, und 
+
+die Gefahr von klinisch relevanten Arzneimittelinteraktionen steigt. Dies ist auch für einige Antiinfektiva, die 
+
+zu einer bestehenden Multimedikation hinzugefügt werden, beschrieben. Um diese potentiellen Risiken zu 
+
+minimieren, sollte hierauf bei Entscheidungen zur antiinfektiven Arzneimitteltherapie mit einer erhöhten 
+
+Aufmerksamkeit geachtet werden. 
+
+Die Behandlung alter Patienten mit einer bakteriellen Infektionskrankheit bedeutet deshalb typischerweise, 
+
+einer langen Liste von verschiedenen Medikamenten mit zum Teil unübersichtlichem Interaktionspotenzial 
+
+Seite 296 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+und verschiedenen UAWs eine weitere Substanz, ein Antibiotikum, hinzuzufügen, welches möglicherweise 
+
+selbst über eigene Nebenwirkungen sowie ein eigenes Interaktionspotenzial verfügt. 
+
+Dies kann dann schnell zu behandlungsbedürftigen und zum Teil lebensbedrohlichen Situationen führen 
+
+[37]. 
+
+Antibiotika-Verordnungen für alte Patienten 
+
+Die Bewertung der verschiedenen Antibiotika-Klassen (bzw. einzelner Substanzen daraus) erfolgt nach 
+
+spezifischen dem Alter des Patienten angepassten Aspekten und Risiken (siehe Tabelle 15.3). 
+
+Tabelle 15.3: Bewertung der einzelnen Antibiotikaklassen bzw. einzelner Substanzen daraus nach 
+Nebenwirkungen und Interaktionsrisiken im Alter 
+
+Nebenwirkungs- Kritische Substanzen Konkrete UAWs; Bemerkungen Literatur 
+und Interaktions-
+risiken 
+
+Clostridium-difficile- Hohes Risiko: Grundsätzlich sind alle Antibiotika mit [38], [39],  
+Selektion • Clindamycin dem Risiko einer Clostridium-difficile- [40] 
+
+• Cephalosporine (Breitspektrum) Selektion assoziiert. Es lassen sich 
+• Fluorchinolone (Risiko für Substanzen mit hohem, moderatem und 
+
+hypervirulente C.-difficile-Stämme) niedrigem Risiko abgrenzen. Auch die 
+
+• Carbapeneme therapeutisch eingesetzten Antibiotika 
+haben ein immanentes Selektionsrisiko, 
+
+Weniger hohes Risiko: 
+so dass die prophylaktische Gabe z.B. 
+
+• Aminopenicilline, insbesondere in 
+von Metronidazol zusätzlich zur 
+
+Kombination mit Beta-Lactamase-
+Antibiotika-Therapie nicht indiziert ist. 
+
+Inhibitor (BLI), Acylaminopenicilline  
+Ein Antibiotikum, welches in der 
+
++/- BLI 
+Vorgeschichte eine C.-difficile-Kolitis 
+
+Moderates Risiko: verursacht hat, sollte zukünftig strikt 
+• Schmalspektrum-Penicilline vermieden werden (Anamnese!). 
+• Makrolide, Cotrimoxazol 
+
+Geringes Risiko: 
+• Metronidazol 
+• Vancomycin, Teicoplanin 
+• Daptomycin, Fosfomycin 
+• Aminoglykoside, 
+• Tetracycline, Glycylcycline 
+
+Neuropsychiatrische Fluorchinolone, Metronidazol, Neuropathie, Enzephalopathie, Delir, [41], [42],  
+Nebenwirkungen Carbapeneme (besonders Imipenem), Krämpfe [43] 
+
+hochdosierte Penicilline (besonders Das Alter selbst ist ein bedeutender 
+Penicillin G ≥30 Mega), Risikofaktor; bei vorbestehender ZNS-
+Cephalosporine (besonders Schädigung erhöhtes Delir-Risiko bereits 
+Cefazolin) bei geringer Noxe. Antiinfektiva-
+
+Nebenwirkungen und Begleitsymptome 
+der Infektion selbst lassen sich nicht 
+immer abgrenzen. 
+
+Linezolid Serotoninsyndrom, periphere 
+Neuropathien 
+
+Clarithromycin, Sulfamethoxazol Psychosen 
+
+Gentamicin, Tobramycin, Amikacin, Ototoxizität, Neurotoxizität 
+Streptomycin Die Neurotoxizität der Aminoglykoside 
+
+besteht im Wesentlichen in einer 
+Cochlear- und Vestibularis-Toxizität, 
+seltener in einer neuromuskulären 
+Blockade.  
+Die Ototoxizität wird durch eine 
+Begleitmedikation mit Schleifendiuretika, 
+Vancomycin, aber auch durch laute 
+Umgebungsgeräusche verstärkt. 
+
+Seite 297 von 341 
+
+
+
+15. Antibiotika-Therapie beim alten Menschen 
+
+Nebenwirkungs- Kritische Substanzen Konkrete UAWs; Bemerkungen Literatur 
+und Interaktions-
+risiken 
+
+Neuropsychiatrische Isoniazid Vitamin-B6-Antagonist,  
+Nebenwirkungen Enzephalopathie, Ataxie, periphere 
+
+Neuropathie, Krämpfe, 
+Prävention durch Vitamin-B6-Gabe (fixe 
+Kombination als Tuberkulostatikum) 
+
+Interaktionen mit Psychopharmaka 
+
+ Makrolide, Fluorchinolone und Azol- Verstärkung anticholinerger und [44], [45], 
+Antimykotika serotoninerger Symptome durch CYP- [46], [47], 
+
+3A4 oder 1A2-Inhibition [48], [49], 
+
+Linezolid Synergistische Verstärkung [50], [51], 
+
+serotoninerger Effekte insbesondere von [52], [53], 
+
+Antidepressiva vom SSRI-Typ, aber [54], [55], 
+
+auch tri- und tetracyclischer [56],  
+
+Antidepressiva [57] 
+
+CAVE: Lange Liste potentiell  
+
+serotoninerger Substanzen u.a. Opioide, 
+Katecholamine, Amphetamine, Kokain, 
+Lithium, Tryptophan, Valproat  
+
+Interaktionen mit anderen wichtigen Arzneimitteln 
+
+Bei Antikoagulation Cephalosporine, INR-Anstieg = Blutungsrisiko erhöht 
+mit Phenprocoumon Amoxicillin/Clavulansäure, 
+
+Cotrimoxazol, Clarithromycin, Azol-
+Antimykotika (CYP-3A4-Inhibition) 
+
+Rifampicin (CYP-3A4-Induktion)  INR-Abfall = Thrombose- und 
+Embolierisiko erhöht 
+Die Induktion führt auch zum Wirkverlust 
+weiterer CYP-abhängiger Substanzen 
+z.B. Calciumantagonisten, Theophyllin, 
+Phenytoin und verschiedener 
+Psychopharmaka.  
+
+Bei Antikoagulation Makrolide (nicht Azithromycin) Blutungsrisiko erhöht 
+mit neuen oralen Azol-Antimykotika und einige HIV-  
+Antikoagulanzien Virustatika (Proteasen-Inhibitoren)  
+
+durch CYP3A4- und P-Glykoprotein-  
+Inhibition bei Rivaroxaban und  
+Apixaban, P-gp-Inhibition bei  
+Dabigatran  
+
+ 
+ 
+
+Rifampicin (CYP-Induktion) Wirkungsverlust der Antikoagulation 
+
+Bei Lipidsenkung mit Makrolide (CYP-3A4-Hemmung);  Rhabdomyolyse 
+CSE-Hemmern  Daptomycin (Synergismus) 
+
+Bei antihypertensiver Makrolide (CYP-3A4-Hemmung) Hypotonie, Reflextachykardie 
+Therapie mit 
+Calciumantagonisten 
+(Dihydropyridine)  
+
+Bei antiobstruktiver Fluorchinolone (CYP-1A2-Hemmung) gesteigerte ZNS-Erregbarkeit 
+Therapie mit 
+Theophyllin oder 
+Einnahme von 
+Coffein 
+
+  
+
+Seite 298 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+Nebenwirkungs- Kritische Substanzen Konkrete UAWs; Bemerkungen Literatur 
+und Interaktions-
+risiken 
+
+Bei diuretischer Aminoglykoside, Glykopeptide und Verstärkung der nephrotoxischen 
+Therapie mit Beta-Lactam-Antibiotika Effekte 
+Schleifendiuretika,   
+bei antiphlogistischer Aminoglykoside und Erythromycin  Verstärkung der Ototoxizität 
+Therapie mit 
+Nichtsteroidalen 
+Antiphlogistika, bei 
+Gabe von Cisplatin 
+oder Amphotericin B 
+
+Bei Therapie mit Fluorchinolone (synergistisch oder Verstärkung anticholinerger, 
+Antidepressiva  CYP-1A2-Inhibition), Linezolid serotoninerger oder unspezifisch 
+
+(synergistisch), Makrolide (CYP-3A4- neuropsychiatrischer Nebenwirkungen 
+Inhibition)  
+
+Penicilline  Keine klinisch relevanten Interaktionen 
+ mit den hepatischen CYP-Systemen 
+  
+Eine Ausnahme ist eine CYP-3A4- Bei längerer Therapiedauer von 2–3 
+Induktion durch Flucloxacillin Wochen Wirkverlust von  
+
+CYP-3A4-abhängigen Substraten wie 
+z.B. Phenprocoumon 
+
+Erythromycin und Clarithromycin Hemmung des hepatischen CYP-3A4- 
+Systems kann zu bedrohlicher Toxizität 
+zahlreicher Substanzen führen, deren 
+hepatische Elimination gehemmt wird. 
+Hierzu zählen insbesondere zahlreiche 
+Psychopharmaka wie Risperidon, 
+Clozapin, Clomipramin, Antikonvulsiva 
+wie Phenytoin, Carpamazepin und 
+Valproinsäure sowie u.a. Simvastatin 
+und andere Statine, Theophyllin, 
+Warfarin und einige Anti-HIV-Mittel. Das 
+geringste Interaktionspotenzial hat 
+Azithromycin. 
+
+QT-Verlängerung Fluorchinolone, Makrolide, Besonders bei Polypharmazie 
+Metronidazol zusammen mit Betablockern, 
+
+Antiarrhythmika, Psychopharmaka, 
+Phenytoin 
+Ergänzend müssen hier die Azole 
+erwähnt werden, die ein nicht 
+unerhebliches Risiko der QT-
+Verlängerung bergen und über die 
+Hemmung von CYP450 mit vielen 
+anderen Arzneimitteln in unerwünschte 
+Interaktion treten und deren QT-
+Verlängerungs-Potential zusätzlich 
+steigern. 
+
+Nephrotoxizität Aminoglykoside, Glykopeptide, Interstitielle Nephritis in <1%; [58], [59], 
+Cotrimoxazol, Nitrofurantoin, alle Beta- Dosisanpassung der meisten Antibiotika [60], [61], 
+Lactam-Antibiotika, insbesondere an die verringerte Nierenfunktion, von [62] 
+Penicilline und Cephalosporine den Fluorchinolonen nur 
+
+Ofloxacin/Levofloxacin ab einer 
+Kreatinin-Clearance <50 ml/min und 
+Ciprofloxacin ab <30 ml/min. 
+Cotrimoxazol kann durch einen 
+inhibitorischen Effekt auf die renale 
+Aldosteron-Wirkung zu 
+lebensbedrohlicher Hyperkaliämie 
+führen, insbesondere bei Kombination 
+mit Thiazid-Diuretika und ACE-
+Hemmern. 
+
+Seite 299 von 341 
+
+
+
+15. Antibiotika-Therapie beim alten Menschen 
+
+Nebenwirkungs- Kritische Substanzen Konkrete UAWs; Bemerkungen Literatur 
+und 
+Interaktionsrisiken 
+
+Ototoxizität Aminoglykoside, Erythromycin, transienter Hörverlust bei hohen Dosen 
+seltener Clarithromycin bzw. bei Gabe in der Niereninsuffizienz  
+  
+Glykopeptide Auch Glykopeptide haben eine 
+
+ototoxische Nebenwirkung durch 
+irreparable Schädigung der 
+Hörschnecke. Das Risiko steigt enorm 
+bei Vorliegen einer Niereninsuffizienz. 
+
+Hepatotoxizität Rifampicin, Amoxicillin/Clavulansäure, In 1 bis 10 % leichter Transaminasen-
+Isoxazolylpenicilline, Erythromycin  Anstieg, der in den meisten Fällen 
+ weder einen Therapieabbruch noch 
+ eine Dosisreduktion erfordert. 
+  
+Fluorchinolone Wegen einzelner schwerwiegender, 
+ zum Teil tödlicher Leberkomplikationen 
+
+wurden orales Moxifloxacin und 
+Levofloxacin auf einen Reservestatus 
+bei Versagen alternativer Antibiotika in 
+der Therapie nicht lebensbedrohlicher 
+Infektionen wie Bronchitis, Sinusitis und 
+ambulant erworbene Pneumonie 
+zurückgestuft. Ein Monitoring der 
+Leberwerte unter einer Fluorchinolon-
+Therapie ist daher essenziell. 
+ 
+Dosisanpassung nur bei schwerer 
+Leberinsuffizienz 
+
+Fehl- und Unter- Makrolide, Clindamycin, Ciprofloxacin, Dosierung nach Nieren-Clearance und [63] 
+ernährung sowie bei Minocyclin, Metronidazol, Linezolid, physiologischen Parametern reduzieren  
+Exsikkose Tigecyclin 
+
+Multiresistenz- Kritische Antibiotika besonders Siehe andere Kapitel  
+Induktion oder  Fluorchinolone, Cephalosporine, 
+-Selektion Vancomycin 
+(Kollateralschäden) 
+
+Seltene Fluorchinolone  Achillessehnenruptur  
+Nebenwirkungen mit    
+hohem Linezolid  Serotoninsyndrom  [64] 
+Morbiditätsrisiko   
+
+Meropenem bei gleichzeitiger Status epilepticus durch Valproat-
+Valproat-Therapie Wirkverlust 
+
+Beurteilung der Nierenfunktion im Alter 
+
+Die Veränderung der renalen Eliminationsfunktion stellt die klinisch bedeutsamste Veränderung einer Kör-
+
+perfunktion im Hinblick auf die Auswirkungen auf die Pharmakokinetik von Arzneistoffen dar und tritt mit 
+
+höherem Alter zwangsläufig auf [65]. Der durchschnittliche renale Blutfluss verringert sich um etwa 10% 
+
+pro Alters-Dekade von 600 ml/min pro 1,73 m2 in der 4. Dekade auf etwa 300 ml/min pro 1,73 m2 in der 
+
+9. Dekade. Parallel dazu verringert sich die glomeruläre Filtrationsrate um rund 10% pro Dekade. Da 
+
+gleichzeitig die Kreatinin-Produktion in Abhängigkeit vom progredienten Verlust an Muskelmasse im Alter 
+
+sinkt, bleibt der Serum-Kreatinin-Spiegel konstant. Kreatinin-Spiegel im oberen Normbereich weisen daher 
+
+auf eine bereits bestehende Nierenfunktionseinschränkung hin. Ein Anstieg des Serum-Kreatinin ist bei der 
+
+Entscheidung über Antibiotika-Dosierungen besonders kritisch zu berücksichtigen. Viele Labore geben die 
+
+glomeruläre Filtrationsrate (GFR) auf der Basis einer Berechnung nach der MDRD-Formel (MDRD=Modifi-
+
+cation of Diet in Renal Disease Study) an. Diese Formel wurde im Rahmen der MDRD-Studie allerdings 
+
+Seite 300 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+nicht bei Personen über 70 Jahre validiert. Auch die alternative Formel nach Cockcroft-Gault zeigt erheb-
+
+liche Limitationen der GFR-Berechnung in Abhängigkeit vom Alter und bei großen Abweichungen des 
+
+Körpergewichtes auf. In vergleichenden Untersuchungen zeigten die GFR-Abschätzungen auf der Basis 
+
+eines 24-Stunden-Sammelurins die besten Resultate, wenn auch mit einer Tendenz zur Überschätzung. In 
+
+der Praxis bestehen jedoch erhebliche Einschränkungen der Methode durch Sammelfehler. Eine weitere 
+
+Alternative ist die Cystatin-C-Bestimmung, die sich durch Unabhängigkeit von Alter und Muskelmasse 
+
+auszeichnet [66], wobei auch dieser Parameter kontrovers diskutiert wird [67]. Am zuverlässigsten scheint 
+
+diese Methode im Bereich einer beginnenden Nierenfunktionseinschränkung zu sein, bei der sich noch 
+
+keine Erhöhungen des Kreatinins zeigen. Insgesamt weisen sämtliche Bestimmungsmethoden der Nieren-
+
+funktion bei alten Menschen deutliche Limitationen auf. Eine Überschätzung der glomerulären Filtrations-
+
+rate sollte deshalb durch einen zurückhaltenden Gebrauch potenziell nephrotoxischer Substanzen kom-
+
+pensiert werden [68]. 
+
+Antibiotika-Resistenzen im Alter 
+
+Sämtliche Faktoren, die mit dem Risiko von Besiedlung oder Infektion durch multiresistente Erreger asso-
+
+ziiert sind, gewinnen im Alter eine zunehmende Bedeutung. Multimorbidität und spezifische Komorbiditäten 
+
+wie Diabetes mellitus oder COPD, antimikrobielle Vortherapien, vorbestehende Krankenhausaufenthalte, 
+
+Versorgung in Pflegeheimen, Rehabilitationseinrichtungen und sonstigen tertiären Versorgungsstrukturen, 
+
+Träger invasiver „devices“ wie enterale Ernährungssonden, zentrale Venenverweilkatheter, Tracheal-
+
+kanülen und Harnwegskatheter, andere ambulante nosokomiale Risiken wie Dialyse, Versorgung chroni-
+
+scher Ulzera oder sonstige Pflegebedürftigkeit und vorbestehende Kolonisation kumulieren mit steigendem 
+
+Alter. Erwartungsgemäß treten bei Bewohnern von Pflegeheimen in Abhängigkeit ihrer Funktions-
+
+einschränkungen vermehrt resistente Erreger auf [69], [70]. Das Risiko für Multiresistenz stellt im Falle 
+
+einer Infektion besondere Anforderungen an die Verordnung einer adäquaten Antibiotika-Therapie, sei es 
+
+durch die Wahl eines geeigneten Breitspektrum-Antibiotikums oder durch eine geeignete Kombinations-
+
+strategie. Bei einer inadäquaten Therapie besteht die Gefahr eines verlängerten Krankenhausaufenthaltes, 
+
+von erhöhten Kosten und im schlimmsten Fall einer erhöhten Krankenhausletalität [71], [72]. Das Multi-
+
+resistenzrisiko muss individuell erfasst werden, eine pauschale Annahme eines altersbedingt erhöhten 
+
+MRE-Risikos ohne Würdigung der individuellen Risikofaktoren führt zu inadäquater Übertherapie mit 
+
+Breitspektrum-Antibiotika. 
+
+Zusammenfassung 
+
+Grundsätzlich kann der Einsatz von Antibiotika bei älteren Patienten nach den gleichen Prinzipien wie bei 
+
+jüngeren erfolgen. Es gibt kein Antibiotikum, welches grundsätzlich als inadäquat für ältere Menschen 
+
+angesehen werden muss. 
+
+Die Auswahl und die Dosierung von Antibiotika müssen allerdings den generellen medizinischen Proble-
+
+men des hohen Alters in Verbindung mit den physiologischen Veränderungen angepasst werden. Dabei 
+
+spielt das in den letzten Jahren gestiegene Risiko durch resistente und multiresistente Infektionserreger im 
+
+Kontext multipler Krankenhausaufenthalte und antibiotischer Vortherapien eine zunehmende Rolle. 
+
+Seite 301 von 341 
+
+
+
+15. Antibiotika-Therapie beim alten Menschen 
+
+Aufgrund des häufigeren Auftretens und der potenziell gravierenden Konsequenzen von Antibiotika-Neben-
+
+wirkungen (unerwünschte Arzneimittelwirkungen, UAW) bei älteren im Vergleich zu jüngeren Patienten sind 
+
+folgende Schritte zur Optimierung essentiell: Strenge Entscheidung über die Indikation an sich, Wahl des 
+
+besten Antibiotikums auch unter Berücksichtigung seltener, dafür aber im Alter bedrohlicher Neben-
+
+wirkungen, Festlegung der richtigen Dosis, des Dosierungsintervalls und der kürzest möglichen Dauer 
+
+entsprechend dem physiologischen Status des Patienten sowie Monitoring von Effektivität und Toxizität zur 
+
+frühen Erkennung erwarteter und unerwarteter Nebenwirkungen. Geriatrische Patienten sind durch die 
+
+ihnen eigene Frailty, also das Syndrom der Gebrechlichkeit, in hohem Maße gefährdet, einen komplika-
+
+tionsreichen Verlauf mit einer erschwerten Rekonvaleszenz und einer höheren Mortalität zu erleiden [73]. 
+
+Daher müssen Empfehlungen die besonderen Bedingungen der antibiotischen Therapie bei alten Patienten 
+
+reflektieren. 
+
+ 
+
+ 
+
+Seite 302 von 341

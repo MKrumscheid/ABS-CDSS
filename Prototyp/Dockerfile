@@ -63,6 +63,10 @@ COPY --from=frontend-builder /app/frontend/enduser-build ./static/enduser
 # Create additional directories if needed
 RUN mkdir -p data/embeddings
 
+# Set environment variables for production
+ENV USE_ONLINE_EMBEDDINGS=true
+ENV DATABASE_URL=sqlite:///./abs_cdss.db
+
 # Create non-root user for security
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 RUN chown -R appuser:appuser /app
