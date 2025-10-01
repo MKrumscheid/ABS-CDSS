@@ -1,0 +1,845 @@
+﻿4. Sicherheit und Verträglichkeit 
+
+4. Sicherheit und Verträglichkeit 
+
+Ralf Stahlmann, Hartmut Lode 
+
+Einleitung 
+
+Bei etwa 10% der behandelten Patienten muss mit unerwünschten Wirkungen gerechnet werden. Dies gilt 
+
+für die meisten parenteral gegebenen Antibiotika. In einigen Fällen liegt die Häufigkeit der unerwünschten 
+
+Arzneimittelwirkungen auch höher. Von besonderer Bedeutung ist die Frage nach Unterschieden in der 
+
+Verträglichkeit der verfügbaren Präparate – sie kann allerdings meist wegen fehlender oder unzureichender 
+
+Studien nicht mit der gewünschten Genauigkeit beantwortet werden. Es ist nicht gerechtfertigt, die 
+
+Ergebnisse aus verschiedenen klinischen Studien direkt miteinander zu vergleichen, um Unterschiede in 
+
+der Verträglichkeit von Arzneistoffen zu bewerten.  
+
+Trotz weitgehender Standardisierung der klinischen Prüfung stellen nur Daten aus Vergleichsstudien, 
+
+vorzugsweise Doppelblindstudien, eine zuverlässige Quelle für direkte Vergleiche zwischen verschiedenen 
+
+Arzneimitteln dar. Dies gilt für die unerwünschten Effekte ebenso wie für die erwünschten Wirkungen. Die 
+
+Anzahl der in klinischen Vergleichsstudien eingeschlossenen Patienten reicht nicht aus, um Aussagen über 
+
+seltene unerwünschte Wirkungen machen zu können. Daher müssen weitere Auswertungen der 
+
+Gesamtdaten aus mehreren klinischen Studien oder sogar die Erfahrungen aus der „postmarketing 
+
+surveillance“ herangezogen werden. Die Limitierungen solcher Daten sollten jedoch stets berücksichtigt 
+
+werden. 
+
+Generell gilt, dass sich die unerwünschten Wirkungen der meisten parenteral verabreichten Antiinfektiva 
+
+überwiegend an drei Organsystemen manifestieren: 
+
+• Gastrointestinaltrakt (z.B. Übelkeit, Erbrechen, Diarrhoe), 
+
+• Haut (z.B. Exantheme, Urtikaria, Phototoxizität) und 
+
+• ZNS (z.B. Kopfschmerzen, Schwindel, Schlafstörungen). 
+
+Wesentliche Unterschiede bestehen im Schweregrad und der Häufigkeit einer bestimmten unerwünschten 
+
+Wirkung. Nach der Pathogenese der unerwünschten Wirkungen lassen sich toxische, allergische und 
+
+biologische Wirkungen unterscheiden. In manchen Fällen kann nicht eindeutig festgestellt werden, ob z.B. 
+
+Störungen des Magen-Darm-Trakts durch direkte Wirkungen auf die entsprechenden Organe hervor-
+
+gerufen wurden oder ob die Veränderungen durch eine Beeinflussung der bakteriellen Flora verursacht 
+
+sind. 
+
+Grundsätzlich ist zu bedenken, dass jede Gabe einer antimikrobiell wirksamen Substanz die körpereigene 
+
+Flora beeinflusst. Bei jeder antibakteriellen Therapie müssen daher die biologischen Nebenwirkungen der 
+
+Substanzen in der Nutzen/Risiko-Abwägung mit berücksichtigt werden. Art und Ausmaß der 
+
+Veränderungen werden wesentlich durch die antibakterielle Wirkung und durch die pharmakokinetischen 
+
+Eigenschaften des Antibiotikums geprägt. Die Antibiotika-assoziierte Kolitis wird durch toxinbildende 
+
+Stämme von Clostridium difficile ausgelöst. Diese schwerwiegende unerwünschte Wirkung tritt zunehmend 
+
+häufig auf und wird offensichtlich häufig übersehen. Nach einer Schätzung bleiben pro Jahr in Europa bei 
+
+Seite 74 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+etwa 40.000 hospitalisierten Patienten auf Grund des fehlenden klinischen Verdachts sowie einer sub-
+
+optimalen Diagnostik Clostridium-difficile-Infektionen unentdeckt [1]. 
+
+Die folgenden Definitionen werden bei der Angabe der Häufigkeiten von unerwünschten Wirkungen 
+
+benutzt: „sehr häufig“, wenn mit der unerwünschten Wirkung bei mehr als 10% der Patienten zu rechnen 
+
+ist, ein Auftreten zwischen >1% und 10% wird als „häufig“ bezeichnet, zwischen >0,1% und 1% als 
+
+„gelegentlich“. Eine unerwünschte Wirkung wird als „selten“ klassifiziert bei einer Häufigkeit zwischen 
+
+>0,01% und 0,1%, tritt sie bei weniger einem Patienten pro 10.000 auf, gilt sie als „sehr selten“.  
+
+Arzneistoffspezifische Nebenwirkungen 
+
+Beta-Lactam-Antibiotika 
+
+Die parenteral verabreichten Beta-Lactam-Antibiotika sind im Allgemeinen gut verträglich. Die Neben-
+
+wirkungen sind in der Regel leicht und vorübergehend und erfordern nur selten einen vorzeitigen 
+
+Therapieabbruch. Bei etwa 1–2% der Patienten können Überempfindlichkeitsreaktionen in Form von 
+
+morbilliformen oder skarlatiniformen Exanthemen auftreten. Selten (in 0,5–1%) kommt es zu Gesichts-, 
+
+Zungen- oder Glottisschwellungen (z.B. Quincke-Ödem). Sehr selten sind eine Pneumonitis bzw. 
+
+interstitielle Pneumonie oder eine interstitielle Nephritis. Selten kann es zu schweren akuten allergischen 
+
+Reaktionen (Anaphylaxie bis hin zum lebensbedrohlichen Schock) kommen, die bereits durch niedrige 
+
+Einzeldosen ausgelöst werden können und im Allgemeinen bis zu 30 Minuten nach der Applikation 
+
+auftreten können. Solche Reaktionen sind nach Penicillinen häufiger als nach anderen Beta-Lactam-
+
+Antibiotika. Patienten sind nach Applikation eines Beta-Lactam-Antibiotikums für etwa 30 Minuten zu 
+
+beobachten, um eine eventuell auftretende allergische Reaktion zu erkennen. 
+
+Kreuzallergische Reaktionen zwischen Penicillinen und Cephalosporinen sind eher selten. Aztreonam ist 
+
+ein Beta-Lactam-Antibiotikum, das auch bei Patienten angewandt werden kann, die nach Penicillinen und 
+
+anderen Beta-Lactamen Hautausschläge oder andere Arten akuter Überempfindlichkeitsreaktionen 
+
+entwickelt haben, weil Kreuzallergien nach den bisherigen Erfahrungen sehr selten sind. Bei einigen 
+
+Patienten wurden bei Behandlung mit Aztreonam Allergien beobachtet, die jedoch wahrscheinlich eher mit 
+
+der Struktur der Seitenkette als mit dem Beta-Lactam-Ring zusammenhängen. Da die Seitenkette identisch 
+
+ist mit der entsprechenden Struktur im Ceftazidim, sollte bei einer allergischen Reaktion gegen Ceftazidim 
+
+das Monobactam Aztreonam nicht verabreicht werden und umgekehrt [2], [3]. 
+
+Auswirkungen auf das Blutbild sind allergischer oder toxischer Art. Sie manifestieren sich gelegentlich in 
+
+Form einer Thrombozytopenie und/oder Eosinophilie. Insbesondere bei der Langzeitanwendung sind in 
+
+regelmäßigen Abständen Blutbildkontrollen angezeigt, da es zu Leukopenie und Neutropenie kommen 
+
+kann. Die Veränderungen sind im Allgemeinen innerhalb einiger Tage nach Absetzen des Antibiotikums 
+
+reversibel. 
+
+Gastrointestinale Unverträglichkeitserscheinungen in Form von Appetitlosigkeit, Übelkeit, Erbrechen, 
+
+Bauchschmerzen, Meteorismus oder weichen Stühlen werden bei der Therapie mit Beta-Lactam-
+
+Seite 75 von 341 
+
+
+
+4. Sicherheit und Verträglichkeit 
+
+Antibiotika häufig beobachtet. Diarrhöen (mehr als 3 Entleerungen eines ungeformten Stuhls pro Tag) 
+
+kommen bei 2–10% der Patienten vor. 
+
+Bei der Infusion von Ceftobiprol waren die gastrointestinalen Störungen, wie Übelkeit und Erbrechen, 
+
+abhängig von der Infusionsdauer. Einige Patienten berichteten während der klinischen Prüfung der 
+
+Substanz über Geschmacksstörungen [4]. 
+
+Reversible, mäßig ausgeprägte Veränderungen von Leberfunktionsparametern (z.B. Transaminasen, 
+
+alkalische Phosphatase) kommen bei bis zu 10% der Patienten vor. In Einzelfällen wurde eine vorüber-
+
+gehende cholestatische Hepatitis beobachtet. Das Risiko ist bei höherem Lebensalter und längerer 
+
+Anwendung erhöht. Amoxicillin/Clavulansäure sollte bei älteren Patienten (>65 Jahre) nur unter Kontrolle 
+
+der Leberfunktion angewandt werden. 
+
+Detaillierte Kenntnisse liegen mittlerweile zum Mechanismus der Flucloxacillin-verursachten Leberschäden 
+
+vor. Die Häufigkeit lag bei etwa 1 von 12.000 Patienten, die das Medikament erstmalig erhielten. In vitro 
+
+konnte gezeigt werden, dass der 5’-Hydroxylmethyl-Metabolit – im Gegensatz zum Flucloxacillin selbst – 
+
+auf biliäre Epithelzellen toxischer wirkt als auf Hepatozyten. Eine sehr deutliche Assoziation besteht auch 
+
+mit dem HLA-Allel B*5701, woraus abgeleitet werden kann, dass eine fehlerhafte T-Zell-Aktivität im 
+
+pathogenetischen Geschehen ebenfalls mitverantwortlich ist. Die Odds Ratio lag hier bei einem Wert von 
+
+etwa 80 [5]. 
+
+Eine hochdosierte, intravenöse Therapie mit Amoxicillin kann zur Kristallurie und Nierenversagen führen. 
+
+Ausreichende Flüssigkeitszufuhr und eine Alkalisierung des Urins können das Auskristallisieren des 
+
+Antibiotikums verhindern [6]. 
+
+Unter Ceftriaxon-Therapie wurden in seltenen Fällen Verschattungen im Sonogramm der Gallenblase 
+
+beobachtet, welche nach Absetzen oder nach Beendigung der Therapie wieder verschwanden (sog. 
+
+transitorische biliäre Pseudolithiasis). 
+
+Bei bestimmten Risikokonstellationen (Patienten mit stark eingeschränkter Nierenfunktion, Epilepsie, bei 
+
+einer Beeinträchtigung der Blut-Hirn-Schranke, z.B. bei Meningitis) und bei Gabe von Beta-Lactam-
+
+Antibiotika in sehr hohen Dosierungen kann es zu Krampfanfällen kommen. Das krampfauslösende 
+
+Potenzial der neueren Carbapeneme ist geringer als das von Imipenem/Cilastatin, wie sich tier-
+
+experimentell zeigen lässt. Meropenem ist daher im Gegensatz zu Imipenem/Cilastatin auch zur Therapie 
+
+der Meningitis zugelassen [7]. 
+
+Bei Gabe von Meropenem oder anderen Carbapenemen zusammen mit Valproinsäure sind die Plasma-
+
+konzentrationen des Antiepileptikums deutlich reduziert und es kann zu Krampfanfällen kommen. 
+
+Valproinsäure wird überwiegend durch Glukuronidierung verstoffwechselt. Der Metabolit wird anschließend 
+
+teilweise aber auch wieder hydrolytisch gespalten. Offenbar hemmen die Carbapeneme die Hydrolyse des 
+
+Glukuronids und dadurch liegt weniger freie Valproinsäure im Plasma vor. Die Serumspiegel von 
+
+Valproinsäure müssen daher kontrolliert und die Dosierung eventuell angepasst werden, wenn ein 
+
+Carbapenem gleichzeitig verabreicht wird [8]. 
+
+Seite 76 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+Langfristige und wiederholte Anwendung von Beta-Lactam-Antibiotika (insbesondere solche mit breitem 
+
+antibakteriellen Spektrum) kann zu einer Superinfektion oder Kolonisation mit resistenten, potentiell 
+
+pathogenen Erregern wie Clostridium difficile oder Sprosspilzen (z.B. Mundsoor, Vulvovaginitis) führen. 
+
+Fluorchinolone 
+
+Während der Behandlung mit Fluorchinolonen (z.B. Ciprofloxacin, Levofloxacin, Moxifloxacin) treten 
+
+unerwünschte Wirkungen bei etwa 4–10% der behandelten Patienten auf [9], [10].  
+
+Am häufigsten manifestieren sich die unerwünschten Wirkungen am Magen-Darm-Trakt oder als ZNS-
+
+Reaktion (z.B. Schlaflosigkeit, Benommenheit, selten auch psychotische Reaktionen und Krampfanfälle). 
+
+Unter den Hautreaktionen hat besonders das phototoxische Potenzial der Fluorchinolone Beachtung 
+
+gefunden. Bei einer Fluorchinolon-Therapie sollte eine direkte Exposition mit UV-Licht vermieden werden; 
+
+das phototoxische Potenzial der drei Chinolone, die parenteral verabreicht werden können, ist relativ 
+
+gering. Kardiotoxische Effekte wurden zunächst im Tierversuch nach Gabe von heute nicht mehr üblichen 
+
+Fluorchinolonen wie z.B. Sparfloxacin beobachtet. Geringfügige Veränderungen der QTc-Zeit können auch 
+
+beim Menschen auftreten. Fluorchinolone dürfen nicht mit anderen arrhythmogenen Arzneimitteln 
+
+kombiniert werden. Auch bei Patienten mit Long-QT-Syndrom, unkorrigierten Elektrolytstörungen 
+
+(Hypokaliämie und Hypomagnesiämie), sowie Herzerkrankungen, wie Herzinsuffizienz, Myokardinfarkt, 
+
+Bradykardie sollen Chinolone nur nach sorgfältiger Nutzen-Risiko-Bewertung angewendet werden [11].  
+
+Fluorchinolone gelten als kontraindiziert bei Kindern, Jugendlichen und Schwangeren – die klinische 
+
+Relevanz der Fluorchinolon-typischen toxischen Wirkungen auf den unreifen Gelenkknorpel ist allerdings 
+
+umstritten. Ciprofloxacin kann zur Behandlung von schweren Infektionen bei Kindern und Jugendlichen 
+
+eingesetzt werden, wenn dies als notwendig angesehen wird. Bei jugendlichen Mukoviszidose-Patienten 
+
+mit Pseudomonas-verursachten bronchopulmonalen Infektionen wird es seit langem angewandt, wobei 
+
+Gelenkbeschwerden nicht gehäuft aufgetreten sind. Darüber hinaus ist es bei dieser Altersgruppe bei 
+
+komplizierten Harnwegsinfektionen und Pyelonephritis sowie nach Inhalation von Milzbranderregern zur 
+
+postexpositionellen Prophylaxe und Therapie zugelassen.  
+
+Entzündungen oder Rupturen der Achilles-Sehne können als seltene unerwünschte Wirkungen nach jedem 
+
+Fluorchinolon auftreten. Diese unerwünschte Wirkung tritt häufiger auf bei Personen über 60 Jahren, 
+
+jedoch sind durchaus auch jüngere Patienten betroffen. Bereits seit 2008 wird in den USA auf diese 
+
+Nebenwirkung durch ein „Black Box Warning“ hingewiesen [12]. 
+
+Im Jahr 2013 wurde von der US-amerikanischen Behörde FDA auf das Risiko einer peripheren Neuropathie 
+
+durch Chinolone hingewiesen. Sie können bereits bei kurzer Therapiedauer auftreten und irreversibel sein. 
+
+Nach den europäischen „Informationen für Fachkreise“ soll die Behandlung mit einem Chinolon sofort 
+
+abgebrochen werden, wenn die Patienten Symptome wie Schmerz, Brennen, Kribbeln, Taubheitsgefühl 
+
+oder Schwäche entwickeln. 
+
+In sehr seltenen Fällen wurden im Zusammenhang mit der Gabe von Fluorchinolonen Fälle von Hepatitis 
+
+bis hin zum Leberversagen beobachtet. 
+
+Seite 77 von 341 
+
+
+
+4. Sicherheit und Verträglichkeit 
+
+In einer Studie wurde 2013 eine deutliche Assoziation zwischen der Behandlung mit einem Chinolon und 
+
+einer Netzhautablösung festgestellt. In weiteren, aktuelleren Arbeiten wurde ein entsprechender Zusam-
+
+menhang jedoch nicht bestätigt [13].  
+
+Unter den derzeit zur parenteralen Therapie verfügbaren Fluorchinolonen hemmt vor allem Ciprofloxacin 
+
+das Cytochrom P450-1A2. Dadurch ist der Abbau von Theophyllin und Coffein verzögert, aber auch der 
+
+Metabolismus anderer Arzneistoffe, z.B. Clozapin, kann in klinisch relevantem Ausmaß inhibiert werden 
+
+[14]. 
+
+Die EMA hat aufgrund der z.T. schwerwiegenden Nebenwirkungen ein Verfahren zur Neubewertung des 
+
+Nutzen-Risiko-Verhältnisses der Fluorchinolonen eingeleitet (siehe Kapitel 1). 
+
+Makrolide, Azalide 
+
+Neben Erythromycin stehen auch Clarithromycin und Azithromycin zur parenteralen Therapie zur Ver-
+
+fügung. Aufgrund der abweichenden Grundstruktur wird Azithromycin auch als „Azalid“ bezeichnet. Makro-
+
+lide/Azalide führen häufig zu lokalen Unverträglichkeitsreaktionen an der Infusionsstelle. 
+
+Abgesehen von den lokalen Unverträglichkeitsreaktionen, bestehen die häufigsten unerwünschten Wir-
+
+kungen dieser Antibiotika – auch bei einer parenteralen Therapie – in gastrointestinalen Störungen. Die 
+
+Reaktionen des Magen-Darm-Trakts werden überwiegend durch direkte Stimulierung der glatten 
+
+Muskulatur hervorgerufen, denn die Makrolide/Azalide wirken Motilin-agonistisch. Die neueren Derivate 
+
+des Erythromycins (Clarithromycin, Azithromycin) sind besser magenverträglich als das klassische 
+
+Makrolid-Antibiotikum [15].  
+
+Makrolide können allergische Reaktionen hervorrufen. Solche Reaktionen sind deutlich seltener als nach 
+
+der Gabe von Penicillinen oder anderen Beta-Lactam-Antibiotika. 
+
+Nach hohen Dosen von Erythromycin (intravenöse Gabe!) sind reversible Fälle von Hörverlust beschrieben 
+
+worden. Auch kardiotoxische Wirkungen können nach Makroliden auftreten. Sie bewirken eine QTc-
+
+Verlängerung und es besteht die Möglichkeit von schwerwiegenden Arrhythmien (Torsades de pointes) 
+
+[16]. 
+
+Interaktionen zwischen Erythromycin/Clarithromycin und zahlreichen anderen Pharmaka, die durch 
+
+Cytochrom-P450-abhängige Monooxygenasen (z.B. CYP3A) metabolisiert werden, sind seit langem 
+
+bekannt. Der Phase-I-Metabolismus von Carbamazepin, Glukocortikoiden, Terfenadin, Theophyllin, 
+
+Ciclosporin und vielen anderen Arzneistoffen wird durch Makrolide gehemmt. Insbesondere bei 
+
+Substanzen, die zu einer QTc-Verlängerung führen können (z.B. Terfenadin, Pimozid), besteht bei 
+
+kombinierter Gabe ein erhöhtes Risiko für Torsades de pointes. Aufgrund der bisherigen Erfahrungen ist 
+
+durch das Azalid Azithromycin eine derartige Hemmung der metabolisierenden Enzyme nicht zu erwarten. 
+
+Fallberichte über Interaktionen mit Digitalisglykosiden liegen für alle Makrolide/Azalide vor – sie werden 
+
+offenbar über andere Mechanismen verursacht [17]. 
+
+  
+
+Seite 78 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+Glykopeptide 
+
+Es stehen fünf Glykopeptide zur Verfügung. Innerhalb der Gruppe können die Lipoglykopeptide 
+
+(Telavancin, Dalbavancin, Oritavancin) von den klassischen Antibiotika dieser Gruppe (Vancomycin, 
+
+Teicoplanin) abgegrenzt werden. Sie unterscheiden sich wesentlich hinsichtlich ihrer pharmakologischen 
+
+Eigenschaften, Dosierungen und Indikationen. Daher bestehen auch deutliche Unterschiede im Verträg-
+
+lichkeitsprofil. 
+
+Überempfindlichkeitsreaktionen können bei einer Therapie mit allen Glykopeptiden auftreten [18]. 
+
+Bei rascher Infusion von Vancomycin kann es durch Freisetzung von Mediatoren zu Hautrötung am 
+
+Oberkörper (Red-Neck- bzw. Red-Man-Syndrom), zu Schmerzen und Krämpfen der Brust- und 
+
+Rückenmuskulatur kommen. Derartige Reaktionen treten unter Teicoplanin praktisch nicht auf [18]. Die 
+
+Infusionsdauer für Vancomycin soll daher mindestens 60 Minuten betragen, (empfohlene Infusionsdauer 
+
+für Telavancin 60 Minuten, Teicoplanin und Dalbavancin 30 Minuten, Oritavancin 3 Stunden).  
+
+Während der Therapie mit Glykopeptiden können gastrointestinale Störungen wie z.B. Übelkeit und 
+
+Erbrechen auftreten. Nach Gabe von Vancomycin kann es zum Nierenversagen kommen. Das Risiko für 
+
+nephrotoxische Reaktionen nimmt mit höheren Dosierungen und bei gleichzeitiger Gabe anderer Sub-
+
+stanzen mit nephrotoxischem Potenzial zu [19], [20], [21]; siehe auch Kapitel 3. Renale Nebenwirkungen 
+
+waren in klinischen Studien nach Telavancin häufiger als nach Vancomycin. Selten wurde eine 
+
+vorübergehende oder bleibende Verschlechterung des Hörvermögens berichtet [22]. 
+
+Blutbildstörungen sind nach Glykopeptiden selten (vorübergehende Neutropenie, Thrombozytopenie, 
+
+Eosinophilie). Bei Gabe von Glykopeptiden kann es zu Schmerzen an der Injektionsstelle kommen 
+
+(Thrombophlebitis). 
+
+Daptomycin 
+
+Die Verträglichkeit von Daptomycin war während der klinischen Prüfung ähnlich gut wie die der Ver-
+
+gleichssubstanzen [23]. Am häufigsten kam es zu Obstipation (6,2%), Übelkeit (5,8%), Reaktionen an der 
+
+Injektionsstelle (5,8%) und Kopfschmerzen (5,4%). Daptomycin kann Reaktionen der quergestreiften 
+
+Muskulatur verursachen [24], [25]. Bei einer Dosierung von 3 mg/kg KG alle 12 Stunden wurden in einer 
+
+frühen Phase-I-Studie häufig reversible Erhöhungen der CPK-Werte (Kreatinphosphokinase) beobachtet. 
+
+Bei der einmal täglichen Gabe treten entsprechende Wirkungen seltener auf. Daneben können auch 
+
+erhöhte Transaminasen-Werte bei den Patienten vorkommen, die ebenfalls im Zusammenhang mit den 
+
+Wirkungen auf die Skelettmuskulatur gesehen werden. Eine regelmäßige Überwachung der Patienten auf 
+
+Anzeichen einer Myopathie und eine Kontrolle der CPK-Werte einmal pro Woche wird bei einer Therapie 
+
+mit Daptomycin allgemein empfohlen [26]. 
+
+Aufgrund der überwiegend renalen Elimination von Daptomycin muss bei gleichzeitiger Gabe von 
+
+Arzneimitteln, die die renale Filtration vermindern (nicht-steroidale Antirheumatika, COX-2-Hemmer), mit 
+
+erhöhten Plasmaspiegeln von Daptomycin gerechnet werden. Eine gleichzeitige Behandlung mit Arznei-
+
+mitteln, die eine Myopathie auslösen können, sollte möglichst während der Therapie mit Daptomycin 
+
+Seite 79 von 341 
+
+
+
+4. Sicherheit und Verträglichkeit 
+
+ausgesetzt werden, da in einigen Fällen deutlich erhöhte CPK-Werte beobachtet wurden und Einzelfälle 
+
+von Rhabdomyolyse aufgetreten sind [27]. Ist eine gleichzeitige Anwendung nicht zu vermeiden, sollten 
+
+häufiger als einmal pro Woche die CPK-Werte kontrolliert werden und eine sorgfältige Überwachung der 
+
+Patienten erfolgen. 
+
+Aminoglykoside 
+
+Die therapeutische Breite der Aminoglykoside ist gering. Alle Antibiotika dieser Gruppe sind potenziell 
+
+nephrotoxisch und ototoxisch. Außerdem können sie die neuromuskuläre Übertragung stören und sind 
+
+deshalb bei Myasthenia gravis kontraindiziert [28], [29]. 
+
+Aminoglykoside schädigen die Haarzellen des Innenohrs und die Zellen im proximalen Tubulus der Niere. 
+
+Die Antibiotika werden aktiv über Megalin/Cubilin in diese Zellen transportiert. Sie reichern sich in den 
+
+Tubuluszellen an und führen nach einiger Zeit zur Apoptose und Nekrose der Zellen. Deshalb nimmt das 
+
+Risiko für toxische Schäden deutlich zu, wenn die Therapie länger als 8 Tage dauert oder wenn der Patient 
+
+in einem Zeitraum von 6 Wochen vor Beginn der Therapie schon einmal mit einem Aminoglykosid 
+
+behandelt wurde [30]. 
+
+Bei Gabe der gesamten Tagesdosis in einer Kurzinfusion ist die Oto- und Nephrotoxizität tendenziell 
+
+geringer als bei dreimal täglicher Gabe. Da diese Applikationsweise (Einmal-täglich-Dosierung) auch unter 
+
+den Aspekten der antibakteriellen Wirkung günstiger erscheint, hat sich dieses Dosierungskonzept 
+
+durchgesetzt [28], [31]. 
+
+Zu Vestibularisschäden (Schwindel, Nystagmus) und Cochleaschäden kommt es besonders bei einge-
+
+schränkter Nierenfunktion oder bei hoher Dosierung. Initial besteht ein Hörverlust der hohen Frequenzen 
+
+[29]. 
+
+Allergische Reaktionen auf Aminoglykoside sind selten [28]. 
+
+Oxazolidinone (Linezolid, Tedizolid) 
+
+Linezolid ist das erste in der Humanmedizin verwendbare Oxazolidinon. Während der klinischen Prüfung 
+
+war es ähnlich gut verträglich wie die vergleichend untersuchten Antiinfektiva. Gastrointestinale Störungen, 
+
+z.B. Erbrechen und leichte ZNS-Reaktionen, standen im Vordergrund. Bei längerer Behandlungsdauer 
+
+(>2 Wochen) wurden unter Linezolid Blutbildveränderungen (Thrombozytopenie, Neutropenie, Anämie) 
+
+gesehen. Wöchentliche Blutbildkontrollen sind daher bei einer Behandlung mit Linezolid generell angezeigt. 
+
+Periphere Neuropathie und/oder Optikus-Neuropathie, sehr selten progredient bis zum Verlust des Seh-
+
+vermögens, wurden bei Patienten unter Behandlung mit Linezolid berichtet. Diese Berichte betrafen 
+
+überwiegend Patienten, die über einen längeren Zeitraum als die maximal empfohlene Dauer von 28 Tagen 
+
+behandelt wurden. Auch Fälle von Laktatazidose traten bei längerfristiger Behandlung auf [32], [33], [34]. 
+
+Linezolid ist ein Hemmstoff der Monoaminoxidase. Entsprechende Interaktionen mit gleichzeitig 
+
+gegebenen adrenerg oder serotonerg wirksamen Medikamenten können daher auftreten. Dies kann 
+
+bedeutsam sein bei gleichzeitiger Behandlung mit selektiven Serotonin-Wiederaufnahmehemmern und 
+
+Seite 80 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+anderen Arzneimitteln, wie trizyklischen Antidepressiva, Serotonin-5-HT1-Rezeptoragonisten (Triptane), 
+
+direkt oder indirekt wirkenden Sympathomimetika (einschließlich adrenerger Bronchodilatatoren, 
+
+Pseudoephedrin oder Phenylpropanolamin), vasopressorischen Mitteln (z.B. Epinephrin, Norepinephrin), 
+
+dopaminergen Mitteln (z.B. Dopamin, Dobutamin) sowie Pethidin oder Buspiron. Bei entsprechender 
+
+Komedikation sollte Linezolid nicht angewandt werden [35], [36]. 
+
+Seit 2015 ist mit Tedizolid ein zweites Oxazolidinon im Handel. Es ist derzeit nur bei Haut- und 
+
+Weichgewebeinfektionen zugelassen. Die Therapiedauer ist auf 6 Tage begrenzt. In den klinischen Studien 
+
+war Tedizolid eindeutig besser verträglich als Linezolid. Die häufigsten unerwünschten Wirkungen waren 
+
+gastrointestinale Störungen [37]. Dabei muss berücksichtigt werden, dass in diesen Studien deutlich 
+
+geringere Dosierungen von Tedizolid (200 mg vs. 1.200 mg pro Tag) über einen kürzeren Zeitraum 
+
+verabreicht wurden (6 Tage vs. 10 Tage). Mit myelosuppressiven Wirkungen ist erst bei längerer 
+
+Behandlung bzw. höherer Dosierung zu rechnen. 
+
+Lincosamide (Clindamycin) 
+
+Die häufigste unerwünschte Wirkung bei einer Behandlung mit Clindamycin ist eine Diarrhoe durch 
+
+Beeinträchtigung der physiologischen Darmflora (5–20%). Nach Clindamycin-Therapie kann eine schwere 
+
+pseudomembranöse Enterokolitis durch Selektion von Clostridium difficile auftreten [38]. Gelegentlich 
+
+steigen unter Clindamycin die Bilirubin- und Leberenzymwerte im Blut. Überempfindlichkeitsreaktionen sind 
+
+relativ selten, hämatologische Störungen wie Thrombozytopenie, Leukopenie u.a. werden vor allem unter 
+
+längerer Therapie mit Clindamycin beobachtet [16]. 
+
+Metronidazol 
+
+Die häufigsten unerwünschten Wirkungen bei einer Behandlung mit Metronidazol sind gastrointestinale 
+
+Störungen, die sich in Form von bitterem Aufstoßen, metallischem Geschmack und Übelkeit äußern 
+
+können. Diarrhoen treten selten auf [39]. Mögliche neurologische Störungen können Kopfschmerzen, 
+
+Schwindel, Ataxien, Parästhesien sein. Bei hoher Dosierung und Langzeitbehandlung können reversible 
+
+periphere Neuropathien auftreten. Fälle von aseptischer Meningitis sind im Zusammenhang mit einer 
+
+Metronidazol-Therapie bekannt geworden [40]. Möglich sind allergische Reaktionen und hämatologische 
+
+Störungen [41]. Ein sogenannter Disulfiram-Effekt bei gleichzeitiger Alkoholeinnahme wurde beschrieben 
+
+– die Datenlage ist allerdings widersprüchlich [42]. 
+
+Tetracycline (Doxycyclin) und Glycylcycline (Tigecyclin) 
+
+Zur intravenösen Gabe steht aus der Gruppe der Tetracycline nur Doxycyclin zur Verfügung. 
+
+Gastrointestinale Störungen sind die häufigsten unerwünschten Wirkungen bei einer Behandlung mit 
+
+Doxycyclin. Übelkeit, Erbrechen, Durchfälle (selten pseudomembranöse Enterokolitis) können auftreten. 
+
+Tetracycline besitzen ein phototoxisches Potenzial. ZNS-Reaktionen können sich als Kopfschmerz, 
+
+Übelkeit und Photophobie äußern. Allergische Reaktionen bis hin zur Anaphylaxie sind sehr selten. Bei zu 
+
+schneller Injektion kann es zu Schwindel, Hitzegefühl, Rötung des Gesichtes und Kollaps kommen. Die 
+
+Seite 81 von 341 
+
+
+
+4. Sicherheit und Verträglichkeit 
+
+intravenöse Anwendung ist mit lokaler Irritation verbunden und kann eine Venenentzündung 
+
+(Thrombophlebitis) verursachen. Deshalb sollte, wenn möglich, auf eine orale Therapie umgestellt werden 
+
+[43]. 
+
+Tigecyclin verursachte in den klinischen Zulassungsstudien häufiger gastrointestinale Nebenwirkungen 
+
+(z.B. Übelkeit) als die zum Vergleich angewandten Antibiotika [44]. Zum Erbrechen kam es bei 19% 
+
+(Tigecyclin), 14% (Imipenem) und 3,6% (Vancomycin/Aztreonam) der Patienten in den Phase-III-Studien. 
+
+Unter Vancomycin/Aztreonam wurde dagegen häufiger ein Anstieg der Transaminasen beobachtet, und 
+
+auch Hautreaktionen waren signifikant häufiger als unter Tigecyclin (19,3% vs. 10,6%). Die Therapie wurde 
+
+in allen Gruppen etwa gleich häufig aufgrund von Nebenwirkungen abgebrochen. Die gastrointestinalen 
+
+Wirkungen sind dosisabhängig und traten bei Frauen häufiger auf als bei männlichen Patienten [45]. 
+
+Bei gleichzeitiger Gabe von Tigecyclin und Warfarin waren die Plasmakonzentrationen von R- und S-
+
+Warfarin (AUC-Werte) um 68% bzw. 29% erhöht. Obwohl keine direkte Auswirkung auf die Blutgerinnung 
+
+beobachtet wurde, wird zu einer Überprüfung der INR bei gleichzeitiger Gabe geraten. 
+
+Colistin 
+
+Unter den Polymyxinen erlebt vor allem das Polymyxin E (Colistin) seit einigen Jahren eine Renaissance 
+
+[46]. Als sehr häufige unerwünschte Wirkungen bei Anwendung von Colistimethat werden neurotoxische 
+
+Symptome wie Parästhesien im Bereich von Gesicht und Mund sowie Kopfschmerzen und Muskel-
+
+schwäche angegeben. Pruritus und Nierenfunktionsstörungen kommen ebenfalls sehr häufig vor [47]. In 
+
+klinischen Studien wurden nephrotoxische Reaktionen in einer Häufigkeit von etwa 7–45% beobachtet, 
+
+wobei beachtet werden muss, dass unterschiedliche Definitionen für „Nephrotoxizität“ benutzt wurden und 
+
+die Daten zum Teil von Patienten mit schweren Grunderkrankungen stammen, was eine Interpretation der 
+
+Ergebnisse erschwert [48]. In einer Gruppe von relativ jungen, männlichen Patienten (überwiegend ohne 
+
+Grunderkrankungen) kam es unter Benutzung der so genannten RIFLE-Kriterien bei fast jedem zweiten zu 
+
+leichten, reversiblen nephrotoxischen Reaktionen. Bei 21% der Patienten wurde die Behandlung wegen 
+
+Nierenfunktionsstörungen abgebrochen [49]. Deutliche nephrotoxische Reaktionen wurden bei der 
+
+Mehrheit der Patienten, bei denen eine renale Insuffizienz bereits bei Therapiebeginn vorlag, beschrieben 
+
+[50]. Bei bestehender Einschränkung der Nierenfunktion muss die Dosierung nach den Angaben des 
+
+Herstellers reduziert werden. 
+
+Fosfomycin 
+
+Die häufigsten unerwünschten Wirkungen von Fosfomycin sind Reaktionen des Gastrointestinaltraktes 
+
+(Brechreiz, Übelkeit, Erbrechen, Diarrhoe) und der Haut (Exantheme). Weitere Nebenwirkungen wie 
+
+Müdigkeit, Kopfschmerzen oder Geschmacksirritationen treten ebenfalls auf. Selten oder sehr selten 
+
+wurden Blutbildveränderungen wie z.B. eine Eosinophilie oder aplastische Anämie beobachtet. Sehr selten 
+
+kam es zum anaphylaktischen Schock oder zu Störungen der Leberfunktion. Eine Phlebitis am Verabrei-
+
+chungsort kommt häufig vor [51], [52], [53], [54]. 
+
+Seite 82 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+Dem Organismus werden mit 1 g Fosfomycin (entsprechend 1,32 g Fosfomycin-Natrium) 14,5 mmol Na+ 
+
+zugeführt. Daher sind bei den empfohlenen Dosierungen die Serumelektrolyte zu kontrollieren. Dies ist 
+
+besonders zu beachten bei Patienten mit Herzinsuffizienz, Ödemneigung oder sekundärem Hyper-
+
+aldosteronismus. Die mit der Fosfomycin-Anwendung verbundene Natriumzufuhr kann über eine Erhöhung 
+
+der Kaliumausscheidung auch Kaliumverluste verursachen. Ggf. ist daher die Substitution von Kalium 
+
+erforderlich, um eine Hypokaliämie zu vermeiden. 
+
+Rifampicin 
+
+Gastrointestinale Unverträglichkeitsreaktionen werden bei Behandlung mit Rifampicin häufig beobachtet. 
+
+Sie äußern sich in Appetitlosigkeit, Magenschmerzen, Übelkeit, Erbrechen, Meteorismus und Durchfall. 
+
+Selten wurden Fälle von Pankreatitis berichtet [55]. 
+
+Häufig treten Überempfindlichkeitsreaktionen auf [56]. Häufigste Manifestationen sind Fieber, Erythema 
+
+exsudativum multiforme, Pruritus, Urtikaria. Selten wurden auch schwere Reaktionen wie Atemnot, 
+
+Lungenödem, sonstige Ödeme und Schock beobachtet. Sehr selten wurde ein Lupus-ähnliches Syndrom 
+
+mit Fieber, Schwächegefühl, Muskel- und Gelenkschmerzen und dem Auftreten antinukleärer Antikörper 
+
+beschrieben. 
+
+Nebenwirkungen von Rifampicin auf die Leber sind häufig bis sehr häufig und äußern sich vorwiegend als 
+
+Erhöhung von Transaminasen, alkalischer Phosphatase, Gamma-Glutamyltransferase, seltener von 
+
+Bilirubin im Serum. Oft kommt es trotz Fortsetzung der Therapie wieder zur Normalisierung der Werte [57]. 
+
+Sehstörungen, Visusverlust und Optikusneuritis können ebenfalls als unerwünschte Wirkungen vor-
+
+kommen. 
+
+Eine bräunlich-rote Verfärbung der Tränenflüssigkeit ist durch die Eigenfarbe des Wirkstoffs bedingt und 
+
+unbedenklich. 
+
+In seltenen Fällen kommt es bei Anwendung von Rifampicin zu Eosinophilie, Leukopenie, Granulo-
+
+zytopenie, Thrombozytopenie, thrombozytopenischer Purpura, Hypoprothrombinämie oder hämolytischer 
+
+Anämie. 
+
+Rifampicin ist ein potenter Induktor von Cytochrom-Enzymen, Phase-II-Enzymen und Transportproteinen. 
+
+Es verursacht z.B. eine deutliche Induktion der Cytochrome CYP3A4, 1A2, 2C9, 2C8 und 2C18/19 im 
+
+Darmepithel und in der Leber und kann damit den Metabolismus anderer Arzneistoffe beschleunigen. Auf 
+
+die N-Acetyltransferasen wirkt es hemmend. Ebenso werden Transportproteine für organische Anionen 
+
+(OATP2) gehemmt. Angesichts der komplexen und vielfältigen Beeinflussungen der pharmakokinetisch 
+
+relevanten Metabolisierungs- und Transportsysteme sollte der klinisch tätige Arzt bei jedem therapeu-
+
+tischen Einsatz von Rifampicin mit einer Beeinflussung der Pharmakokinetik von weiteren gleichzeitig 
+
+gegebenen Arzneistoffen rechnen [58]. 
+
+Seite 83 von 341 
+
+
+
+4. Sicherheit und Verträglichkeit 
+
+Antibiotika in der Schwangerschaft  
+
+Eine Behandlung mit Antibiotika während der Schwangerschaft ist oftmals unumgänglich, die Datenlage 
+
+hinsichtlich Nutzen und Risiken ist jedoch absolut unzureichend. Einzelne Studien sind meist nicht 
+
+umfangreich genug, um eindeutige Empfehlungen zur bevorzugten Therapie daraus abzuleiten, Aussagen 
+
+zu möglichen Risiken für das Ungeborene sind angesichts der geringen Zahlen überhaupt nicht möglich 
+
+[59]. 
+
+Die Datenlage für den Einsatz weit verbreiteter Antiinfektiva ist auch nach Jahrzehnten des Gebrauchs 
+
+nicht eindeutig und die Einschätzung beruht oft auf der „Erfahrung“ des jeweiligen Verordners. Angesichts 
+
+der Prinzipien der „Evidenz-basierten Medizin“, die heute Standard sind, steht die Abwägung von Nutzen 
+
+und Risiken während der Schwangerschaft auf einem völlig unzureichenden Fundament. 
+
+Die möglichen embryo-fetalen Risiken bei einer Anwendung von Antiinfektiva in der Schwangerschaft 
+
+können leider nur unzureichend durch Einteilung in verschiedene Risikoklassen beschrieben werden. Die 
+
+Zuordnung in Tabelle 4.1 entspricht den bis vor kurzem üblichen Kategorien der US-amerikanischen FDA 
+
+und gestattet eine grobe Orientierung. Diese Kategorien werden von der FDA allerdings seit 2015 nicht 
+
+mehr verwendet [60]. 
+
+Tabelle 4.1: Embryo-fetale Risiken bei einer Anwendung von Antibiotika 
+
+Antibiotika Kategorie* Beschreibung  
+
+Keine A In kontrollierten Studien beim Menschen ergab sich kein Hinweis auf 
+ein erhöhtes fetales Risiko.  
+
+Penicilline, Cephalosporine, B In Tierversuchen gab es keine Hinweise auf ein erhöhtes fetales 
+Meropenem, Doripenem, Risiko, kontrollierte Studien liegen nicht vor.  
+Ertapenem, Clindamycin, oder 
+Erythromycin, Azithromycin, 
+Fosfomycin, Daptomycin, In Tierversuchen ergaben sich Hinweise auf ein erhöhtes fetales 
+Metronidazol, Nitrofurantoin, Risiko, kontrollierte Studien brachten jedoch keine entsprechenden 
+Vancomycin, Daptomycin Hinweise. 
+
+Chinolone, Clarithromycin, C In Tierversuchen ergaben sich Hinweise auf ein erhöhtes fetales 
+Cotrimoxazol, Trimethoprim, Risiko, kontrollierte Studien liegen nicht vor. Eine Anwendung kann 
+Imipenem/Cilastatin, Linezolid, akzeptabel sein, wenn ein entsprechender Nutzen erwartet werden 
+Tedizolid, Vancomycin, kann. 
+Rifampicin, Telavancin, 
+Dalbavancin, Oritavancin 
+
+Tetracycline, Aminoglykoside, D Ein erhöhtes Risiko für den Menschen ist bekannt, trotz der Risiken 
+Tigecyclin kann eine Anwendung akzeptabel sein, wenn ein entsprechender 
+
+Nutzen erwartet werden kann (z.B. vitaler Indikation). 
+
+Keine X Ein erhöhtes Risiko für den Menschen ist bekannt, der erwartete 
+Nutzen ist gering und rechtfertigt nicht eine Anwendung des 
+Arzneimittels. 
+
+* nach FDA; seit 2015 nicht mehr üblich 
+
+Vom Pharmakovigilanzzentrum für Embryonaltoxikologie am Institut für Klinische Pharmakologie und 
+
+Toxikologie der Charité in Berlin werden detaillierte Informationen zur Verträglichkeit der wichtigsten 
+
+Arzneistoffe in den verschiedenen Phasen der Schwangerschaft und in der Stillzeit auf Embryotox 
+
+(http://www.embryotox.de/) publiziert. Die Seite ist frei zugänglich und auch als App verfügbar. 
+
+  
+
+Seite 84 von 341

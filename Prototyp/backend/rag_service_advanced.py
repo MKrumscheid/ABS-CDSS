@@ -10,9 +10,9 @@ from dotenv import load_dotenv
 
 import faiss
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
 from models import RAGChunk, GuidelineMetadata, ClinicalQuery, RAGResult, RAGResponse, Indication, DosingTable
+from embedding_service import EmbeddingServiceFactory
 
 class MarkdownPageSplitter:
     """Markdown-aware page splitter with overlap for medical guidelines"""
@@ -242,30 +242,32 @@ class AdvancedRAGService:
         
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(exist_ok=True)
-        
+
         self.embeddings_dir = self.data_dir / "embeddings"
         self.embeddings_dir.mkdir(exist_ok=True)
-        
+
         self.guidelines_dir = self.data_dir / "guidelines"
         self.guidelines_dir.mkdir(exist_ok=True)
-        
+
         # Detect and configure device
         self.device = self._detect_device()
         print(f"Using device: {self.device}")
-        
+
         # Get embedding model from environment or use default
         self.embedding_model_name = os.getenv('EMBEDDING_MODEL')
         print(f"Using embedding model: {self.embedding_model_name}")
-        
-        # Load embedding model with device configuration
-        print("Loading embedding model...")
-        self.embedding_model = SentenceTransformer(self.embedding_model_name, device=self.device)
-        print(f"Embedding model loaded successfully on {self.device}")
-        
+
+        # Initialize embedding service (local or online)
+        print("Initializing embedding service...")
+        self.embedding_model = EmbeddingServiceFactory.create_embedding_service(
+            model_name=self.embedding_model_name,
+            device=self.device
+        )
+        print(f"Embedding service initialized successfully")
+        print(f"Embedding dimension: {self.embedding_model.get_dimension()}")
+
         # Markdown page splitter
-        self.page_splitter = MarkdownPageSplitter(overlap_sentences=8)
-        
-        # FAISS index
+        self.page_splitter = MarkdownPageSplitter(overlap_sentences=8)        # FAISS index
         self.index = None
         self.chunks_metadata = []
         self.guidelines_metadata = {}
@@ -283,7 +285,16 @@ class AdvancedRAGService:
         self._load_dosing_tables()
     
     def _detect_device(self) -> str:
-        """Detect the best available device for inference"""
+        """Detect the best available device for inference (cloud-friendly)"""
+        # For cloud deployment, we'll primarily use online embeddings
+        # so device detection is less critical
+        use_online = os.getenv('USE_ONLINE_EMBEDDINGS', 'false').lower() == 'true'
+        
+        if use_online:
+            print("Using online embeddings - device detection not needed")
+            return "cpu"  # Placeholder, not used for online embeddings
+        
+        # Try to detect local device if using local embeddings
         try:
             import torch
             
@@ -305,8 +316,7 @@ class AdvancedRAGService:
             return "cpu"
             
         except ImportError:
-            print("PyTorch not available, using CPU with sentence-transformers default")
-            print("To enable GPU acceleration, run: pip install torch torchvision torchaudio")
+            print("PyTorch not available, using CPU")
             return "cpu"
         except Exception as e:
             print(f"Device detection failed: {e}, falling back to CPU")

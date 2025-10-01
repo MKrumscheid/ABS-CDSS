@@ -1,0 +1,26 @@
+{
+  "secrets": {
+    "NOVITA_API_KEY": "your_novita_api_key_here",
+    "DATABASE_URL": "postgresql://user:pass@host:port/dbname"
+  },
+  "public": {
+    "ENVIRONMENT": "production",
+    "API_HOST": "0.0.0.0",
+    "API_PORT": "8000",
+    "USE_ONLINE_EMBEDDINGS": "true",
+    "EMBEDDING_REQUESTS_PER_MINUTE": "45",
+    "EMBEDDING_MAX_RETRIES": "3",
+    "EMBEDDING_RETRY_DELAY": "2",
+    "NOVITA_EMBEDDING_URL": "https://api.novita.ai/openai/v1/embeddings",
+    "NOVITA_EMBEDDING_MODEL": "qwen/qwen3-embedding-8b",
+    "NOVITA_API_BASE_URL": "https://api.novita.ai/openai",
+    "NOVITA_MODEL": "openai/gpt-oss-120b",
+    "NOVITA_MAX_TOKENS": "32768",
+    "NOVITA_TEMPERATURE": "0.7",
+    "CHUNK_SIZE": "8000",
+    "CHUNK_OVERLAP": "500",
+    "DEFAULT_TOP_K": "5",
+    "FAISS_INDEX_TYPE": "IndexFlatIP",
+    "LOG_LEVEL": "INFO"
+  }
+}

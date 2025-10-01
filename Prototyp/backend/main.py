@@ -1,11 +1,14 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse, JSONResponse
 from typing import List, Optional
 import uvicorn
 import aiofiles
 import os
+import time
+import json
+import asyncio
 from pathlib import Path
 from openai import OpenAI
 from sqlalchemy.orm import Session
@@ -51,14 +54,41 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware
+# Add CORS middleware - Updated for cloud deployment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:4000", "http://127.0.0.1:4000"],
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000", 
+        "http://localhost:4000", 
+        "http://127.0.0.1:4000",
+        "https://*.koyeb.app",  # Allow all Koyeb subdomains
+        "*"  # For development - should be restricted in production
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Global exception handler to prevent app crashes
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    """Handle uncaught exceptions to prevent app crashes"""
+    print(f"🚨 UNCAUGHT EXCEPTION: {str(exc)}")
+    import traceback
+    print(f"📋 UNCAUGHT EXCEPTION TRACEBACK: {traceback.format_exc()}")
+    
+    # Try to get request info for debugging
+    try:
+        print(f"🔍 Request URL: {request.url}")
+        print(f"🔍 Request method: {request.method}")
+    except:
+        print("🔍 Could not get request info")
+    
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal server error: {str(exc)}"}
+    )
 
 # Initialize services
 rag_service = AdvancedRAGService()
@@ -73,13 +103,35 @@ try:
 except Exception as e:
     print(f"Warning: Database initialization failed: {e}")
 
-# Serve static files for frontend
+# Mount static files for frontend applications (production)
+static_admin_path = Path(__file__).parent / "static" / "admin"
+static_enduser_path = Path(__file__).parent / "static" / "enduser"
+
+if static_admin_path.exists():
+    # Mount admin static assets first
+    admin_static = static_admin_path / "static"
+    if admin_static.exists():
+        app.mount("/admin/static", StaticFiles(directory=str(admin_static)), name="admin_static")
+        print("✅ Admin frontend static files mounted at /admin/static")
+    
+    app.mount("/admin", StaticFiles(directory=str(static_admin_path), html=True), name="admin")
+    print("✅ Admin frontend mounted at /admin")
+
+if static_enduser_path.exists():
+    # Mount enduser static assets
+    enduser_static = static_enduser_path / "static"
+    if enduser_static.exists():
+        app.mount("/static", StaticFiles(directory=str(enduser_static)), name="static")
+    print("✅ Enduser frontend static files mounted")
+
+# Legacy support for local development
 try:
     frontend_path = Path(__file__).parent.parent / "frontend" / "build"
-    if frontend_path.exists():
+    if frontend_path.exists() and not static_enduser_path.exists():
         app.mount("/static", StaticFiles(directory=str(frontend_path / "static")), name="static")
-except:
-    pass
+        print("✅ Development frontend mounted")
+except Exception as e:
+    print(f"Development frontend mount failed: {e}")
 
 @app.get("/")
 async def root():
@@ -88,6 +140,113 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "rag-test-pipeline"}
+
+@app.get("/health/detailed")
+async def detailed_health_check():
+    """Detailed health check including service dependencies"""
+    health_status = {
+        "status": "healthy",
+        "service": "rag-test-pipeline",
+        "timestamp": time.time(),
+        "checks": {}
+    }
+    
+    # Check RAG service
+    try:
+        # Quick test of RAG service
+        test_result = rag_service.search("test", top_k=1)
+        health_status["checks"]["rag_service"] = "healthy"
+    except Exception as e:
+        health_status["checks"]["rag_service"] = f"error: {str(e)}"
+        health_status["status"] = "degraded"
+    
+    # Check LLM service
+    try:
+        # Test if LLM service is accessible (without making a request)
+        if therapy_llm_service:
+            health_status["checks"]["llm_service"] = "healthy"
+        else:
+            health_status["checks"]["llm_service"] = "not_initialized"
+    except Exception as e:
+        health_status["checks"]["llm_service"] = f"error: {str(e)}"
+        health_status["status"] = "degraded"
+    
+    # Check FHIR service
+    try:
+        if fhir_service:
+            health_status["checks"]["fhir_service"] = "healthy"
+        else:
+            health_status["checks"]["fhir_service"] = "not_initialized"
+    except Exception as e:
+        health_status["checks"]["fhir_service"] = f"error: {str(e)}"
+        health_status["status"] = "degraded"
+    
+    return health_status
+
+@app.get("/debug/fhir")
+async def debug_fhir():
+    """Debug endpoint to check FHIR environment in production"""
+    import sys
+    
+    try:
+        # Check FHIR library
+        import fhir
+        fhir_available = True
+        fhir_location = fhir.__file__
+        try:
+            fhir_version = fhir.__version__
+        except:
+            fhir_version = "unknown"
+    except ImportError as e:
+        fhir_available = False
+        fhir_location = None
+        fhir_version = f"Import Error: {e}"
+    
+    # Check FHIR components
+    components = {}
+    fhir_modules = [
+        'fhir.resources',
+        'fhir.resources.R4B',
+        'fhir.resources.R4B.bundle',
+        'fhir.resources.R4B.patient',
+        'fhir.resources.R4B.medicationstatement',
+        'fhir.resources.R4B.medication',
+    ]
+    
+    for module in fhir_modules:
+        try:
+            __import__(module)
+            components[module] = "available"
+        except ImportError as e:
+            components[module] = f"error: {e}"
+    
+    # Test Bundle creation
+    bundle_test = {}
+    try:
+        from fhir.resources.R4B.bundle import Bundle
+        test_data = {
+            "resourceType": "Bundle",
+            "type": "collection",
+            "entry": []
+        }
+        bundle = Bundle(**test_data)
+        bundle_test["status"] = "success"
+        bundle_test["type"] = bundle.type
+    except Exception as e:
+        bundle_test["status"] = "error"
+        bundle_test["error"] = str(e)
+    
+    return {
+        "python_version": sys.version,
+        "python_executable": sys.executable,
+        "fhir": {
+            "available": fhir_available,
+            "version": fhir_version,
+            "location": fhir_location,
+            "components": components,
+            "bundle_test": bundle_test
+        }
+    }
 
 @app.get("/device-info")
 async def get_device_info():
@@ -172,6 +331,12 @@ async def upload_guideline(
         # Read file content
         content = await file.read()
         text_content = content.decode('utf-8')
+        
+        # Log start of processing for large files
+        chunk_count_estimate = len(text_content) // 1000  # Rough estimate
+        if chunk_count_estimate > 100:
+            print(f"⏰ Processing large file '{file.filename}' (~{chunk_count_estimate} chunks estimated)")
+            print(f"⏰ This may take 3-10 minutes due to rate limiting. Processing continues even if timeout occurs.")
         
         # Process with RAG service
         result = rag_service.upload_guideline(
@@ -302,10 +467,230 @@ async def list_guidelines():
 
 # ==== Therapy Recommendation Endpoints ====
 
+# Store for processing status
+processing_status = {}
+
+@app.get("/therapy/status")
+async def get_processing_status():
+    """Get current therapy processing statistics"""
+    try:
+        # Check if services are working
+        rag_healthy = rag_service is not None
+        llm_healthy = therapy_llm_service is not None
+        
+        return {
+            "status": "healthy" if rag_healthy and llm_healthy else "degraded",
+            "services": {
+                "rag_service": "healthy" if rag_healthy else "unavailable",
+                "llm_service": "healthy" if llm_healthy else "unavailable"
+            },
+            "info": {
+                "expected_processing_time": "60-180 seconds for complex therapy recommendations",
+                "koyeb_timeout_info": "Cloud platform may show 503 after 60s, but processing continues",
+                "recommendation": "Wait 2-3 minutes then retry if 503 error occurs"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
+@app.post("/therapy/recommend-stream")
+async def generate_therapy_recommendation_stream(request: dict):
+    """Generate therapy recommendations with real-time progress updates via SSE"""
+    
+    async def generate_progress_stream():
+        try:
+            start_time = time.time()
+            yield f"data: {json.dumps({'type': 'progress', 'message': '🏥 Starte Therapieempfehlung...', 'timestamp': time.time()})}\n\n"
+            
+            # Extract parameters from request dict
+            indication = request.get("indication")
+            severity = request.get("severity")
+            infection_site = request.get("infection_site")
+            risk_factors = request.get("risk_factors", [])
+            suspected_pathogens = request.get("suspected_pathogens", [])
+            free_text = request.get("free_text")
+            patient_id = request.get("patient_id")
+            max_therapy_options = request.get("max_therapy_options", 5)
+            
+            # Validate required fields
+            if not indication:
+                yield f"data: {json.dumps({'type': 'error', 'message': 'indication is required'})}\n\n"
+                return
+            if not severity:
+                yield f"data: {json.dumps({'type': 'error', 'message': 'severity is required'})}\n\n"
+                return
+            
+            yield f"data: {json.dumps({'type': 'progress', 'message': '📋 Parameter validiert', 'timestamp': time.time()})}\n\n"
+            
+            # Create ClinicalQuery object
+            clinical_query = ClinicalQuery(
+                indication=indication,
+                severity=severity,
+                infection_site=infection_site,
+                risk_factors=risk_factors,
+                suspected_pathogens=suspected_pathogens,
+                free_text=free_text
+            )
+            
+            # Step 1: Build context
+            yield f"data: {json.dumps({'type': 'progress', 'message': '🔍 Suche relevante Leitlinien und Dosierungstabellen...', 'timestamp': time.time()})}\n\n"
+            
+            context_start = time.time()
+            context_data = therapy_context_builder.build_therapy_context(
+                clinical_query=clinical_query,
+                patient_id=patient_id,
+                max_rag_results=5,  
+                max_dosing_tables=5  
+            )
+            context_time = time.time() - context_start
+            
+            # Create progress message safely
+            rag_count = len(context_data.get("rag_results", []))
+            dosing_count = len(context_data.get("dosing_tables", []))
+            context_msg = f"✅ Kontext erstellt ({context_time:.1f}s) - {rag_count} Leitlinien, {dosing_count} Dosierungstabellen"
+            yield f"data: {json.dumps({'type': 'progress', 'message': context_msg, 'timestamp': time.time()})}\n\n"
+            
+            # Check if we have sufficient context
+            if not context_data.get("rag_results") and not context_data.get("dosing_tables"):
+                yield f"data: {json.dumps({'type': 'error', 'message': 'Keine relevanten Leitlinien oder Dosierungstabellen gefunden'})}\n\n"
+                return
+            
+            # Step 2: Generate LLM recommendation with progress updates
+            yield f"data: {json.dumps({'type': 'progress', 'message': '🤖 Generiere Therapieempfehlung mit KI...', 'timestamp': time.time()})}\n\n"
+            
+            # Start LLM generation in background
+            llm_start = time.time()
+            
+            # Create a task for LLM generation
+            async def generate_llm():
+                return therapy_llm_service.generate_therapy_recommendation(
+                    context_data=context_data,
+                    max_options=max_therapy_options
+                )
+            
+            # Start LLM task
+            llm_task = asyncio.create_task(generate_llm())
+            
+            # Send keep-alive messages every 25 seconds while waiting for LLM
+            while not llm_task.done():
+                try:
+                    # Wait for LLM or timeout after 25 seconds
+                    therapy_recommendation = await asyncio.wait_for(llm_task, timeout=25.0)
+                    break  # LLM finished
+                except asyncio.TimeoutError:
+                    # Send keep-alive message
+                    elapsed = time.time() - llm_start
+                    elapsed_msg = f"⏱️ KI arbeitet noch... ({elapsed:.0f}s vergangen)"
+                    yield f"data: {json.dumps({'type': 'progress', 'message': elapsed_msg, 'timestamp': time.time()})}\n\n"
+                    continue
+            
+            # Get the result
+            therapy_recommendation = await llm_task
+            llm_time = time.time() - llm_start
+            
+            llm_msg = f"✅ KI-Empfehlung generiert ({llm_time:.1f}s)"
+            yield f"data: {json.dumps({'type': 'progress', 'message': llm_msg, 'timestamp': time.time()})}\n\n"
+            
+            # Step 3: Format response
+            yield f"data: {json.dumps({'type': 'progress', 'message': '📦 Formatiere Antwort...', 'timestamp': time.time()})}\n\n"
+            
+            # Transform to match frontend expectations
+            recommendations = []
+            for i, option in enumerate(therapy_recommendation.therapy_options):
+                medication_data = {
+                    "active_ingredients": [
+                        {
+                            "name": ingredient.name,
+                            "strength": ingredient.strength,
+                            "frequency_lower_bound": ingredient.frequency_lower_bound,
+                            "frequency_upper_bound": ingredient.frequency_upper_bound, 
+                            "frequency_unit": ingredient.frequency_unit,
+                            "duration_lower_bound": ingredient.duration_lower_bound,
+                            "duration_upper_bound": ingredient.duration_upper_bound,
+                            "duration_unit": ingredient.duration_unit,
+                            "route": ingredient.route
+                        }
+                        for ingredient in option.active_ingredients
+                    ],
+                    "notes": option.notes,
+                    "clinical_guidance": option.clinical_guidance.dict() if option.clinical_guidance else None
+                }
+                
+                recommendations.append({
+                    "name": f"Therapie Option {i+1}",
+                    "priority": i+1,
+                    "medications": [medication_data],
+                    "clinical_guidance": therapy_recommendation.clinical_guidance.dict() if therapy_recommendation.clinical_guidance else None,
+                    "sources": [citation.dict() for citation in therapy_recommendation.source_citations]
+                })
+            
+            # Create final response
+            response_data = {
+                "recommendations": recommendations,
+                "therapy_options": [option.dict() for option in therapy_recommendation.therapy_options],
+                "therapy_rationale": therapy_recommendation.therapy_rationale,
+                "confidence_level": therapy_recommendation.confidence_level,
+                "warnings": therapy_recommendation.warnings,
+                "source_citations": [citation.dict() for citation in therapy_recommendation.source_citations],
+                "general_notes": therapy_recommendation.therapy_rationale,
+                "context_summary": {
+                    "patient_available": context_data["patient_data"] is not None,
+                    "rag_results_count": len(context_data["rag_results"]),
+                    "dosing_tables_count": len(context_data["dosing_tables"])
+                },
+                "patient_data": context_data["patient_data"] if context_data["patient_data"] else None,
+                "patient_summary": therapy_context_builder._format_patient_summary(context_data["patient_data"]) if context_data["patient_data"] else None,
+                "llm_debug": {
+                    "system_prompt": therapy_recommendation.system_prompt,
+                    "user_prompt": therapy_recommendation.user_prompt,
+                    "model": therapy_recommendation.llm_model
+                }
+            }
+            
+            total_time = time.time() - start_time
+            
+            # Send final result
+            yield f"data: {json.dumps({'type': 'result', 'data': response_data, 'total_time': total_time})}\n\n"
+            
+            final_msg = f"🎉 Therapieempfehlung abgeschlossen ({total_time:.1f}s)"
+            yield f"data: {json.dumps({'type': 'complete', 'message': final_msg})}\n\n"
+            
+        except Exception as e:
+            print(f"❌ Stream error: {str(e)}")
+            import traceback
+            print(f"📋 Traceback: {traceback.format_exc()}")
+            error_msg = f"Fehler bei der Therapieempfehlung: {str(e)}"
+            yield f"data: {json.dumps({'type': 'error', 'message': error_msg})}\n\n"
+    
+    return StreamingResponse(
+        generate_progress_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*"
+        }
+    )
+
 @app.post("/therapy/recommend")
 async def generate_therapy_recommendation(request: dict):
     """Generate therapy recommendations based on clinical parameters"""
     try:
+        print(f"🏥 Starting therapy recommendation generation...")
+        start_time = time.time()
+        
+        # Monitor system resources at start
+        try:
+            import psutil
+            memory_before = psutil.virtual_memory()
+            print(f"💾 Memory before: {memory_before.percent:.1f}% used, {memory_before.available/(1024**3):.1f}GB available")
+        except ImportError:
+            print("💾 psutil not available for memory monitoring")
+        
         # Extract parameters from request dict
         indication = request.get("indication")
         severity = request.get("severity")
@@ -315,6 +700,8 @@ async def generate_therapy_recommendation(request: dict):
         free_text = request.get("free_text")
         patient_id = request.get("patient_id")
         max_therapy_options = request.get("max_therapy_options", 5)
+        
+        print(f"📋 Request params: indication={indication}, severity={severity}, patient_id={patient_id}")
         
         # Validate required fields
         if not indication:
@@ -333,12 +720,31 @@ async def generate_therapy_recommendation(request: dict):
         )
         
         # 1. Build comprehensive context using TherapyContextBuilder
-        context_data = therapy_context_builder.build_therapy_context(
-            clinical_query=clinical_query,
-            patient_id=patient_id,
-            max_rag_results=5,  
-            max_dosing_tables=5  
-        )
+        print(f"🔍 Building therapy context...")
+        context_start = time.time()
+        
+        try:
+            context_data = therapy_context_builder.build_therapy_context(
+                clinical_query=clinical_query,
+                patient_id=patient_id,
+                max_rag_results=5,  
+                max_dosing_tables=5  
+            )
+            context_time = time.time() - context_start
+            print(f"✅ Context built in {context_time:.2f}s")
+        except Exception as context_error:
+            print(f"❌ Context building failed: {str(context_error)}")
+            import traceback
+            print(f"📋 Context error traceback: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"Context building failed: {str(context_error)}")
+        
+        # Monitor memory after context building
+        try:
+            import psutil
+            memory_after_context = psutil.virtual_memory()
+            print(f"💾 Memory after context: {memory_after_context.percent:.1f}% used, {memory_after_context.available/(1024**3):.1f}GB available")
+        except ImportError:
+            pass
         
         # 2. Check if we have sufficient context
         if not context_data.get("rag_results") and not context_data.get("dosing_tables"):
@@ -348,12 +754,32 @@ async def generate_therapy_recommendation(request: dict):
             )
         
         # 3. Generate therapy recommendation using LLM
-        therapy_recommendation = therapy_llm_service.generate_therapy_recommendation(
-            context_data=context_data,
-            max_options=max_therapy_options
-        )
+        print(f"🤖 Generating LLM recommendation...")
+        llm_start = time.time()
         
-        # Transform to match frontend expectations with new structure
+        try:
+            therapy_recommendation = therapy_llm_service.generate_therapy_recommendation(
+                context_data=context_data,
+                max_options=max_therapy_options
+            )
+            llm_time = time.time() - llm_start
+            print(f"✅ LLM recommendation generated in {llm_time:.2f}s")
+        except Exception as llm_error:
+            print(f"❌ LLM generation failed: {str(llm_error)}")
+            import traceback
+            print(f"📋 LLM error traceback: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"LLM generation failed: {str(llm_error)}")
+        
+        # Monitor memory after LLM
+        try:
+            import psutil
+            memory_after_llm = psutil.virtual_memory()
+            print(f"💾 Memory after LLM: {memory_after_llm.percent:.1f}% used, {memory_after_llm.available/(1024**3):.1f}GB available")
+        except ImportError:
+            pass
+        
+        # 4. Transform to match frontend expectations with new structure
+        print(f"📦 Formatting response...")
         recommendations = []
         for i, option in enumerate(therapy_recommendation.therapy_options):
             # Format active ingredients with their individual dosing parameters
@@ -411,14 +837,38 @@ async def generate_therapy_recommendation(request: dict):
             }
         }
         
+        total_time = time.time() - start_time
+        print(f"🎉 Therapy recommendation completed in {total_time:.2f}s (context: {context_time:.2f}s, LLM: {llm_time:.2f}s)")
+        
+        # Final memory check
+        try:
+            import psutil
+            memory_final = psutil.virtual_memory()
+            print(f"💾 Memory final: {memory_final.percent:.1f}% used, {memory_final.available/(1024**3):.1f}GB available")
+        except ImportError:
+            pass
+        
         return response_data
         
     except HTTPException:
         raise
     except Exception as e:
+        total_time = time.time() - start_time if 'start_time' in locals() else 0
+        print(f"❌ CRITICAL ERROR after {total_time:.2f}s: {str(e)}")
+        import traceback
+        print(f"📋 FULL TRACEBACK: {traceback.format_exc()}")
+        
+        # Try to get memory info for debugging
+        try:
+            import psutil
+            memory_error = psutil.virtual_memory()
+            print(f"💾 Memory at error: {memory_error.percent:.1f}% used, {memory_error.available/(1024**3):.1f}GB available")
+        except ImportError:
+            print("💾 Could not get memory info at error (psutil not available)")
+        
         raise HTTPException(
             status_code=500, 
-            detail=f"Fehler bei der Therapieempfehlung: {str(e)}"
+            detail=f"CRITICAL: Therapy recommendation failed: {str(e)}"
         )
 
 @app.post("/therapy/context")
@@ -806,17 +1256,42 @@ async def delete_saved_therapy_recommendation(
         raise HTTPException(status_code=500, detail=f"Failed to delete saved recommendation: {str(e)}")
 
 
-# Serve React app for any other routes
+# Frontend routing for production deployment
 @app.get("/{full_path:path}")
-async def serve_react_app(full_path: str):
-    """Serve React frontend for any unmatched routes"""
-    frontend_path = Path(__file__).parent.parent / "frontend" / "build"
-    index_file = frontend_path / "index.html"
+async def serve_frontend_app(full_path: str):
+    """Serve frontend applications based on path"""
     
-    if index_file.exists():
-        return FileResponse(str(index_file))
-    else:
-        return {"message": "Frontend not built. Please build React app first."}
+    # Skip API routes
+    if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("openapi"):
+        raise HTTPException(status_code=404, detail="Not found")
+    
+    # Admin frontend
+    if full_path.startswith("admin") or full_path == "admin":
+        admin_index = Path(__file__).parent / "static" / "admin" / "index.html"
+        if admin_index.exists():
+            return FileResponse(str(admin_index))
+        # Fallback to development
+        dev_admin = Path(__file__).parent.parent / "frontend" / "build" / "index.html"
+        if dev_admin.exists():
+            return FileResponse(str(dev_admin))
+    
+    # Default: Enduser frontend (for root and all other paths)
+    enduser_index = Path(__file__).parent / "static" / "enduser" / "index.html"
+    if enduser_index.exists():
+        return FileResponse(str(enduser_index))
+    
+    # Fallback to development build
+    dev_frontend = Path(__file__).parent.parent / "frontend" / "build" / "index.html"
+    if dev_frontend.exists():
+        return FileResponse(str(dev_frontend))
+    
+    # No frontend available
+    return {
+        "message": "ABS-CDSS API Server", 
+        "status": "Frontend not built",
+        "admin": "/admin",
+        "api_docs": "/docs"
+    }
 
 
 if __name__ == "__main__":

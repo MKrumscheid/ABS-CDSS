@@ -108,8 +108,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# RAG specific
-data/
+# RAG specific - only ignore generated files, not source data
+data/embeddings/
+data/**/embeddings/
 *.faiss
 *.pkl
 *.bin

@@ -33,10 +33,80 @@ api.interceptors.response.use(
 
 // Therapy Recommendation API
 export const therapyAPI = {
-  // Generate therapy recommendation
+  // Generate therapy recommendation with real-time progress
+  generateRecommendationStream: async (requestData, onProgress) => {
+    const baseUrl =
+      process.env.NODE_ENV === "production" ? "" : "http://localhost:8000";
+    const url = `${baseUrl}/therapy/recommend-stream`;
+
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+
+          function readStream() {
+            return reader.read().then(({ done, value }) => {
+              if (done) {
+                return;
+              }
+
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+
+              // Keep the last incomplete line in buffer
+              buffer = lines.pop() || "";
+
+              for (const line of lines) {
+                if (line.startsWith("data: ")) {
+                  try {
+                    const data = JSON.parse(line.slice(6));
+
+                    if (data.type === "progress") {
+                      onProgress(data.message);
+                    } else if (data.type === "result") {
+                      resolve(data.data);
+                      return;
+                    } else if (data.type === "complete") {
+                      // Stream completed successfully
+                      return;
+                    } else if (data.type === "error") {
+                      reject(new Error(data.message));
+                      return;
+                    }
+                  } catch (e) {
+                    console.warn("Failed to parse SSE data:", line);
+                  }
+                }
+              }
+
+              return readStream();
+            });
+          }
+
+          return readStream();
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  },
+
+  // Generate therapy recommendation (fallback)
   generateRecommendation: async (requestData) => {
     const response = await api.post("/therapy/recommend", requestData, {
-      timeout: 180000, // 3 minutes for therapy recommendation
+      timeout: 300000, // 5 minutes for therapy recommendation
     });
     return response.data;
   },

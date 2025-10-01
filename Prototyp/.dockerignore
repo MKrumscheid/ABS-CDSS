@@ -1,0 +1,69 @@
+# Docker ignore file for optimized builds
+# Reduces build context and image size
+
+# Development files
+.git/
+.github/
+*.md
+LICENSE
+.gitignore
+
+# Local development
+.env
+.env.local
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.tox/
+.coverage
+.coverage.*
+.pytest_cache/
+*.egg-info/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+frontend/build/
+
+# Backend development
+backend/*.db
+backend/data/embeddings/*.bin
+backend/data/embeddings/*.pkl
+backend/logs/
+backend/.pytest_cache/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Local test data
+test_data/
+sample_data/
+
+# Windows batch files (not needed in container)
+*.bat
+
+# Documentation
+docs/
+*.md
+
+# Local storage
+storage/
+uploads/

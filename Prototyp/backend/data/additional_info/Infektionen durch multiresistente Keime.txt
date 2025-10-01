@@ -1,0 +1,787 @@
+﻿S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+16. Infektionen durch multiresistente gramnegative Stäbchen – ESBL-Bildner, 
+Carbapenemase-bildende Enterobacteriaceae, Carbapenem-resistente 
+Acinetobacter baumannii 
+
+Béatrice Grabein, Michael Ebenhoch, Ernst Kühnen, Florian Thalhammer 
+
+Antibiotika zur Therapie von Infektionen durch MRGN 
+
+Amoxicillin/Clavulansäure und Piperacillin/Tazobactam 
+
+Definitionsgemäß hemmt Clavulansäure in vitro ESBL-positive Enterobakterien und hat im Vergleich zu 
+
+Sulbactam eine höhere Beta-Lactamase-Inhibitor (BLI) Aktivität [1]. Tazobactam besitzt eine stärkere 
+
+inhibitorische Aktivität als Clavulansäure und Sulbactam gegen ESBL, zeigt jedoch fast immer eine 
+
+unzureichende inhibitorische Aktivität gegen Carbapenemasen [2]. Rezente Studien zeigen, dass bei 
+
+gegebener In-vitro-Empfindlichkeit Amoxicillin/Clavulansäure bzw. Piperacillin/Tazobactam zur Therapie 
+
+von Infektionen durch ESBL-bildende Enterobacteriaceae eingesetzt werden können [3], [4]. Hierbei muss 
+
+jedoch ein Inokulum-Effekt berücksichtigt werden, welcher bei Piperacillin/Tazobactam ausgeprägter als 
+
+bei Amoxicillin/Clavulansäure ist [5], [6], [7]. Als logische Konsequenz wurden in den aktuellen EUCAST-
+
+Richtlinien separate Grenzwerte für Amoxicillin/Clavulansäure für Urinisolate von Escherichia coli 
+
+eingeführt [8]. Außerdem ist zu berücksichtigen, dass in unterschiedlichen Ländern und Regionen 
+
+unterschiedliche ESBL-Typen vorhanden sind. Die klinischen Daten beziehen sich überwiegend auf Typen, 
+
+die in Spanien und Italien weit verbreitet sind. Inwieweit diese Daten auf deutsche oder österreichische 
+
+Verhältnisse übertragbar sind, ist derzeit nicht eindeutig geklärt. 
+
+Temocillin 
+
+Temocillin, 1988 eingeführt, ist ein semisynthetisches 6-α-Methoxyderivat von Ticarcillin, welches gegen 
+
+zahlreiche Enterobakterien wirksam ist, jedoch nicht gegen Non-Fermenter, grampositive Aerobier und 
+
+Anaerobier. Die Methoxygruppe bewirkt, dass Temocillin gegen zahlreiche Beta-Lactamasen [9], inklusive 
+
+ESBL [10], [11], AmpC [12] und gegen Klebsiella-pneumoniae-Carbapenemasen (KPC), jedoch nicht 
+
+gegen Metallo-Beta-Lactamasen und OXA-48 stabil ist. Die Standarddosierung beträgt 2x 2 g und die 
+
+zugelassene maximale Dosierung 3x 2 g Temocillin. Eine kürzlich publizierte Studie empfiehlt für kritisch 
+
+kranke Patienten eine Tagesdosis von 6 g Temocillin, entweder dreimal täglich intermittierend oder nach 
+
+einer Ladungsdosis von 2 g Temocillin kontinuierlich [13]. Eine englische Studie mit einem breiten Indika-
+
+tionsspektrum (Harnwegsinfektion, Bakteriämie, Pneumonie) bestätigt die Wirksamkeit von Temocillin bei 
+
+ESBL- bzw. AmpC-positiven Enterobakterien-Infektionen [14]. Temocillin ist in Belgien, Frankreich und 
+
+Großbritannien, jedoch nicht in Deutschland, Österreich und der Schweiz zugelassen. In begründeten 
+
+Fällen ist die Einzeleinfuhr nach §73 Abs.3 AMG aber möglich. 
+
+  
+
+Seite 309 von 341 
+
+
+
+16. Infektionen durch multiresistente gramnegative Stäbchen – ESBL-Bildner, Carbapenemase-bildende 
+Enterobacteriaceae, Carbapenem-resistente Acinetobacter baumannii 
+
+Avibactam 
+
+Avibactam ist der erste Vertreter einer neuen Klasse von Nicht-Beta-Lactam-Beta-Lactamase-Inhibitoren. 
+
+Diese BLI sind potenter und breiter wirksam als Tazobactam. Sie schließen auch Beta-Lactamasen der 
+
+Ambler Klassen A (inklusive Carbapenemasen wie KPC), C (AmpC) sowie D ein (Tabelle 16.1) [15], [16]. 
+
+Avibactam ist in der Kombination mit Ceftazidim bereits zugelassen und wird in der Kombination mit 
+
+Ceftarolin bzw. Aztreonam in Studien z.Zt. geprüft. 
+
+Ceftazidim/Avibactam 
+
+Die fixe Kombination Ceftazidim/Avibactam hat aufgrund der oben erwähnten Beta-Lactamase-Aktivität 
+
+gegen AmpC-Beta-Lactamasen auch eine etwa vierfach stärkere Wirkung gegen Pseudomonas aerugi-
+
+nosa als Ceftazidim alleine [17]. Bedingt durch den Austausch einer Aminosäure in der Carbapenemase 
+
+KPC-2 wurden bei Escherichia coli bereits Resistenzen gegen Ceftazidim/Avibactam beobachtet [3]. Die 
+
+empfohlene Dosierung ist 3x 2,5 g Ceftazidim/Avibactam entsprechend einem Verhältnis von 2 g Cefta-
+
+zidim zu 0,5 g Avibactam. Es liegen auch Phase-1-Studiendaten zu 3x 4 g Ceftazidim/Avibactam (3 g + 
+
+1 g) vor [18]. Die Elimination der beiden Arzneistoffe erfolgt ausschließlich renal, weshalb entsprechende 
+
+Dosisanpassungen bei eingeschränkter Nierenfunktion notwendig sind. Die Konzentration beider Sub-
+
+stanzen in der Epithelial lining Flüssigkeit (ELF) betrug etwa 30% der Plasmakonzentration. Die Zulassung 
+
+erfolgte für komplizierte intraabdominelle Infektionen, komplizierte Harnwegsinfektionen einschließlich 
+
+Pyelonephritis, nosokomiale Pneumonie, einschließlich beatmungsassoziierter Pneumonie, sowie für die 
+
+Behandlung von Infektionen aufgrund aerober gramnegativer Erreger bei erwachsenen Patienten mit 
+
+begrenzten Behandlungsoptionen.  
+
+Ceftolozan/Tazobactam 
+
+Ceftolozan ist dem Ceftazidim strukturell ähnlich, unterscheidet sich jedoch von Ceftazidim durch die 
+
+Seitenkette an Position 3 [19]. Hieraus resultiert eine starke Bindung an die Penicillin-bindenden Proteine, 
+
+welche für die hohe Aktivität gegen Pseudomonas aeruginosa, einschließlich mehrfach resistenter Stäm-
+
+me, verantwortlich ist [20]. Die fixe Kombination ist zudem wirksam gegen ESBL-positive Enterobakterien, 
+
+jedoch nicht gegen AmpC- und Carbapenemase-bildende Stämme (Tabelle 16.2) [21], [22]. Ceftolozan/ 
+
+Tazobactam ist für die Behandlung intraabdomineller Infektionen (in Kombination mit Metronidazol) [23] 
+
+sowie komplizierter Harnwegsinfektionen und der Pyelonephritis [24] zugelassen. Die zugelassene Dosie-
+
+rung von Ceftolozan/Tazobactam (in einem Verhältnis von 2:1) beträgt 3x 1,5 g bei einer Infusionsdauer 
+
+über eine Stunde, für die Behandlung der Pneumonie wird eine Dosierung von 3x 3 g in der Zulassungs-
+
+studie verwendet (https://clinicaltrials.gov/ct2/show/NCT02070757). 
+
+Ertapenem 
+
+Ertapenem ist ein Carbapenem ohne Aktivität gegen Non-Fermenter und Enterokokken. Im Gegensatz zur 
+
+US-amerikanischen Zulassung ist Ertapenem in Europa nur für die Therapie von intraabdominellen Infek-
+
+tionen, ambulant erworbenen Pneumonien, akuten gynäkologischen Infektionen sowie Haut- und Weich-
+
+gewebeinfektionen beim diabetischen Fußsyndrom zugelassen, jedoch nicht für Harnwegsinfektionen und 
+
+Seite 310 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+Pyelonephritis, obgleich es hierfür gute Studiendaten gibt [25]. Ertapenem ist wie alle Carbapeneme gegen 
+
+ESBL-positive Enterobakterien aktiv. Die Dosierung beträgt aufgrund der langen Halbwertszeit 1x 1 g Erta-
+
+penem, wobei zur Behandlung der nicht urogenitalen Infektionen wegen der hohen Eiweißbindung die 
+
+zulassungsüberschreitende Dosierung (Off-Label-Use) von 1x 2 g Ertapenem empfohlen wird [26]. Vorsicht 
+
+ist bei Patienten mit eingeschränkter Nierenfunktion geboten, da bei diesen durch höhere Plasmaspiegel 
+
+klassentypische ZNS-Nebenwirkungen auftreten können. 
+
+Tigecyclin 
+
+Tigecyclin, eine Weiterentwicklung von Minocyclin, ist der erste Vertreter der Glycylcycline mit einem 
+
+breiten Wirkspektrum, welches MRSA, VRE und ESBL-bildende Enterobacteriaceae einschließt. Pseudo-
+
+monas aeruginosa wird hingegen nicht erfasst, im Gegenteil sogar selektioniert.  
+
+Aufgrund der sehr guten Membrangängigkeit und des damit verbundenen hohen Verteilungsvolumens 
+
+erreicht Tigecyclin nur sehr geringe Serumkonzentration. Damit ist die Substanz nur bedingt zur Therapie 
+
+von bakteriämisch verlaufenden Infektionen geeignet [27]. In klinischen Studien zeigte sich eine signifikante 
+
+Unterlegenheit im Vergleich zu Imipenem bei der Behandlung von Patienten mit einer Acinetobacter-
+
+baumannii-Bakteriämie [28]. Auch in der Behandlung von Patienten mit nosokomialer, beatmungs-
+
+assoziierter Pneumonie war Tigecyclin dem Imipenem signifikant unterlegen [29], [30]. Die Ursache hierfür 
+
+dürfte ein zu niedriges Verhältnis AUC/MHK aufgrund der nur mäßigen Lungenpenetration gewesen sein. 
+
+In einer Phase-II-Studie wurde Tigecyclin bei Patienten mit nosokomialer Pneumonie in höherer Dosierung 
+
+eingesetzt. Der klinische Heilungserfolg war in der Gruppe der Patienten, die 200 mg als Anfangsdosis und 
+
+danach 100 mg alle 12 h erhielten, höher als in der Gruppe der mit Imipenem behandelten Patienten und 
+
+der Gruppe, die Tigecyclin in einer niedrigeren Dosierung (150 mg als Anfangsdosis, danach 75 mg alle 
+
+12 h) erhielten [31]. Deshalb sollte Tigecyclin bei schweren Infektionen in der beschriebenen höheren 
+
+Dosierung eingesetzt werden [31]. 
+
+Fosfomycin 
+
+Fosfomycin sollte zur Vermeidung des Risikos einer Resistenzentwicklung unter Therapie immer nur im 
+
+Rahmen einer Kombinationstherapie und im Hinblick auf das PK/PD-Verhältnis in hoher Dosierung (bis 
+
+24 g Fosfomycin/Tag, siehe Tabelle 16.2 und Tabelle 16.3) verabreicht werden [32], [33]. Fosfomycin weist 
+
+zahlreiche positive Eigenschaften wie fehlende Proteinbindung, hohe Wirkspiegel sowie sehr gute 
+
+Penetration in Muskel, Lunge, Knochen, Liquor [34] und Biofilme sowie Schutz vor Ototoxizität und Nephro-
+
+toxizität [35] auf. Als negativ sind die hohe Natriumbelastung (14,5 mval Na+ pro g) und die verstärkte 
+
+Kaliumsekretion zu werten.  
+
+Eine frühe Metaanalyse untersuchte die Wirksamkeit von Fosfomycin bei ESBL-positiven Stämmen von 
+
+Escherichia coli bzw. Klebsiella pneumoniae und schlussfolgert, dass Fosfomycin bei Harnwegsinfektionen 
+
+eingesetzt werden kann [36]. Eine im selben Jahr publizierte spanische Studie berichtete allerdings, dass 
+
+mit zunehmender Zahl der Fosfomycin-Verordnungen ein Anstieg der Resistenzrate bei den ESBL-
+
+positiven Escherichia-coli-Stämmen gegenüber Fosfomycin von 4,4% (2005) auf 11,4% (2009) verbunden 
+
+war [37].  
+
+Seite 311 von 341 
+
+
+
+16. Infektionen durch multiresistente gramnegative Stäbchen – ESBL-Bildner, Carbapenemase-bildende 
+Enterobacteriaceae, Carbapenem-resistente Acinetobacter baumannii 
+
+Tabelle 16.1: Aktivität von Beta-Lactamase-Inhibitoren [15] 
+
+ Inhibitor (IC50 μM) 
+
+Beta-Lactamase  Tazobactam Avibactam 
+
+TEM-1  0,01 0,01 
+
+KPC-2  43,00 0,17 
+
+SHV-1  0,07 KA* 
+
+SHV-4  0,06 0,003 
+
+SHV-5  0,01 KA* 
+
+CTX-M-15  0,01 0,01 
+
+AmpC (P. aeruginosa) 1,49 0,13 
+
+P99  12,00 0,1 
+
+OXA (A. baumannii) 58,00 KA* 
+
+* Keine Angabe 
+
+Tabelle 16.2: Therapieempfehlungen bei Infektionen durch ESBL-bildende Enterobacteriaceae 
+
+Diagnose Therapieempfehlung Dosierung/Tag Therapiedauer EG 
+
+Pneumonie Meropenem oder  3x 1–2 g 7–14 Tage A 
+Imipenem 3–4x 1 g A 
+jeweils ggf. plus Fosfomycin 3x 4–8 g A 
+oder   
+Temocillin* 2–3x 2 g B 
+
+Sepsis Meropenem oder  3x 1–2 g 7–10 Tage A 
+Imipenem 3–4x 1 g A 
+jeweils ggf. plus Fosfomycin 3x 4–8 g A 
+oder   
+Temocillin* 2–3x 2 g B 
+
+Intraabdominelle Meropenem oder  3x 2 g 7–10 Tage A 
+Infektion Imipenem oder 3–4x 1 g A 
+
+Ertapenem oder  1x 2 g B 
+Tigecyclin oder Anfangsdosis: 200 mg A 
+ Danach: 100 mg alle 12 h   
+Ceftolozan/Tazobactam oder 3x 1,5–3 g B 
+Temocillin* 2–3x 2 g B 
+
+Komplizierte Ertapenem oder 1x 2 g Bis 3–5 Tage nach A 
+Harnwegsinfektion Piperacillin/Tazobactam oder 4x 4,5 g Entfieberung bzw. B 
+
+Ceftolozan/Tazobactam oder 3x 1,5 g Beseitigung des B 
+Temocillin* 2–3x 2 g komplizierenden Faktors B 
+
+EG: Empfehlungsgrad 
+* in Deutschland und Österreich nur über die internationale Apotheke zu beziehen 
+
+ 
+
+Colistin 
+
+Bei den Dosisangaben ist zu beachten, dass 30 mg Colistin-Base 1 Mio. IE entsprechen.  
+
+Colistin ist sowohl gegenüber ESBL-bildenden Enterobacteriaceae als auch gegenüber Carbapenemase-
+
+bildenden Enterobacteriaceae in vitro wirksam. Colistin wirkt ebenfalls gegenüber Carbapenem-resistenten 
+
+Acinetobacter-baumannii-Stämmen und gegenüber multiresistenten Pseudomonas-aeruginosa-Isolaten. 
+
+Colistin ist angezeigt zur Behandlung der folgenden Infektionen: Beatmungsassoziierte Pneumonie, 
+
+Bakteriämie/Sepsis, Abdominal-, Harnwegs- und Knocheninfekte sowie Meningitis [38]. Die initiale i.v. 
+
+Ladungsdosis soll bei 9–12 Mio. IE liegen [39], da ausreichend hohe Wirkspiegel sonst erst nach 2–3 Tagen 
+
+Seite 312 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+erreicht werden. Höhere Erhaltungsdosen werden unter Beachtung von Körpergewicht, Kreatinin-
+
+Clearance und Neurotoxizität meist gut toleriert [39], [40]. 
+
+Zusätzlich zur systemischen Gabe besteht die Möglichkeit der inhalativen Gabe zur Behandlung der 
+
+Pneumonie. Es werden damit deutlich höhere Konzentrationen im Sputum [41] und im Lungengewebe [42], 
+
+[43] erreicht als bei der intravenösen Applikation. Die zusätzliche inhalative Therapie führte zur schnelleren 
+
+mikrobiologischen Eradikation und zu höheren klinischen Heilungsraten. Allerdings ließ sich in den 
+
+bisherigen klinischen Studien keine Senkung der Letalität nachweisen [44], [45]. Die Applikation sollte über 
+
+einen Ultraschallvernebler mit einer anzustrebenden Partikelgröße von 3–5 µm erfolgen [46].  
+
+Aufgrund der sehr schlechten Penetration von Polymyxinen in das ZNS bei intravenöser Gabe kann Colistin 
+
+bei Patienten mit ZNS-Infektionen intraventrikulär bzw. intrathekal verabreicht werden.  
+
+Therapie von Infektionen durch Extended-Spektrum-Beta-Lactamase-bildende 
+Enterobacteriaceae 
+
+„Extended-Spektrum“ Beta-Lactamase (ESBL; Beta-Lactamasen mit erweitertem Wirkspektrum) produ-
+
+zierende Enterobakterien haben in den letzten Jahren massiv an Bedeutung gewonnen und stellen heute 
+
+in Europa ein größeres therapeutisches Problem als Methicillin-resistente Staphylococcus-aureus-Stämme 
+
+dar [47]. Die Beta-Lactamasen können gemäß Ambler-Klassifikation in vier Klassen (A–D, Abbildung 16.1) 
+
+[48] sowie nach Bush-Jacoby phänotypisch bzw. funktional in drei Gruppen unterteilt werden. Klasse A und 
+
+D Enzyme hydrolysieren Penicilline sowie – im geringeren Ausmaß – Oxyimino-Cephalosporine; Klasse C 
+
+Beta-Lactamasen hydrolysieren Cephalosporine stärker als Penicilline [49]. Das Wissen um die einzelnen 
+
+Beta-Lactamasen ist angesichts der neuen Therapieoptionen notwendig, um die neuen Cephalosporin-
+
+Kombinationen punktgenau einsetzen und Carbapeneme in der Therapie von ESBL-positiven Entero-
+
+bakterien einsparen zu können; diese sind häufig auch gegen Fluorchinolone resistent. 
+
+Abbildung 16.1: Einteilung der Beta-Lactamasen, nach [48] 
+
+Serin-β Metallo-β Serin-β Serin-β 
+Lactamasen Lactamasen Lactamasen Lactamasen 
+    
+ Klasse A  Klasse B  Klasse C  Klasse D 
+
+Beta-Lactamasen mit erweitertem Wirkspektrum (ESBL) 
+
+− TEM  − AmpC − OXA-2,-9 
+− SHV − CMY, DHA 
+− CTX-M − MOX, FOX 
+
+Carbapenemasen 
+
+− KPC − VIM  − OXA-48 
+− GES − IMP, NDM − OXA-23,-24,-58 
+− SME − GOB, GIM − OXA-72 
+
+ 
+
+Als Therapieoptionen stehen derzeit Beta-Lactamase-Inhibitoren (Avibactam, Clavulansäure, Tazobactam) 
+
+in fixer Kombination mit einem Penicillin (Amoxicillin/Clavulansäure, Piperacillin/Tazobactam) oder Cepha-
+
+Seite 313 von 341 
+
+
+
+16. Infektionen durch multiresistente gramnegative Stäbchen – ESBL-Bildner, Carbapenemase-bildende 
+Enterobacteriaceae, Carbapenem-resistente Acinetobacter baumannii 
+
+losporin (Ceftazidim/Avibactam, Ceftolozan/Tazobactam) sowie Temocillin, die Carbapeneme (Ertapenem, 
+
+Imipenem/Cilastatin, Meropenem), Colistin, Fosfomycin und Tigecyclin zur Verfügung.  
+
+Therapie von Infektionen durch Carbapenemase-bildende Enterobacteriaceae 
+
+Die Therapie von Infektionen durch Carbapenemase-bildende Enterobacteriaceae, vor allem Klebsiella 
+
+pneumoniae, aber auch Escherichia coli und andere Vertreter, sogenannte 4MRGN, ist gekennzeichnet 
+
+durch extrem limitierte Therapieoptionen und das Fehlen prospektiver, randomisierter multizentrischer 
+
+Studien. Zwei prospektive randomisierte Studien untersuchen derzeit Colistin in Monotherapie versus 
+
+Colistin in Kombination mit einem Carbapenem (NCT01732250 und NCT01597973). Die Ergebnisse der 
+
+Studien standen zum Zeitpunkt der Veröffentlichung der vorliegenden Empfehlungen noch nicht zur 
+
+Verfügung [50]. Die derzeitigen Therapieempfehlungen basieren demnach im Wesentlichen auf Fallserien, 
+
+Beobachtungsstudien, nicht randomisierten Vergleichsstudien und Expertenmeinungen und konzentrieren 
+
+sich auf Infektionen durch Klebsiella pneumoniae, meist mit Klebsiella-pneumoniae-Carbapenemasen 
+
+(KPC), OXA-48 oder Metallo-Beta-Lactamasen (z.B. VIM). Ob die Ergebnisse auch auf andere Entero-
+
+bacteriaceae mit Carbapenem-Resistenz und andere Mechanismen der Carbapenem-Resistenz zu über-
+
+tragen sind, ist derzeit unklar.  
+
+Die Prävalenz Carbapenem-resistenter Klebsiellen steigt auch in Deutschland langsam an, ist aber nach 
+
+wie vor sehr gering. Das Antibiotika-Resistenz-Surveillance-System (ARS) am RKI weist für das Jahr 2015 
+
+eine Prävalenz von 0,4% Carbapenem-intermediären und -resistenten Stämmen bezogen auf Imipenem 
+
+und Meropenem aus (https://ars.rki.de/Content/Database/ResistanceDevelopment.aspx). In der PEG 
+
+Resistenzstudie 2013 betrug der Anteil der nicht mehr voll empfindlichen Stämme 1,6% (Imipenem) bzw. 
+
+1,3% (Meropenem) (http://www.p-e-g.org/econtext/resistenzdaten). Die Daten des Nationalen Referenz-
+
+zentrums für gramnegative Erreger zeigen, dass in Deutschland vor allem OXA-48 gefunden wird, daneben 
+
+KPC-2, VIM-1, NDM-1 und KPC-3 [51]. 
+
+Als in vitro wirksame Therapieoptionen stehen prinzipiell Colistin, Tigecyclin, einige Aminoglykoside und 
+
+Fosfomycin zur Verfügung. Auch Ceftazidim/Avibactam ist gegenüber KPC-Bildnern in vitro wirksam. Der 
+
+Stellenwert von Ceftazidim/Avibactam als Möglichkeit zur Behandlung von Infektionen durch KPC-Bildner 
+
+ist aufgrund der limitierten klinischen Daten derzeit aber noch nicht abzuschätzen. 
+
+Der Nachweis einer Carbapenemase als Resistenzmechanismus führt nicht immer zu einem phänotypisch 
+
+resistenten Erreger. Daher spielt die Kenntnis über die minimale Hemmkonzentration (MHK) des Erregers 
+
+eine wesentliche Rolle, weshalb mikrobiologische Laboratorien bei Carbapenemase-Bildnern unbedingt 
+
+die MHK für Imipenem und/oder Meropenem berichten sollten. Die MHK für Ertapenem ist zwar der beste 
+
+Marker für das Vorliegen einer Carbapenemase, sie spielt jedoch für die Frage einer Option für eine 
+
+Kombinationstherapie eine untergeordnete Rolle. Für MHK-Werte bis 8 mg/l gegenüber Meropenem wird 
+
+eine Wirksamkeit als Kombinationspartner postuliert. 
+
+Die bisher vorliegenden klinischen Daten, die allerdings aus nicht randomisierten Studien mit kleinen Fall-
+
+zahlen stammen, deuten darauf hin, dass bei Infektionen durch Carbapenem-resistente Enterobacte-
+
+riaceae vorzugsweise eine Kombinationstherapie unter Einschluss eines Carbapenems eingesetzt werden 
+
+Seite 314 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+sollte [52], [53], [54]. Allerdings ist die Datenlage durch viele ungeklärte Fragen gekennzeichnet. In einer 
+
+Fallserie aus Griechenland [52] waren viele Isolate phänotypisch nicht Carbapenem-resistent, außerdem 
+
+werden meist keine Angaben gemacht, ob bei den Patienten eine Monoinfektion durch den Carbapenem-
+
+resistenten Stamm oder eine polymikrobielle Infektion unter Beteiligung auch von Carbapenem-empfind-
+
+lichen Isolaten vorlag. Dies würde einen Bias zugunsten der Kombination bedingen, da die Carbapenem-
+
+sensiblen Erreger mit einem wirksamen Therapieregime behandelt wurden [55]. In den meisten Studien 
+
+fand auch keine Adjustierung statt, ob die kalkulierte Initialtherapie adäquat oder inadäquat war. Als 
+
+weiterer kritischer Punkt ist zu sehen, dass die Dosierungsempfehlungen für Colistin erst kürzlich deutlich 
+
+erhöht wurden. In den „Kombinationstherapie-Studien“ wurde vielfach keine nach heutigen Gesichts-
+
+punkten ausreichend hohe Dosierung verabreicht.  
+
+Ein Therapieansatz mit zwei Carbapenemen – Ertapenem plus Doripenem oder Meropenem – ist theore-
+
+tisch attraktiv [56]. Das Prinzip beruht darauf, dass die Carbapenemasen eine höhere Affinität zu Erta-
+
+penem als zu Doripenem und Meropenem haben. Wird Ertapenem (eine Stunde) vor Doripenem bzw. 
+
+Meropenem verabreicht, wird Ertapenem zwar inaktiviert, bleibt aber an der Carbapenemase gebunden, 
+
+sodass das andere Carbapenem (Doripenem oder Meropenem) wirken kann [56]. Bisher wurden 38 Fälle 
+
+von Patienten, die dieses Therapieregime erhielten, publiziert. Bei 22 Patienten war die Therapie erfolg-
+
+reich [56], [57], [58], [59]. 
+
+Zur Bedeutung von Fosfomycin als Kombinationspartner liegt eine multizentrische prospektive Beobach-
+
+tungsstudie mit 41 Intensiv-Patienten vor. In allen Fällen war eine Blutstrominfektion oder Beatmungs-
+
+assoziierte Pneumonie durch einen Carbapenem-resistenten Klebsiella-pneumoniae-Stamm diagnostiziert 
+
+worden. Die Therapie führte bei Gabe einer medianen Dosis von 24 g/Tag bei etwa 54% der Patienten zum 
+
+klinischen Erfolg. Die Kombinationspartner waren überwiegend Tigecyclin und Colistin, aber auch Carba-
+
+peneme und Aminoglykoside [60]. 
+
+Bisher gibt es keine Daten zu einer geeigneten Antibiotika-Kombination, die im Sinne eines „Carbapenem-
+
+sparenden“ Regimes oder in Situationen, wo aufgrund der Höhe der MHK kein Carbapenem eingesetzt 
+
+werden kann, verwendet werden soll. Unklar ist auch, ob eine Kombination aus drei in vitro wirksamen 
+
+Antibiotika einer Kombination aus zwei in vitro wirksamen Antibiotika überlegen ist, auch wenn die Daten 
+
+aus einigen Fallserien vorsichtig in diese Richtung interpretiert werden könnten.  
+
+Therapieempfehlung 
+
+Trotz der geringen Evidenz wird auf der Basis der vorliegenden Daten eine Therapieempfehlung durch die 
+
+Expertengruppe ausgesprochen, die bis zum Vorliegen der Ergebnisse von randomisierten klinischen 
+
+Studien als Basis für die Behandlung der Patienten mit schweren Infektionen durch Carbapenem-resistente 
+
+Enterobacteriaceae dienen soll. 
+
+Bei schweren Infektionen, wie Blutstrominfektionen oder Pneumonie, wird eine Kombinationstherapie 
+
+empfohlen. Wenn die Carbapenem-MHK bei 8 mg/l oder darunter liegt, ist eine Carbapenem-basierte 
+
+Kombinationstherapie zu bevorzugen. Liegt die Carbapenem-MHK über 8 mg/l, sollte eine Kombination 
+
+aus Colistin und Tigecyclin und ggf. zusätzlich Fosfomycin oder ein Aminoglykosid gegeben werden. 
+
+Seite 315 von 341 
+
+
+
+16. Infektionen durch multiresistente gramnegative Stäbchen – ESBL-Bildner, Carbapenemase-bildende 
+Enterobacteriaceae, Carbapenem-resistente Acinetobacter baumannii 
+
+Die prolongierte oder kontinuierliche Gabe von Carbapenemen zur Behandlung von Infektionen durch 
+
+Carbapenem-resistente Enterobacteriaceae ist bisher nicht untersucht worden. Daher wird hier keine 
+
+Empfehlung für oder gegen diese Applikationsformen ausgesprochen. Die kontinuierliche Gabe des 
+
+Carbapenems soll aber auf keinen Fall ohne ein therapeutisches Drug-Monitoring erfolgen, da die Gefahr 
+
+kontinuierlich subtherapeutischer Spiegel besteht (s.a. Kapitel 3 und Kapitel 11).  
+
+Colistin erreicht bei systemischer Gabe nur niedrige Konzentrationen im Lungengewebe, so dass eine 
+
+additive inhalative Therapie bei Pneumonie erwogen werden kann [61]. 
+
+Tabelle 16.3 macht Vorschläge für die Therapie bei Pneumonie und Sepsis durch Carbapenem-resistente 
+
+Enterobacteriaceae 
+
+Tabelle 16.3: Therapieempfehlungen bei Carbapenem-resistenten Enterobacteriaceae 
+
+Diagnose Therapieempfehlung Dosierung/Tag Therapiedauer EG 
+
+Pneumonie Meropenem* 3x 2 g 7–14 Tage A 
+plus Colistin Ladungsdosis: 9–12 Mio. IE 
+
+Erhaltungstagesdosis: 4,5 Mio. IE alle 12 h 
+
+ Colistin Ladungsdosis: 9–12 Mio. IE 7–14 Tage B 
+ Erhaltungstagesdosis: 4,5 Mio. IE alle 12 h 
+plus Tigecyclin Anfangsdosis: 200 mg, 
+ danach 100 mg alle 12 h 
+ggf. plus Fosfomycin 3x 8 g 
+
+Sepsis Meropenem* 3x 2 g 7–10 Tage A 
+plus Colistin Ladungsdosis: 9–12 Mio. IE 
+
+Erhaltungstagesdosis: 4,5 Mio. IE alle 12 h 
+
+ Colistin Ladungsdosis: 9–12 Mio. IE 7–10 Tage B 
+ Erhaltungstagesdosis: 4,5 Mio. IE alle 12 h 
+plus Fosfomycin 3x 8 g 
+ggf. plus Aminoglykosid hochdosiert als Einmalgabe 
+
+EG: Empfehlungsgrad 
+* Bei MHK 8 mg/l! 
+
+Therapie von Infektionen durch Carbapenem-resistente Acinetobacter-baumannii-
+Stämme 
+
+Die Therapie von Infektionen durch Carbapenem-resistente Acinetobacter-baumannii-Stämme, sogenann-
+
+ten 4MRGN, stellt eine große Herausforderung dar. In diesen Fällen stehen nur noch wenige wirksame 
+
+Antibiotika zu Verfügung, für die es allesamt keine groß angelegten prospektiven Studien zur klinischen 
+
+Wirksamkeit gibt, so dass die Therapieempfehlungen auf Fallserien, nicht randomisierten Vergleichs-
+
+studien und Expertenmeinungen beruhen. 
+
+Neben Colistin und Tigecyclin sind bei Acinetobacter-baumannii-Infektionen Sulbactam und Cotrimoxazol 
+
+von Bedeutung. 
+
+Colistin sollte in Kombination mit einer zweiten wirksamen Substanz, wie z.B. Tigecyclin, Sulbactam, einem 
+
+Aminoglykosid oder auch einem Carbapenem, kombiniert werden, da kleinere Beobachtungsstudien 
+
+Hinweise liefern konnten, dass eine Kombinationstherapie einer Monotherapie mit Colistin überlegen ist 
+
+[62]. 
+
+Sulbactam 
+
+Seite 316 von 341 
+
+
+
+S2k Leitlinie: Kalkulierte parenterale Initialtherapie bakterieller Erkrankungen bei Erwachsenen 
+AWMF-Registernummer 082-006 
+
+Sulbactam hat eine hohe Affinität zu den Penicillin-bindenden Proteinen 1a und 2 und besitzt daher als 
+
+einziger synthetischer Beta-Lactamase-Inhibitor eine relevante antibakterielle Aktivität gegen Acineto-
+
+bacter baumannii. Die Substanz ist charakterisiert durch eine zeitabhängige Bakterizidie, welche am besten 
+
+über die %T>MHK beschrieben wird [63], [64]. Im Tiermodell zeigte die Therapie mit Sulbactam vergleich-
+
+bare Ergebnisse wie Imipenem, aber höhere Heilungs- und Überlebensraten als Colistin [65]. Die wenigen 
+
+klinischen Daten, die zur Verfügung stehen, weisen aus, dass die Therapie mit Sulbactam ebenso effektiv 
+
+ist wie die Therapie mit einem Carbapenem bzw. Colistin [66], [67], [68]. In einer weiteren Arbeit fanden 
+
+sich sogar signifikant höhere klinische Heilungsraten für Sulbactam im Vergleich zu Colistin [69]. 
+
+Cotrimoxazol (Trimethoprim/Sulfamethoxazol) 
+
+Cotrimoxazol zeigt eine hohe In-vitro-Wirksamkeit, auch bei Colistin-resistenten Stämmen [70], [71]. Von 
+
+den im Jahr 2015 in Deutschland im Rahmen von ARS getesteten Acinetobacter-baumannii-Komplex-
+
+Isolaten waren 92,1% Cotrimoxazol-sensibel [72]. Vergleichbare Daten konnten in den PEG-Resistenz-
+
+studien 2010 und 2013 mit Sensibilitätsraten von 74,7% bzw. 71,6% für Acinetobacter baumannii sensu 
+
+stricto gezeigt werden [73]. Allerdings gibt es keine klinische Studie zur Wirksamkeit. Es existieren lediglich 
+
+Fallberichte, wo Cotrimoxazol meist in Kombination mit einer zweiten Substanz gegeben wurde. Alle 
+
+veröffentlichten Fälle einer Therapie mit Cotrimoxazol wurden als Therapieerfolg beschrieben [74]. Eine 
+
+generelle Therapieempfehlung kann mangels Daten aber nicht gegeben werden. Allerdings steht mit 
+
+Cotrimoxazol eine Substanz zur Verfügung, die insbesondere bei Infektionen durch Colistin-resistente 
+
+Stämme eine mögliche Therapieoption, speziell bei Harnwegsinfektionen, darstellt. 
+
+Kombinationstherapie 
+
+Aufgrund der suboptimalen Pharmakokinetik und schnellen Resistenzentwicklung, sowohl von Colistin als 
+
+auch von Tigecyclin, und der eingeschränkten Vorhersagbarkeit des Ergebnisses der In-vitro-Testung von 
+
+Sulbactam auf die klinische Wirksamkeit wurden in mehreren Studien verschiedene Kombinationstherapien 
+
+untersucht. In einer retrospektiven Arbeit bei Patienten mit Acinetobacter-baumannii-Bakteriämien war die 
+
+Kombination aus Colistin, entweder mit einem Carbapenem, Sulbactam oder bei wenigen Patienten mit 
+
+einem anderem Kombinationspartner, der Monotherapie mit Colistin bezüglich der Letalität signifikant 
+
+überlegen [62]. Carbapeneme scheinen auch bei In-vitro-Resistenz klinisch eine synergistische Wirkung in 
+
+Kombination mit Colistin zu entwickeln.  
+
+Rifampicin zeigt in vitro eine hohe Aktivität gegen multiresistente Acinetobacter-baumannii-Stämme. Im 
+
+Tierexperiment konnte eine Überlegenheit der Kombination aus Rifampicin mit Colistin im Vergleich zu 
+
+Colistin alleine demonstriert werden [62]. Allerdings ließ sich dieser Effekt in zwei prospektiven klinischen 
+
+Studien nicht bestätigen [75], [76]. Deshalb kann aufgrund des hohen Interaktionspotentiales und der 
+
+Hepatotoxizität im Moment eine Kombinationstherapie mit Rifampicin nicht empfohlen werden [77]. 
+
+Tabelle 16.4 und Tabelle 16.5 fassen die Vorschläge für die Therapie von Infektionen durch Carbapenem-
+
+resistente Acinetobacter baumannii zusammen. 
+
+ 
+
+Seite 317 von 341 
+
+
+
+16. Infektionen durch multiresistente gramnegative Stäbchen – ESBL-Bildner, Carbapenemase-bildende 
+Enterobacteriaceae, Carbapenem-resistente Acinetobacter baumannii 
+
+Tabelle 16.4: Therapieempfehlungen bei Infektionen durch Carbapenem-resistente Acinetobacter 
+baumannii 
+
+Diagnose Therapieempfehlung Dosierung/Tag Therapiedauer EG 
+
+Pneumonie Colistin Ladungsdosis: 9–12 Mio. IE 7–14 Tage A 
+Erhaltungstagesdosis: 4,5 Mio. IE alle 12 h 
+
+Sulbactam Ladungsdosis: 2–4 g 7–14 Tage B 
+Erhaltungsdosis: 4x 2–3 g über jeweils  
+
+4 h Infusionsdauer 
+
+Tigecyclin Anfangsdosis: 200 mg 7–14 Tage B 
+Danach: 100 mg alle 12 h  
+
+Sepsis Colistin Ladungsdosis: 9–12 Mio. IE 7–10 Tage A 
+Erhaltungstagesdosis: 4,5 Mio. IE alle 12 h 
+
+Sulbactam Ladungsdosis: 2–4 g 7–10 Tage B 
+Erhaltungsdosis: 4x 2–3 g über jeweils  
+
+4 h Infusionsdauer 
+
+Wundinfektion Colistin Ladungsdosis: 9–12 Mio. IE 7–10 Tage A 
+Erhaltungstagesdosis: 4,5 Mio. IE alle 12 h 
+
+Sulbactam Ladungsdosis: 2–4 g 7–10 Tage B 
+Erhaltungsdosis: 4x 2–3g über jeweils  
+
+4 h Infusionsdauer 
+
+Tigecyclin Anfangsdosis: 100 mg (200 mg) 7–10 Tage B 
+(Hochdosistherapie  Danach: 50 mg (100 mg) alle 12 h 
+in Klammern) 
+
+Harnwegsinfektion Colistin Ladungsdosis: 9–12 Mio. IE 5–7 Tage A 
+Erhaltungstagesdosis: 4,5 Mio. IE alle 12 h 
+
+Sulbactam Ladungsdosis: 2–4 g 5–7 Tage B 
+Erhaltungsdosis: 4x 2–3 g über jeweils  
+
+4 h Infusionsdauer 
+
+Tigecyclin Anfangsdosis: 100 mg (200 mg) 5–7 Tage B 
+(Hochdosistherapie  Danach: 50 mg (100 mg) alle 12 h 
+in Klammern) 
+
+Cotrimoxazol 2–3x 800/160 mg 5–7 Tage C 
+
+EG: Empfehlungsgrad 
+ 
+
+Tabelle 16.5: Spezielle Applikationsformen von Colistin 
+
+Diagnose Therapieempfehlung Dosierung Therapiedauer EG 
+
+Menigitis/ Colistin Tag 1: 20.000 IE/Tag 14–21 Tage C 
+Ventrikulitis intrathekale/ Tag 2: 40.000 IE/Tag 
+
+intraventrikuläre Tag 3: 60.000 IE/Tag 
+Applikation Dosissteigerung bis 
+
+max. 100.000 IE/Tag 
+
+Pneumonie Colistin 3x 1–2 Mio. IE/Tag 7–14 Tage C 
+inhalative Gabe 
+
+EG: Empfehlungsgrad 
+  
+
+Seite 318 von 341
