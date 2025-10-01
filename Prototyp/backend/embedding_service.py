@@ -13,9 +13,12 @@ from dotenv import load_dotenv
 try:
     from sentence_transformers import SentenceTransformer
     SENTENCE_TRANSFORMERS_AVAILABLE = True
-except ImportError:
+    print("✅ SentenceTransformers successfully loaded - using LOCAL embeddings")
+except ImportError as e:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
     SentenceTransformer = None
+    print(f"⚠️ SentenceTransformers NOT available: {e}")
+    print("🔄 Will fall back to ONLINE embeddings")
 
 class EmbeddingServiceBase(ABC):
     """Abstract base class for embedding services"""
@@ -37,8 +40,10 @@ class LocalEmbeddingService(EmbeddingServiceBase):
         if not SENTENCE_TRANSFORMERS_AVAILABLE:
             raise ImportError("sentence-transformers is not available. Install it or use online embeddings.")
         
+        print(f"🔄 Loading local embedding model: {model_name} on {device}")
         self.model = SentenceTransformer(model_name, device=device)
         self.device = device
+        print(f"✅ Local embedding model loaded successfully")
         
     def encode(self, texts: Union[str, List[str]], convert_to_numpy: bool = True) -> np.ndarray:
         """Encode texts using local SentenceTransformer model"""
@@ -63,7 +68,12 @@ class OnlineEmbeddingService(EmbeddingServiceBase):
         self.embedding_model = os.getenv('NOVITA_EMBEDDING_MODEL', 'qwen/qwen3-embedding-8b')
         
         if not self.api_key:
+            print("❌ NOVITA_API_KEY not found in environment")
             raise ValueError("NOVITA_API_KEY is required for online embeddings")
+        
+        print(f"🌐 Initializing ONLINE embeddings (Novita API)")
+        print(f"   Model: {self.embedding_model}")
+        print(f"   API Key: {self.api_key[:8]}...")  # Show only first 8 chars for security
         
         self.headers = {
             "Content-Type": "application/json",
@@ -73,6 +83,8 @@ class OnlineEmbeddingService(EmbeddingServiceBase):
         # Rate limiting configuration (configurable via environment)
         self.requests_per_minute = int(os.getenv('EMBEDDING_REQUESTS_PER_MINUTE', '45'))  # Slightly below API limit
         self.request_interval = 60.0 / self.requests_per_minute  # Seconds between requests
+        
+        print(f"⏱️ Rate limiting: {self.requests_per_minute} requests/minute (interval: {self.request_interval:.2f}s)")
         self.last_request_time = 0
         
         # Retry configuration (configurable via environment)
@@ -209,14 +221,22 @@ class EmbeddingServiceFactory:
         if use_online is None:
             use_online = os.getenv('USE_ONLINE_EMBEDDINGS', 'false').lower() == 'true'
         
+        print(f"🔍 Embedding configuration:")
+        print(f"   USE_ONLINE_EMBEDDINGS: {os.getenv('USE_ONLINE_EMBEDDINGS', 'not set')}")
+        print(f"   use_online parameter: {use_online}")
+        print(f"   SENTENCE_TRANSFORMERS_AVAILABLE: {SENTENCE_TRANSFORMERS_AVAILABLE}")
+        
         if use_online:
+            print("🌐 Using ONLINE embeddings (Novita API)")
             return OnlineEmbeddingService()
         else:
             if not SENTENCE_TRANSFORMERS_AVAILABLE:
-                print("Warning: SentenceTransformers not available, falling back to online embeddings")
+                print("❌ WARNING: SentenceTransformers not available, falling back to ONLINE embeddings")
+                print("💡 To fix: Install sentence-transformers with: pip install sentence-transformers")
                 return OnlineEmbeddingService()
             
             if model_name is None:
                 model_name = os.getenv('EMBEDDING_MODEL', 'NeuML/pubmedbert-base-embeddings')
             
+            print(f"🖥️ Using LOCAL embeddings (model: {model_name}, device: {device})")
             return LocalEmbeddingService(model_name, device)

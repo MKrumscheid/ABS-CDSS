@@ -415,7 +415,7 @@
 <td></td>
 </tr>
 <tr>
-<td>ODER plus Aminoglykosid und Makrolid</td>
+<td>ODER plus Aminoglykosid *UND* Makrolid</td>
 <td></td>
 <td></td>
 </tr>
