@@ -50,13 +50,20 @@ const convertToEuropeanDate = (americanDate) => {
 
 function App() {
   const [activeTab, setActiveTab] = useState("upload");
-  const [uploadStatus, setUploadStatus] = useState("");
   const [searchResults, setSearchResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
   const [guidelines, setGuidelines] = useState([]);
   const [deleteStatus, setDeleteStatus] = useState("");
   const [queryTestResults, setQueryTestResults] = useState(null);
+
+        return "alert-warning";
+      case "info":
+        return "alert-info";
+      default:
+        return "alert-success";
+    }
+  };
 
   // Patient search states
   const [patientSearchType, setPatientSearchType] = useState("id"); // "id" or "name_birthdate"
@@ -278,7 +285,7 @@ function App() {
 
   // Debug: Monitor selectedIndications changes
   useEffect(() => {
-    console.log("🎯 selectedIndications changed:", selectedIndications);
+    console.log("selectedIndications changed:", selectedIndications);
   }, [selectedIndications]);
 
   const loadStats = async () => {
@@ -298,7 +305,9 @@ function App() {
       }
     } catch (error) {
       console.error("Error loading guidelines:", error);
-      setDeleteStatus("❌ Fehler beim Laden der Leitlinien");
+      setDeleteStatus(
+        createStatus("error", "Fehler beim Laden der Leitlinien.")
+      );
     }
   };
 
@@ -313,19 +322,22 @@ function App() {
 
     try {
       setLoading(true);
+      setDeleteStatus(null);
       const response = await axios.delete(
         `${API_BASE}/guidelines/${guidelineId}`
       );
 
       if (response.data.success) {
-        setDeleteStatus(`✅ ${response.data.message}`);
+        setDeleteStatus(createStatus("success", response.data.message));
         loadGuidelines();
         loadStats();
       } else {
-        setDeleteStatus(`❌ ${response.data.message}`);
+        setDeleteStatus(createStatus("error", response.data.message));
       }
     } catch (error) {
-      setDeleteStatus(`❌ Fehler beim Löschen: ${error.message}`);
+      setDeleteStatus(
+        createStatus("error", `Fehler beim Löschen: ${error.message}`)
+      );
     } finally {
       setLoading(false);
     }
@@ -342,17 +354,20 @@ function App() {
 
     try {
       setLoading(true);
+      setDeleteStatus(null);
       const response = await axios.delete(`${API_BASE}/guidelines`);
 
       if (response.data.success) {
-        setDeleteStatus(`✅ ${response.data.message}`);
+        setDeleteStatus(createStatus("success", response.data.message));
         setGuidelines([]);
         loadStats();
       } else {
-        setDeleteStatus(`❌ ${response.data.message}`);
+        setDeleteStatus(createStatus("error", response.data.message));
       }
     } catch (error) {
-      setDeleteStatus(`❌ Fehler beim Löschen: ${error.message}`);
+      setDeleteStatus(
+        createStatus("error", `Fehler beim Löschen: ${error.message}`)
+      );
     } finally {
       setLoading(false);
     }
@@ -392,16 +407,16 @@ function App() {
   };
 
   const handleIndicationChange = (indication, checked) => {
-    console.log("🔄 handleIndicationChange called:", { indication, checked });
+    console.log("handleIndicationChange called:", { indication, checked });
     if (checked) {
       const newSelection = [...selectedIndications, indication];
-      console.log("➕ Adding indication, new selection:", newSelection);
+      console.log("Adding indication, new selection:", newSelection);
       setSelectedIndications(newSelection);
     } else {
       const newSelection = selectedIndications.filter(
         (ind) => ind !== indication
       );
-      console.log("➖ Removing indication, new selection:", newSelection);
+      console.log("Removing indication, new selection:", newSelection);
       setSelectedIndications(newSelection);
     }
   };
@@ -495,27 +510,39 @@ function App() {
   const handleFileUpload = async (e) => {
     e.preventDefault();
     if (!uploadFile) {
-      setUploadStatus("Bitte wählen Sie eine Datei aus.");
+      setUploadStatus(
+        createStatus("warning", "Bitte wählen Sie eine Datei aus.")
+      );
       return;
     }
 
     // Validate indications
     if (selectedIndications.length === 0) {
-      setUploadStatus("❌ Bitte wählen Sie mindestens eine Indikation aus.");
+      setUploadStatus(
+        createStatus(
+          "warning",
+          "Bitte wählen Sie mindestens eine Indikation aus."
+        )
+      );
       return;
     }
 
-    console.log("📋 Selected indications:", selectedIndications); // Debug log
+    console.log("Selected indications:", selectedIndications);
 
     // Validate file type
     const fileName = uploadFile.name.toLowerCase();
     if (!fileName.endsWith(".txt") && !fileName.endsWith(".md")) {
-      setUploadStatus("❌ Nur .txt und .md Dateien werden unterstützt.");
+      setUploadStatus(
+        createStatus(
+          "error",
+          "Nur Dateien im .txt- oder .md-Format werden unterstützt."
+        )
+      );
       return;
     }
 
     setLoading(true);
-    setUploadStatus("");
+    setUploadStatus(null);
 
     const formData = new FormData();
     formData.append("file", uploadFile);
@@ -524,8 +551,7 @@ function App() {
     }
     // Use selected indications instead of hardcoded values
     const indicationsString = selectedIndications.join(",");
-    console.log("📤 Sending indications string:", indicationsString); // Debug what we send
-    console.log("📤 FormData indications:", indicationsString); // Debug FormData
+    console.log("Sending indications string:", indicationsString);
     formData.append("indications", indicationsString);
 
     try {
@@ -541,17 +567,22 @@ function App() {
 
       if (response.data.status === "success") {
         const fileType = response.data.file_type || "unbekannt";
-        const message = `✅ Erfolgreich verarbeitet (${fileType}): ${response.data.chunks_created} Chunks erstellt`;
-        setUploadStatus(message);
+        const message = `Erfolgreich verarbeitet (${fileType}): ${response.data.chunks_created} Chunks erstellt.`;
+        setUploadStatus(createStatus("success", message));
         resetUploadForm(); // Use new reset function
         loadStats(); // Reload stats
         loadGuidelines(); // Reload guidelines list
       } else {
-        setUploadStatus(`❌ Fehler: ${response.data.message}`);
+        setUploadStatus(
+          createStatus("error", `Fehler: ${response.data.message}`)
+        );
       }
     } catch (error) {
       setUploadStatus(
-        `❌ Upload-Fehler: ${error.response?.data?.detail || error.message}`
+        createStatus(
+          "error",
+          `Upload-Fehler: ${error.response?.data?.detail || error.message}`
+        )
       );
     } finally {
       setLoading(false);
@@ -768,21 +799,24 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div className="container">
-          <span className="navbar-brand mb-0 h1">
-            🏥 RAG Test Pipeline - Clinical Decision Support
-          </span>
+    <div className="App admin-surface">
+      <nav className="navbar navbar-expand-lg admin-navbar shadow-sm">
+        <div className="container py-3">
+          <div>
+            <span className="navbar-brand mb-1">ABS-CDSS Admin Konsole</span>
+            <p className="navbar-subtitle mb-0">
+              Leitlinienverwaltung und Debuggingoberfläche
+            </p>
+          </div>
         </div>
       </nav>
 
-      <div className="container mt-4">
+      <div className="container admin-content">
         {/* Stats Card */}
         {stats && (
-          <div className="card mb-4">
+          <div className="card admin-card mb-4 mt-4">
             <div className="card-body">
-              <h5 className="card-title">📊 System Status</h5>
+              <h5 className="card-title">Systemstatus</h5>
               <div className="row">
                 <div className="col-md-3">
                   <div className="text-center">
@@ -811,21 +845,44 @@ function App() {
               </div>
               {stats.guidelines.length > 0 && (
                 <div className="mt-3">
-                  <strong>Verfügbare Leitlinien:</strong>
-                  <ul className="list-unstyled mt-2">
-                    {stats.guidelines.map((guideline, idx) => (
-                      <li key={idx} className="small">
-                        📄 {guideline.title} ({guideline.indications.join(", ")}
-                        )
-                        {guideline.pages && (
-                          <span className="text-muted">
-                            {" "}
-                            • {guideline.pages} Seiten
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm w-100 d-flex justify-content-between align-items-center"
+                    onClick={() =>
+                      setGuidelinesExpanded((previous) => !previous)
+                    }
+                    aria-expanded={guidelinesExpanded}
+                    aria-controls="available-guidelines-list"
+                  >
+                    <span>Verfügbare Leitlinien</span>
+                    <span className="small text-muted">
+                      {guidelinesExpanded ? "Einklappen" : "Anzeigen"}
+                    </span>
+                  </button>
+                  {guidelinesExpanded && (
+                    <ul
+                      id="available-guidelines-list"
+                      className="list-unstyled mt-2 mb-0"
+                    >
+                      {stats.guidelines.map((guideline, idx) => (
+                        <li key={idx} className="small guideline-item">
+                          <span className="guideline-accent" aria-hidden>
+                            ●
                           </span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+                          <span>
+                            {guideline.title} (
+                            {guideline.indications.join(", ")})
+                            {guideline.pages && (
+                              <span className="text-muted">
+                                {" "}
+                                • {guideline.pages} Seiten
+                              </span>
+                            )}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               )}
             </div>
@@ -833,75 +890,94 @@ function App() {
         )}
 
         {/* Tab Navigation */}
-        <ul className="nav nav-tabs mb-4">
+        <ul className="nav nav-tabs admin-tabs mb-4">
           <li className="nav-item">
             <button
-              className={`nav-link ${activeTab === "upload" ? "active" : ""}`}
+              className={`nav-link admin-tab ${
+                activeTab === "upload" ? "active" : ""
+              }`}
               onClick={() => setActiveTab("upload")}
             >
-              📁 Leitlinien Upload
+              <span className="tab-indicator tab-upload" aria-hidden></span>
+              <span>Leitlinien Upload</span>
             </button>
           </li>
           <li className="nav-item">
             <button
-              className={`nav-link ${activeTab === "manage" ? "active" : ""}`}
+              className={`nav-link admin-tab ${
+                activeTab === "manage" ? "active" : ""
+              }`}
               onClick={() => {
                 setActiveTab("manage");
                 loadGuidelines();
               }}
             >
-              🗂️ Leitlinien Verwalten
+              <span className="tab-indicator tab-manage" aria-hidden></span>
+              <span>Leitlinien verwalten</span>
             </button>
           </li>
           <li className="nav-item">
             <button
-              className={`nav-link ${activeTab === "patients" ? "active" : ""}`}
+              className={`nav-link admin-tab ${
+                activeTab === "patients" ? "active" : ""
+              }`}
               onClick={() => setActiveTab("patients")}
             >
-              👤 Patienten
+              <span className="tab-indicator tab-patients" aria-hidden></span>
+              <span>Patienten</span>
             </button>
           </li>
           <li className="nav-item">
             <button
-              className={`nav-link ${activeTab === "therapy" ? "active" : ""}`}
+              className={`nav-link admin-tab ${
+                activeTab === "therapy" ? "active" : ""
+              }`}
               onClick={() => setActiveTab("therapy")}
             >
-              💊 Therapie Empfehlungen
+              <span className="tab-indicator tab-therapy" aria-hidden></span>
+              <span>Therapieempfehlungen</span>
             </button>
           </li>
           <li className="nav-item">
             <button
-              className={`nav-link ${
+              className={`nav-link admin-tab ${
                 activeTab === "query-test" ? "active" : ""
               }`}
               onClick={() => setActiveTab("query-test")}
             >
-              🧪 Query Test
+              <span className="tab-indicator tab-query" aria-hidden></span>
+              <span>Query-Test</span>
             </button>
           </li>
           <li className="nav-item">
             <button
-              className={`nav-link ${activeTab === "search" ? "active" : ""}`}
+              className={`nav-link admin-tab ${
+                activeTab === "search" ? "active" : ""
+              }`}
               onClick={() => setActiveTab("search")}
             >
-              🔍 RAG Search Test
+              <span className="tab-indicator tab-search" aria-hidden></span>
+              <span>RAG-Suche</span>
             </button>
           </li>
           <li className="nav-item">
             <button
-              className={`nav-link ${activeTab === "settings" ? "active" : ""}`}
+              className={`nav-link admin-tab ${
+                activeTab === "settings" ? "active" : ""
+              }`}
               onClick={() => setActiveTab("settings")}
             >
-              ⚙️ Einstellungen
+              <span className="tab-indicator tab-settings" aria-hidden></span>
+              <span>Einstellungen</span>
             </button>
           </li>
         </ul>
 
         {/* Upload Tab */}
         {activeTab === "upload" && (
-          <div className="card">
+          <div className="card admin-card">
             <div className="card-header">
-              <h5>📄 Leitlinien-Upload und Verarbeitung</h5>
+              <h5>Leitlinien-Upload und Verarbeitung</h5>
             </div>
             <div className="card-body">
               <form onSubmit={handleFileUpload}>
@@ -1096,8 +1172,10 @@ function App() {
                   {/* Selected indications display */}
                   {selectedIndications.length > 0 && (
                     <div className="mt-2">
-                      <small className="text-muted">✅ Ausgewählt: </small>
-                      <div className="d-flex flex-wrap gap-1 mt-1">
+                      <small className="text-muted">
+                        Ausgewählte Indikationen:
+                      </small>
+                      <div className="d-flex flex-wrap gap-1 mt-2">
                         {selectedIndications.map((indicationValue) => {
                           const indication = allIndicationOptions.find(
                             (ind) => ind.value === indicationValue
@@ -1129,7 +1207,7 @@ function App() {
 
                   {selectedIndications.length === 0 && (
                     <div className="text-warning mt-2">
-                      ⚠️ Mindestens eine Indikation muss ausgewählt werden.
+                      Mindestens eine Indikation muss ausgewählt werden.
                     </div>
                   )}
                 </div>
@@ -1148,22 +1226,14 @@ function App() {
                       Verarbeitung...
                     </>
                   ) : (
-                    `🚀 Upload & Verarbeitung starten (${selectedIndications.join(
-                      ", "
-                    )})`
+                    `Upload starten (${selectedIndications.join(", ")})`
                   )}
                 </button>
               </form>
 
               {uploadStatus && (
-                <div
-                  className={`alert mt-3 ${
-                    uploadStatus.includes("❌")
-                      ? "alert-danger"
-                      : "alert-success"
-                  }`}
-                >
-                  {uploadStatus}
+                <div className={`alert mt-3 ${getAlertClass(uploadStatus)}`}>
+                  {uploadStatus.message}
                 </div>
               )}
             </div>
@@ -1172,9 +1242,9 @@ function App() {
 
         {/* Manage Tab */}
         {activeTab === "manage" && (
-          <div className="card">
+          <div className="card admin-card">
             <div className="card-header">
-              <h5>🗂️ Leitlinien Verwaltung</h5>
+              <h5>Leitlinien verwalten</h5>
             </div>
             <div className="card-body">
               <div className="row mb-4">
@@ -1184,7 +1254,7 @@ function App() {
                     onClick={loadGuidelines}
                     disabled={loading}
                   >
-                    🔄 Liste aktualisieren
+                    Liste aktualisieren
                   </button>
                 </div>
                 <div className="col-md-6">
@@ -1193,20 +1263,14 @@ function App() {
                     onClick={deleteAllGuidelines}
                     disabled={loading}
                   >
-                    🗑️ ALLE Leitlinien löschen
+                    Alle Leitlinien löschen
                   </button>
                 </div>
               </div>
 
               {deleteStatus && (
-                <div
-                  className={`alert ${
-                    deleteStatus.includes("❌")
-                      ? "alert-danger"
-                      : "alert-success"
-                  }`}
-                >
-                  {deleteStatus}
+                <div className={`alert ${getAlertClass(deleteStatus)}`}>
+                  {deleteStatus.message}
                 </div>
               )}
 
@@ -1260,7 +1324,7 @@ function App() {
                               onClick={() => deleteGuideline(guideline.id)}
                               disabled={loading}
                             >
-                              🗑️ Löschen
+                              Löschen
                             </button>
                           </td>
                         </tr>
@@ -1279,7 +1343,7 @@ function App() {
             <div className="col-md-4">
               <div className="card">
                 <div className="card-header">
-                  <h5>👤 Patientensuche</h5>
+                  <h5>Patientensuche</h5>
                 </div>
                 <div className="card-body">
                   <form onSubmit={handlePatientSearch}>
@@ -1416,7 +1480,7 @@ function App() {
                             Suche läuft...
                           </>
                         ) : (
-                          "🔍 Patienten suchen"
+                          "Patientensuche starten"
                         )}
                       </button>
                       <button
@@ -1424,7 +1488,7 @@ function App() {
                         className="btn btn-outline-secondary"
                         onClick={resetPatientSearch}
                       >
-                        🔄 Zurücksetzen
+                        Formular zurücksetzen
                       </button>
                     </div>
                   </form>
@@ -1470,7 +1534,7 @@ function App() {
             <div className="col-md-8">
               <div className="card">
                 <div className="card-header">
-                  <h5>📋 Patientendaten</h5>
+                  <h5>Patientendaten</h5>
                 </div>
                 <div className="card-body">
                   {!selectedPatient && !patientDetailsLoading && (
@@ -1742,7 +1806,7 @@ function App() {
             <div className="col-md-4">
               <div className="card">
                 <div className="card-header">
-                  <h5>💊 Therapie-Empfehlung anfragen</h5>
+                  <h5>Therapie-Empfehlung anfragen</h5>
                 </div>
                 <div className="card-body">
                   <form onSubmit={handleTherapyRecommendation}>
@@ -1922,7 +1986,7 @@ function App() {
                           Generiere Therapie-Empfehlungen...
                         </>
                       ) : (
-                        "💊 Therapie-Empfehlungen generieren"
+                        "Therapie-Empfehlungen generieren"
                       )}
                     </button>
                   </form>
@@ -1933,7 +1997,7 @@ function App() {
             <div className="col-md-8">
               <div className="card">
                 <div className="card-header">
-                  <h5>🎯 Therapie-Empfehlungen</h5>
+                  <h5>Therapie-Empfehlungen</h5>
                 </div>
                 <div className="card-body">
                   {!therapyResults && !therapyLoading && (
@@ -1979,7 +2043,7 @@ function App() {
                         <div className="mb-4">
                           <div className="card bg-light">
                             <div className="card-header">
-                              <h6 className="mb-0">📋 Klinischer Kontext</h6>
+                              <h6 className="mb-0">Klinischer Kontext</h6>
                             </div>
                             <div className="card-body">
                               <div className="row">
@@ -2006,7 +2070,7 @@ function App() {
                                 .patient_available && (
                                 <div className="mt-2">
                                   <span className="badge bg-info">
-                                    👤 Patientendaten verfügbar
+                                    Patientendaten verfügbar
                                   </span>
                                 </div>
                               )}
@@ -2038,7 +2102,7 @@ function App() {
                         therapyResults.recommendations.length > 0 && (
                           <div className="mb-4">
                             <h6 className="text-primary">
-                              💊 Empfohlene Therapien (
+                              Empfohlene Therapien (
                               {therapyResults.recommendations.length})
                             </h6>
                             {therapyResults.recommendations.map(
@@ -2063,7 +2127,7 @@ function App() {
                                   <div className="card-body">
                                     {/* Medications */}
                                     <div className="mb-3">
-                                      <h6>� Medikamente:</h6>
+                                      <h6>Medikamente</h6>
                                       {recommendation.medications.map(
                                         (medication, medIdx) => (
                                           <div
@@ -2157,7 +2221,7 @@ function App() {
                                             {medication.notes && (
                                               <div className="mt-2">
                                                 <small className="text-muted">
-                                                  📝 {medication.notes}
+                                                  {medication.notes}
                                                 </small>
                                               </div>
                                             )}
@@ -2166,7 +2230,7 @@ function App() {
                                             {medication.clinical_guidance && (
                                               <div className="mt-3">
                                                 <h6 className="text-primary mb-3">
-                                                  📋 Klinische Hinweise für{" "}
+                                                  Klinische Hinweise für{" "}
                                                   {medication.active_ingredients
                                                     .map((ai) => ai.name)
                                                     .join(" / ")}
@@ -2182,7 +2246,7 @@ function App() {
                                                         <div className="card h-100 border-info">
                                                           <div className="card-header bg-info text-white">
                                                             <h6 className="mb-0">
-                                                              🔍 Monitoring
+                                                              Monitoring
                                                             </h6>
                                                           </div>
                                                           <div className="card-body">
@@ -2218,7 +2282,7 @@ function App() {
                                                         <div className="card h-100 border-warning">
                                                           <div className="card-header bg-warning text-dark">
                                                             <h6 className="mb-0">
-                                                              ⚠️ Relevante
+                                                              Relevante
                                                               Nebenwirkungen
                                                             </h6>
                                                           </div>
@@ -2255,7 +2319,7 @@ function App() {
                                                         <div className="card h-100 border-danger">
                                                           <div className="card-header bg-danger text-white">
                                                             <h6 className="mb-0">
-                                                              🔄 Interaktionen
+                                                              Arzneimittelinteraktionen
                                                             </h6>
                                                           </div>
                                                           <div className="card-body">
@@ -2295,7 +2359,7 @@ function App() {
                                                       <div className="col-12 mb-2">
                                                         <div className="alert alert-warning mb-2">
                                                           <strong>
-                                                            🤰 Schwangerschaft:
+                                                            Schwangerschaft:
                                                           </strong>{" "}
                                                           {
                                                             medication
@@ -2312,7 +2376,6 @@ function App() {
                                                       <div className="col-12 mb-2">
                                                         <div className="alert alert-info mb-2">
                                                           <strong>
-                                                            📉🎯
                                                             Deeskalation/Fokussierung:
                                                           </strong>{" "}
                                                           {
@@ -2336,7 +2399,7 @@ function App() {
                                     {recommendation.sources &&
                                       recommendation.sources.length > 0 && (
                                         <div className="mt-3">
-                                          <h6>📚 Quellen:</h6>
+                                          <h6>Quellen</h6>
                                           <div className="row">
                                             {recommendation.sources.map(
                                               (source, sourceIdx) => (
@@ -2383,7 +2446,7 @@ function App() {
                                     {recommendation.clinical_guidance && (
                                       <div className="mt-4">
                                         <h6 className="text-primary mb-3">
-                                          📋 Klinische Hinweise
+                                          Klinische Hinweise
                                         </h6>
                                         <div className="row">
                                           {/* Monitoring Parameters */}
@@ -2396,7 +2459,7 @@ function App() {
                                                 <div className="card h-100 border-info">
                                                   <div className="card-header bg-info text-white">
                                                     <h6 className="mb-0">
-                                                      🔍 Monitoring
+                                                      Monitoring
                                                     </h6>
                                                   </div>
                                                   <div className="card-body">
@@ -2427,8 +2490,7 @@ function App() {
                                                 <div className="card h-100 border-warning">
                                                   <div className="card-header bg-warning text-dark">
                                                     <h6 className="mb-0">
-                                                      ⚠️ Relevante
-                                                      Nebenwirkungen
+                                                      Relevante Nebenwirkungen
                                                     </h6>
                                                   </div>
                                                   <div className="card-body">
@@ -2458,7 +2520,7 @@ function App() {
                                                 <div className="card h-100 border-danger">
                                                   <div className="card-header bg-danger text-white">
                                                     <h6 className="mb-0">
-                                                      🔄 Interaktionen
+                                                      Arzneimittelinteraktionen
                                                     </h6>
                                                   </div>
                                                   <div className="card-body">
@@ -2496,7 +2558,7 @@ function App() {
                                               <div className="col-12 mb-2">
                                                 <div className="alert alert-warning mb-2">
                                                   <strong>
-                                                    🤰 Schwangerschaft:
+                                                    Schwangerschaft:
                                                   </strong>{" "}
                                                   {
                                                     recommendation
@@ -2512,7 +2574,6 @@ function App() {
                                               <div className="col-12 mb-2">
                                                 <div className="alert alert-info mb-2">
                                                   <strong>
-                                                    📉🎯
                                                     Deeskalation/Fokussierung:
                                                   </strong>{" "}
                                                   {
@@ -2554,7 +2615,7 @@ function App() {
                               }
                             >
                               <h6 className="mb-0">
-                                🔍 LLM Debug-Informationen{" "}
+                                LLM Debug-Informationen{" "}
                                 <small className="text-muted">
                                   (
                                   {llmDebugExpanded
@@ -2673,7 +2734,7 @@ function App() {
             <div className="col-md-6">
               <div className="card">
                 <div className="card-header">
-                  <h5>🧪 Query-Generierung testen</h5>
+                  <h5>Query-Generierung testen</h5>
                 </div>
                 <div className="card-body">
                   <form onSubmit={testQueryGeneration}>
@@ -2776,7 +2837,7 @@ function App() {
                           Generiere Query...
                         </>
                       ) : (
-                        "🧪 Query generieren"
+                        "Query generieren"
                       )}
                     </button>
                   </form>
@@ -2787,14 +2848,14 @@ function App() {
             <div className="col-md-6">
               <div className="card">
                 <div className="card-header">
-                  <h5>📊 Query-Analyse</h5>
+                  <h5>Query-Analyse</h5>
                 </div>
                 <div className="card-body">
                   {queryTestResults ? (
                     queryTestResults.status === "success" ? (
                       <div>
                         <div className="mb-3">
-                          <h6>🎯 MUST Terms (Kernkontext):</h6>
+                          <h6>MUST Terms (Kernkontext):</h6>
                           <div className="bg-light p-2 rounded">
                             {queryTestResults.query_analysis.must_terms.join(
                               ", "
@@ -2803,7 +2864,7 @@ function App() {
                         </div>
 
                         <div className="mb-3">
-                          <h6>🔍 SHOULD Terms (Risikofaktoren):</h6>
+                          <h6>SHOULD Terms (Risikofaktoren):</h6>
                           <div className="bg-light p-2 rounded">
                             {queryTestResults.query_analysis.should_terms
                               .length > 0
@@ -2818,7 +2879,7 @@ function App() {
                           queryTestResults.query_analysis.negative_terms
                             .length > 0 && (
                             <div className="mb-3">
-                              <h6>❌ NEGATIVE Terms (Ausschluss):</h6>
+                              <h6>Negative Terms (Ausschluss):</h6>
                               <div className="bg-warning bg-opacity-25 p-2 rounded">
                                 {queryTestResults.query_analysis.negative_terms.join(
                                   ", "
@@ -2828,7 +2889,7 @@ function App() {
                           )}
 
                         <div className="mb-3">
-                          <h6>⚡ BOOST Terms (Therapie/Dosierung):</h6>
+                          <h6>Boost Terms (Therapie/Dosierung):</h6>
                           <div className="bg-light p-2 rounded small">
                             {queryTestResults.query_analysis.boost_terms
                               .slice(0, 10)
@@ -2838,7 +2899,7 @@ function App() {
                         </div>
 
                         <div className="mb-3">
-                          <h6>📝 Finale Query:</h6>
+                          <h6>Finale Query:</h6>
                           <div
                             className="bg-secondary text-white p-2 rounded small"
                             style={{ maxHeight: "200px", overflow: "auto" }}
@@ -2888,7 +2949,7 @@ function App() {
                       </div>
                     ) : (
                       <div className="alert alert-danger">
-                        ❌ {queryTestResults.message}
+                        {queryTestResults.message}
                       </div>
                     )
                   ) : (
@@ -2915,7 +2976,7 @@ function App() {
             <div className="col-md-4">
               <div className="card">
                 <div className="card-header">
-                  <h5>🔍 Klinische Parameter</h5>
+                  <h5>Klinische Parameter</h5>
                 </div>
                 <div className="card-body">
                   <form onSubmit={handleSearch}>
@@ -3074,7 +3135,7 @@ function App() {
                           Suche läuft...
                         </>
                       ) : (
-                        "🔍 RAG Search starten"
+                        "RAG Search starten"
                       )}
                     </button>
                   </form>
@@ -3085,7 +3146,7 @@ function App() {
             <div className="col-md-8">
               <div className="card">
                 <div className="card-header">
-                  <h5>📋 Search Ergebnisse</h5>
+                  <h5>Search Ergebnisse</h5>
                 </div>
                 <div className="card-body">
                   {!searchResults && (
@@ -3127,9 +3188,7 @@ function App() {
                       {searchResults.dosing_tables &&
                         searchResults.dosing_tables.length > 0 && (
                           <div className="mb-4">
-                            <h6 className="text-primary">
-                              💊 Dosierungstabellen
-                            </h6>
+                            <h6 className="text-primary">Dosierungstabellen</h6>
                             <div className="border rounded p-3 bg-light">
                               {searchResults.dosing_tables.map((table, idx) => (
                                 <div
@@ -3198,7 +3257,7 @@ function App() {
                                       Object.keys(table.clinical_context)
                                         .length > 0 && (
                                         <div className="mt-3">
-                                          <h6>🎯 Klinischer Kontext:</h6>
+                                          <h6>Klinischer Kontext:</h6>
                                           <div className="d-flex flex-wrap gap-2">
                                             {table.clinical_context
                                               .indication && (
@@ -3251,7 +3310,7 @@ function App() {
                         )}
 
                       {/* Regular Chunks Section */}
-                      <h6 className="text-secondary">📋 Leitlinien-Chunks</h6>
+                      <h6 className="text-secondary">Leitlinien-Chunks</h6>
                       {searchResults.results.length === 0 ? (
                         <div className="alert alert-warning">
                           Keine relevanten Chunks gefunden. Versuchen Sie andere
@@ -3293,9 +3352,8 @@ function App() {
                                   <div className="mt-1">
                                     <small className="text-muted">
                                       {result.section_path &&
-                                        `📑 ${result.section_path}`}
-                                      {result.page &&
-                                        ` • 📄 Seite ${result.page}`}
+                                        `${result.section_path}`}
+                                      {result.page && ` • Seite ${result.page}`}
                                     </small>
                                   </div>
                                 )}
@@ -3337,7 +3395,7 @@ function App() {
         {activeTab === "settings" && (
           <div className="card">
             <div className="card-header">
-              <h5>⚙️ LLM Konfiguration</h5>
+              <h5>LLM Konfiguration</h5>
             </div>
             <div className="card-body">
               <div className="mb-3">
@@ -3425,11 +3483,11 @@ function App() {
                   className="btn btn-primary"
                   onClick={saveLlmConfig}
                 >
-                  💾 Konfiguration speichern
+                  Konfiguration speichern
                 </button>
                 {llmConfigSaved && (
                   <div className="alert alert-success mb-0 py-2" role="alert">
-                    ✅ Konfiguration erfolgreich gespeichert!
+                    Konfiguration erfolgreich gespeichert!
                   </div>
                 )}
               </div>
@@ -3437,7 +3495,7 @@ function App() {
               <hr />
 
               <div className="mt-4">
-                <h6>📋 Aktuelle Konfiguration</h6>
+                <h6>Aktuelle Konfiguration</h6>
                 <div className="bg-light p-3 rounded">
                   <pre style={{ fontSize: "0.875rem", marginBottom: 0 }}>
                     {JSON.stringify(llmConfig, null, 2)}
