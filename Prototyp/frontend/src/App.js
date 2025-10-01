@@ -50,13 +50,23 @@ const convertToEuropeanDate = (americanDate) => {
 
 function App() {
   const [activeTab, setActiveTab] = useState("upload");
+  const [uploadStatus, setUploadStatus] = useState(null);
   const [searchResults, setSearchResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
+  const [guidelinesExpanded, setGuidelinesExpanded] = useState(false);
   const [guidelines, setGuidelines] = useState([]);
-  const [deleteStatus, setDeleteStatus] = useState("");
+  const [deleteStatus, setDeleteStatus] = useState(null);
   const [queryTestResults, setQueryTestResults] = useState(null);
 
+  const createStatus = (type, message) => ({ type, message });
+
+  const getAlertClass = (status) => {
+    if (!status) return "";
+    switch (status.type) {
+      case "error":
+        return "alert-danger";
+      case "warning":
         return "alert-warning";
       case "info":
         return "alert-info";
