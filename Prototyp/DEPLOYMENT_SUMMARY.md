@@ -86,8 +86,7 @@ Prototyp/
 ### 2️⃣ **Secrets konfigurieren** (in Koyeb UI):
 
 ```
-NOVITA_API_KEY = "sk_0V7vknyDHIh8_aZelYGr5DKAUwbfBvTm2GUZy4mXju8"
-DATABASE_URL   = "postgresql://user:pass@host:port/db"
+
 ```
 
 ### 3️⃣ **Deploy auslösen**:
