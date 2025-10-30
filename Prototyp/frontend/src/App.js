@@ -94,8 +94,14 @@ function App() {
     {
       category: "Respiratorische Infektionen",
       options: [
-        { value: "CAP", label: "CAP (Ambulant erworbene Pneumonie)" },
-        { value: "HAP", label: "HAP (Nosokomial erworbene Pneumonie)" },
+        {
+          value: "AMBULANT_ERWORBENE_PNEUMONIE",
+          label: "CAP (Ambulant erworbene Pneumonie)",
+        },
+        {
+          value: "NOSOKOMIAL_ERWORBENE_PNEUMONIE",
+          label: "HAP (Nosokomial erworbene Pneumonie)",
+        },
         {
           value: "AKUTE_EXAZERBATION_COPD",
           label: "AECOPD (Akute Exazerbation der COPD)",
@@ -239,7 +245,7 @@ function App() {
 
   // Therapy recommendation states
   const [therapyForm, setTherapyForm] = useState({
-    indication: "CAP", // Use a valid frontend value that gets mapped to backend
+    indication: "AMBULANT_ERWORBENE_PNEUMONIE", // Use backend enum value
     severity: "MITTELSCHWER",
     infection_site: "",
     risk_factors: [],
@@ -407,9 +413,21 @@ function App() {
       const response = await axios.post(`${API_BASE}/test-query`, testPayload);
       setQueryTestResults(response.data);
     } catch (error) {
+      // Handle validation errors (Pydantic returns array of error objects)
+      let errorMessage = error.message;
+      if (error.response?.data?.detail) {
+        if (Array.isArray(error.response.data.detail)) {
+          // Format validation errors nicely
+          errorMessage = error.response.data.detail
+            .map((err) => `${err.loc?.join(" -> ")}: ${err.msg}`)
+            .join("; ");
+        } else if (typeof error.response.data.detail === "string") {
+          errorMessage = error.response.data.detail;
+        }
+      }
       setQueryTestResults({
         status: "error",
-        message: error.response?.data?.detail || error.message,
+        message: errorMessage,
       });
     } finally {
       setLoading(false);

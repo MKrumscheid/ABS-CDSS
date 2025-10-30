@@ -627,6 +627,329 @@ classDiagram
     RAGChunk --> GuidelineMetadata : references
 ```
 
+## Use Case Diagramm
+
+### Hinweis zu UML-Stereotypen:
+
+- **`<<include>>`** = Zwingend benötigte Beziehung (Use Case A benötigt Use Case B)
+- **`<<extend>>`** = Optionale Erweiterung (Use Case B erweitert optional Use Case A)
+
+### Gesamtsystem Use Cases
+
+```mermaid
+graph TB
+    %% Akteure
+    Arzt["Arzt/Ärztin"]
+    Admin["Administrator"]
+    System["Backend System"]
+
+    %% Enduser Use Cases
+    UC1["Patientensuche"]
+    UC2["Patientendaten abrufen"]
+    UC3["Therapieempfehlung anfordern"]
+    UC4["Empfehlung speichern"]
+    UC5["Gespeicherte Empfehlungen anzeigen"]
+    UC6["Gespeicherte Empfehlung löschen"]
+
+    %% Admin Use Cases
+    UC7["Leitlinien hochladen"]
+    UC8["Leitlinien verwalten"]
+    UC9["Patientensuche testen"]
+    UC10["Query-Erstellung testen"]
+    UC11["RAG-Suche testen"]
+    UC12["Therapieanfrage testen"]
+    UC13["Einstellungen verwalten"]
+
+    %% System Use Cases
+    UC14["RAG-Suche durchführen"]
+    UC15["FHIR-Daten abrufen"]
+    UC16["LLM-Inference ausführen"]
+    UC17["Kontext aggregieren"]
+    UC18["Dosierungstabellen suchen"]
+    UC19["Embeddings generieren"]
+    UC20["Scores berechnen"]
+
+    %% Enduser Verbindungen
+    Arzt --> UC1
+    Arzt --> UC3
+    Arzt --> UC5
+    Arzt --> UC6
+
+    %% Admin Verbindungen
+    Admin --> UC7
+    Admin --> UC8
+    Admin --> UC9
+    Admin --> UC10
+    Admin --> UC11
+    Admin --> UC12
+    Admin --> UC13
+
+    %% Enduser Use Case Dependencies
+    UC1 -.->|include| UC2
+    UC3 -.->|include| UC2
+    UC3 -.->|include| UC14
+    UC3 -.->|include| UC15
+    UC3 -.->|include| UC17
+    UC3 -.->|include| UC16
+    UC3 -.->|extend| UC4
+    UC5 -.->|include| UC2
+
+    %% Admin Use Case Dependencies
+    UC7 -.->|include| UC19
+    UC8 -.->|include| UC2
+    UC9 -.->|include| UC2
+    UC10 -.->|include| UC14
+    UC11 -.->|include| UC14
+    UC12 -.->|include| UC2
+    UC12 -.->|include| UC14
+    UC12 -.->|include| UC15
+    UC12 -.->|include| UC17
+    UC12 -.->|include| UC16
+
+    %% System Dependencies
+    UC14 -.->|include| UC19
+    UC14 -.->|include| UC18
+    UC14 -.->|include| UC20
+    UC17 -.->|include| UC14
+    UC17 -.->|include| UC15
+
+    %% System führt interne Use Cases aus
+    System -.-> UC14
+    System -.-> UC15
+    System -.-> UC16
+    System -.-> UC17
+    System -.-> UC18
+    System -.-> UC19
+    System -.-> UC20
+
+    %% Styling
+    classDef actorStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    classDef enduserUC fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    classDef adminUC fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef systemUC fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+
+    class Arzt,Admin,System actorStyle
+    class UC1,UC2,UC3,UC4,UC5,UC6 enduserUC
+    class UC7,UC8,UC9,UC10,UC11,UC12,UC13 adminUC
+    class UC14,UC15,UC16,UC17,UC18,UC19,UC20 systemUC
+```
+
+### Detaillierter Use Case: Therapieempfehlung anfordern
+
+```mermaid
+sequenceDiagram
+    actor Arzt as Arzt
+    participant UI as Enduser Frontend
+    participant API as Backend API
+    participant RAG as RAG Service
+    participant FHIR as FHIR Service
+    participant LLM as LLM Service
+
+    Note over Arzt,LLM: Use Case: Therapieempfehlung anfordern
+
+    Arzt->>UI: Gibt klinische Parameter ein<br/>(Indikation, Schweregrad, etc.)
+    Arzt->>UI: Sucht Patient
+    UI->>API: GET /patients/search
+    API->>FHIR: Patientensuche
+    FHIR-->>API: Suchergebnisse
+    API-->>UI: Liste von Patienten
+    UI-->>Arzt: Zeigt Patienten an
+
+    Arzt->>UI: Wählt Patient aus
+    Arzt->>UI: Fordert Empfehlung an
+
+    UI->>API: POST /therapy/recommend<br/>{query, patient_id}
+
+    Note over API,LLM: Parallel: RAG + FHIR
+
+    par RAG-Suche
+        API->>RAG: search(ClinicalQuery)
+        RAG->>RAG: Query-Building<br/>(MUST/SHOULD/BOOST)
+        RAG->>RAG: Semantic Search (FAISS)
+        RAG->>RAG: Lexical Boosting
+        RAG->>RAG: Dosierungstabellen-Suche
+        RAG-->>API: RAGResponse<br/>(Chunks + Tables)
+    and FHIR-Abruf
+        API->>FHIR: get_patient_bundle(id)
+        FHIR->>FHIR: FHIR Bundle aggregieren
+        FHIR->>FHIR: LOINC-Codes parsen
+        FHIR-->>API: PatientData<br/>(Labs, Meds, Conditions)
+    end
+
+    API->>API: Kontext aggregieren<br/>(RAG + Patient + Additional Info)
+    API->>LLM: generate_recommendation<br/>(Context)
+    LLM->>LLM: Prompt-Building<br/>(System + User)
+    LLM->>LLM: LLM Inference<br/>(Novita AI)
+    LLM->>LLM: JSON Parsing<br/>(Pydantic Validation)
+    LLM-->>API: TherapyRecommendation
+
+    API-->>UI: Response<br/>(Options + Guidance + Sources)
+    UI-->>Arzt: Zeigt Empfehlung an
+
+    alt Arzt möchte speichern
+        Arzt->>UI: Klickt "Speichern"
+        UI->>API: POST /therapy/save
+        API->>API: SQLite Insert
+        API-->>UI: Saved ID
+        UI-->>Arzt: Bestätigung
+    end
+```
+
+### Use Case: Leitlinien hochladen (Admin)
+
+```mermaid
+sequenceDiagram
+    actor Admin as Administrator
+    participant UI as Admin Frontend
+    participant API as Backend API
+    participant RAG as RAG Service
+    participant Embed as Embedding Service
+    participant FAISS as FAISS Index
+
+    Note over Admin,FAISS: Use Case: Leitlinien hochladen
+
+    Admin->>UI: Wählt Markdown-Datei
+    Admin->>UI: Gibt Metadaten ein<br/>(Title, Indikationen)
+    Admin->>UI: Klickt "Upload"
+
+    UI->>API: POST /upload/guideline<br/>(file + metadata)
+
+    API->>RAG: process_guideline(file, metadata)
+
+    RAG->>RAG: Markdown parsen<br/>(Überschriften-Hierarchie)
+    RAG->>RAG: Text chunking<br/>(MarkdownPageSplitter)
+    RAG->>RAG: Dosierungstabellen extrahieren<br/>(HTML-Parsing)
+
+    loop Für jeden Chunk
+        RAG->>Embed: encode(chunk_text)
+        alt Online-Embeddings
+            Embed->>Embed: Rate Limiting Check<br/>(45 req/min)
+            Embed->>Embed: Novita API Call<br/>(qwen3-embedding-8b)
+        else Local-Embeddings
+            Embed->>Embed: SentenceTransformers<br/>(Local Model)
+        end
+        Embed-->>RAG: embedding_vector
+        RAG->>FAISS: add_vector(embedding)
+    end
+
+    RAG->>RAG: Metadata speichern<br/>(guidelines_metadata.json)
+    RAG->>RAG: Index persistieren<br/>(faiss_index.bin)
+    RAG-->>API: Success + Statistics
+
+    API-->>UI: Upload-Bestätigung<br/>(Chunks, Tables, Time)
+    UI-->>Admin: Zeigt Ergebnis an
+
+    Admin->>UI: Optional: Test-Suche
+    UI->>API: POST /search<br/>(test query)
+    API->>RAG: search(query)
+    RAG-->>API: Results
+    API-->>UI: Search Results
+    UI-->>Admin: Zeigt Relevanz-Scores
+```
+
+### Use Case: Einstellungen verwalten (Admin)
+
+```mermaid
+sequenceDiagram
+    actor Admin as Administrator
+    participant UI as Admin Frontend
+    participant API as Backend API
+    participant Config as Configuration
+
+    Note over Admin,Config: Use Case: Einstellungen verwalten
+
+    Admin->>UI: Öffnet Einstellungen
+    UI->>API: GET /settings
+    API->>Config: Lade aktuelle Konfiguration
+    Config-->>API: LLM-Modell, Embedding-Service, etc.
+    API-->>UI: Settings-Response
+    UI-->>Admin: Zeigt Einstellungen an
+
+    Admin->>UI: Wählt LLM-Modell<br/>(z.B. gpt-oss-120b)
+    Admin->>UI: Konfiguriert Parameter<br/>(Temperature, Max Tokens)
+    Admin->>UI: Speichert Änderungen
+
+    UI->>API: POST /settings<br/>{llm_model, temperature, ...}
+    API->>Config: Validiere und speichere
+    Config->>Config: Update Environment/Config
+    Config-->>API: Success
+
+    API-->>UI: Bestätigung
+    UI-->>Admin: "Einstellungen gespeichert"
+
+    opt Admin testet neue Einstellungen
+        Admin->>UI: "Therapieanfrage testen"
+        UI->>API: POST /test/therapy
+        API->>API: Verwende neue LLM-Konfiguration
+        API-->>UI: Test-Ergebnis
+        UI-->>Admin: Zeigt Test-Response
+    end
+```
+
+### Use Case Matrix
+
+```mermaid
+graph TB
+    %% Akteure
+    A1["Arzt/Ärztin"]
+    A2["Administrator"]
+
+    %% Use Case Kategorien
+    UC_ENDUSER["Enduser Use Cases:<br/>- Patientensuche<br/>- Therapieempfehlung anfordern<br/>- Empfehlung speichern<br/>- Gespeicherte anzeigen<br/>- Empfehlung löschen"]
+
+    UC_ADMIN_TEST["Admin Test Use Cases:<br/>- Patientensuche testen<br/>- Query-Erstellung testen<br/>- RAG-Suche testen<br/>- Therapieanfrage testen"]
+
+    UC_ADMIN_MGMT["Admin Management:<br/>- Leitlinien hochladen<br/>- Leitlinien verwalten<br/>- Einstellungen verwalten"]
+
+    %% Beziehungen
+    A1 -->|Vollzugriff| UC_ENDUSER
+    A1 -.->|Kein Zugriff| UC_ADMIN_TEST
+    A1 -.->|Kein Zugriff| UC_ADMIN_MGMT
+
+    A2 -->|Lesezugriff| UC_ENDUSER
+    A2 -->|Vollzugriff| UC_ADMIN_TEST
+    A2 -->|Vollzugriff| UC_ADMIN_MGMT
+
+    %% Styling
+    classDef actor fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef enduser fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    classDef adminTest fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef adminMgmt fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+
+    class A1,A2 actor
+    class UC_ENDUSER enduser
+    class UC_ADMIN_TEST adminTest
+    class UC_ADMIN_MGMT adminMgmt
+```
+
+### Use Case Übersicht nach Akteur
+
+#### Arzt/Ärztin (Enduser)
+
+| Use Case                           | Beschreibung                                           | Zugriff        |
+| ---------------------------------- | ------------------------------------------------------ | -------------- |
+| Patientensuche                     | Patient nach ID oder Name/Geburtsdatum suchen          | ✅ Vollzugriff |
+| Therapieempfehlung anfordern       | Klinische Parameter eingeben und Empfehlung generieren | ✅ Vollzugriff |
+| Empfehlung speichern               | Angezeigte Therapieempfehlung in Datenbank speichern   | ✅ Vollzugriff |
+| Gespeicherte Empfehlungen anzeigen | Liste aller gespeicherten Empfehlungen abrufen         | ✅ Vollzugriff |
+| Gespeicherte Empfehlung löschen    | Einzelne gespeicherte Empfehlung entfernen             | ✅ Vollzugriff |
+
+#### Administrator
+
+| Use Case                | Beschreibung                                 | Zugriff        |
+| ----------------------- | -------------------------------------------- | -------------- |
+| **Management**          |                                              |                |
+| Leitlinien hochladen    | Markdown-Leitlinien hochladen und indexieren | ✅ Vollzugriff |
+| Leitlinien verwalten    | Hochgeladene Leitlinien anzeigen und löschen | ✅ Vollzugriff |
+| Einstellungen verwalten | LLM-Modell und Parameter konfigurieren       | ✅ Vollzugriff |
+| **Testing**             |                                              |                |
+| Patientensuche testen   | FHIR-Patientensuche durchführen              | ✅ Vollzugriff |
+| Query-Erstellung testen | ClinicalQuery-Aufbau und Synonyme prüfen     | ✅ Vollzugriff |
+| RAG-Suche testen        | Semantische und lexikalische Suche testen    | ✅ Vollzugriff |
+| Therapieanfrage testen  | Kompletten Workflow end-to-end testen        | ✅ Vollzugriff |
+| **Enduser-Funktionen**  |                                              |                |
+| Alle Enduser Use Cases  | Zugriff auf Therapieempfehlungen             | ⚠️ Lesezugriff |
+
 ---
 
 **Legende:**
