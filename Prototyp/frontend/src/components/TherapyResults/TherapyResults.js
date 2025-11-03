@@ -375,13 +375,6 @@ function TherapyResults({ therapyRecommendation, patientData, requestData }) {
                               variant="subtitle2"
                               sx={{ fontWeight: 500, mb: 1 }}
                             >
-                              <ScheduleIcon
-                                sx={{
-                                  verticalAlign: "middle",
-                                  mr: 1,
-                                  fontSize: 18,
-                                }}
-                              />
                               Monitoring:
                             </Typography>
                             <List dense>
@@ -417,14 +410,6 @@ function TherapyResults({ therapyRecommendation, patientData, requestData }) {
                               variant="subtitle2"
                               sx={{ fontWeight: 500, mb: 1 }}
                             >
-                              <WarningIcon
-                                sx={{
-                                  verticalAlign: "middle",
-                                  mr: 1,
-                                  fontSize: 18,
-                                  color: "warning.main",
-                                }}
-                              />
                               Nebenwirkungen:
                             </Typography>
                             <List dense>
@@ -519,7 +504,7 @@ function TherapyResults({ therapyRecommendation, patientData, requestData }) {
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   ID: {citation.guideline_id} | Seite: {citation.page_number} |
-                  Relevanz: {(citation.relevance_score * 100).toFixed(0)}%
+                  Relevanz: {citation.relevance_score.toFixed(1)}%
                 </Typography>
                 {citation.section && (
                   <Typography variant="body2" sx={{ mt: 0.5 }}>

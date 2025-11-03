@@ -2455,10 +2455,9 @@ function App() {
                                                       <br />
                                                       <span className="text-muted">
                                                         Relevanz:{" "}
-                                                        {(
-                                                          source.relevance_score *
-                                                          100
-                                                        ).toFixed(1)}
+                                                        {source.relevance_score.toFixed(
+                                                          1
+                                                        )}
                                                         %
                                                       </span>
                                                     </small>

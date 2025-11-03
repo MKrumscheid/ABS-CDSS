@@ -33,12 +33,12 @@
 <tr>
 <td>Mittelschwere Pneumonie (in der Regel Beginn i.v. mit oraler Sequenztherapie)</td>
 <td>Amoxicillin/Clavulansäure Ampicillin/Sulbactam Cefuroxim Ceftriaxon Cefotaxim</td>
-<td>jeweils Moxifloxacin, Levofloxacin +/- Makrolid für 3 Tage*</td>
+<td>jeweils Moxifloxacin, Levofloxacin +/- Makrolid für 3 Tage (Bei Nachweis eines atypischen Erregers sollte entsprechend länger behandelt oder auf eine gezielte Therapie gewechselt werden.)</td>
 </tr>
 <tr>
 <td>Schwere Pneumonie (Beginn immer i.v., orale Sequenztherapie prinzipiell möglich)</td>
 <td>Piperacillin/Tazobactam Ceftriaxon Cefotaxim</td>
-<td>jeweils Moxifloxacin, Levofloxacin (Monotherapie nicht bei septischem Schock) + Makrolid für 3 Tage*</td>
+<td>jeweils Moxifloxacin, Levofloxacin (Monotherapie nicht bei septischem Schock) + Makrolid für 3 Tage (Bei Nachweis eines atypischen Erregers sollte entsprechend länger behandelt oder auf eine gezielte Therapie gewechselt werden.)</td>
 </tr>
 </tbody></table>
 
@@ -90,11 +90,11 @@
 <td></td>
 </tr>
 <tr>
-<td>Cefuroximaxetil*</td>
+<td>Cefuroximaxetil (Bei den Oralcephalosporinen gelten Cefuroximaxetil und Cefpodoximproxetil als geeignet für eine Sequenztherapie, allerdings sind sie in ihrer In-vitro-Aktivität gegenüber Pneumokokken schwächer wirksam z.B. als Amoxicillin [16]. Problematisch ist bei den oralen Cephalosporinen ferner, dass sie eine geringe orale Bioverfügbarkeit aufweisen (Cefuroximaxetil 40%, Cefpodoximproxetil 50%).)</td>
 <td>2x 500 mg p.o.</td>
 </tr>
 <tr>
-<td>Cefpodoximproxetil*</td>
+<td>Cefpodoximproxetil (Bei den Oralcephalosporinen gelten Cefuroximaxetil und Cefpodoximproxetil als geeignet für eine Sequenztherapie, allerdings sind sie in ihrer In-vitro-Aktivität gegenüber Pneumokokken schwächer wirksam z.B. als Amoxicillin [16]. Problematisch ist bei den oralen Cephalosporinen ferner, dass sie eine geringe orale Bioverfügbarkeit aufweisen (Cefuroximaxetil 40%, Cefpodoximproxetil 50%).)</td>
 <td>2x 200 mg p.o.</td>
 </tr>
 </tbody></table>
@@ -200,7 +200,7 @@
 <tr>
 <td></td>
 <td>Amoxicillin/Clavulansäure</td>
-<td>Levofloxacin* oder Ciprofloxacin*</td>
+<td>Levofloxacin* oder Ciprofloxacin (Die Rationale für die Empfehlung von Fluorchinolonen bei Infektionen durch K. pneumoniae oder E. coli sind Inokulum-Effekte bei Beta-Lactamase-bildenden Stämmen. Bei diesen Stämmen findet sich in der In-vitro-Testung oft keine Resistenz gegen Ampicillin/Sulbactam und Amoxicillin/Clavulansäure. Wegen des Inokulum-Effektes kann es aber unter der Therapie zu einer Persistenz der Erreger kommen.)</td>
 </tr>
 <tr>
 <td>Escherichia coli (ESBL)</td>
@@ -368,73 +368,56 @@
 
 # Tabelle 5.8: Empfehlung für die kalkulierte parenterale Initialtherapie bei hospitalisierten Patienten mit individuellen Risikofaktoren für multiresistente Erreger (MRE) bei der schweren ambulant erworbenen Pneumonie
 
-<table>
-<tbody><tr>
-<td>Substanzen für die Initialtherapie</td>
-<td>Dosierung der Initialtherapie (pro Tag)</td>
-<td>Gesamttherapiedauer</td>
-</tr>
-<tr>
-<td>Pseudomonas-aktives Beta-Lactam</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Piperacillin/Tazobactam</td>
-<td>3–4x 4,5 g i.v.</td>
-<td>8–15 Tage</td>
-</tr>
-<tr>
-<td>Cefepim</td>
-<td>3x 2 g i.v.</td>
-<td>8–15 Tage</td>
-</tr>
-<tr>
-<td>Imipenem</td>
-<td>3–4x 1 g i.v.</td>
-<td>8–15 Tage</td>
-</tr>
-<tr>
-<td>Meropenem</td>
-<td>3x 1(–2) g i.v.</td>
-<td>8–15 Tage</td>
-</tr>
-<tr>
-<td>ENTWEDER plus Fluorchinolon</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Levofloxacin</td>
-<td>2x 500 mg i.v.</td>
-<td></td>
-</tr>
-<tr>
-<td>Ciprofloxacin</td>
-<td>3x 400 mg i.v.</td>
-<td></td>
-</tr>
-<tr>
-<td>ODER plus Aminoglykosid *UND* Makrolid</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Amikacin</td>
-<td>15–20 mg/kg KG i.v.</td>
-<td>3 Tage</td>
-</tr>
-<tr>
-<td>Gentamicin</td>
-<td>4–6 mg/kg KG i.v.</td>
-<td>3 Tage</td>
-</tr>
-<tr>
-<td>Tobramycin</td>
-<td>5–7 mg/kg KG i.v.</td>
-<td>3 Tage</td>
-</tr>
-</tbody></table>
+<table border="1" cellspacing="0" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Substanzen für die Initialtherapie</th>
+      <th>Dosierung der Initialtherapie (pro Tag)</th>
+      <th>Gesamttherapiedauer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><em>Pseudomonas</em>-aktives Beta-Lactam<br>
+        Piperacillin/Tazobactam<br>
+        Cefepim<br>
+        Imipenem<br>
+        Meropenem
+      </td>
+      <td>
+        3–4× 4,5 g i.v.<br>
+        3× 2 g i.v.<br>
+        3–4× 1 g i.v.<br>
+        3× 1(–2) g i.v.
+      </td>
+      <td>8–15 Tage</td>
+    </tr>
+    <tr>
+      <td>plus Fluorchinolon<br>
+        Levofloxacin<br>
+        Ciprofloxacin
+      </td>
+      <td>
+        2× 500 mg i.v.<br>
+        3× 400 mg i.v.
+      </td>
+      <td>8–15 Tage</td>
+    </tr>
+    <tr>
+      <td>oder (bei vorausgegangener Antibiotika-Therapie innerhalb der letzten 3 Monate wird ein Wechsel der zuletzt verwendeten Substanzgruppe empfohlen; dies gilt insbesondere für eine vorausgegangene Fluorchinolon-Therapie) plus Aminoglykosid und Makrolid<br>
+        Amikacin<br>
+        Gentamicin<br>
+        Tobramycin
+      </td>
+      <td>
+        15–20 mg/kg KG i.v. (weitere Dosierung nach Spiegelbestimmung)<br>
+        4–6 mg/kg KG i.v. (weitere Dosierung nach Spiegelbestimmung)<br>
+        5–7 mg/kg KG i.v. (weitere Dosierung nach Spiegelbestimmung)
+      </td>
+      <td>3 Tage</td>
+    </tr>
+  </tbody>
+</table>
 
 # Tabelle 5.10: Kalkulierte Initialtherapie für die nosokomial erworbene Pneumonie ohne Risikofaktoren für multiresistente Erreger
 
@@ -501,7 +484,7 @@
 <th>Dosierung (pro Tag)</th>
 </tr>
 <tr>
-<td>Pseudomonas-wirksames Beta-Lactam</td>
+<td>Pseudomonas-wirksames Beta-Lactam (BEACHTE: Eine Kombinationstherapie des Beta Lactams NUR bei lebensbedrohlicher Infektion (Sepsis-assoziierte Organdysfunktion oder invasive Beatmung)</td>
 <td></td>
 </tr>
 <tr>
@@ -517,7 +500,7 @@
 <td>3x 2 g</td>
 </tr>
 <tr>
-<td>Ceftazidim*</td>
+<td>Ceftazidim (Nur in Kombination mit einer gegen grampositive Erreger wirksamen Substanz)</td>
 <td>3x 2 g</td>
 </tr>
 <tr>
@@ -1515,7 +1498,7 @@ Pseudomonas spp.
 
 Staphylokokken (inkl. MRSA)</td>
 
-<td>Tigecyclin\*
+<td>Tigecyclin (* Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)\*
 
 Meropenem (+ Linezolid)
 
@@ -1706,7 +1689,7 @@ Enterokokken</td>
 
 Ertapenem
 
-Tigecyclin
+Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)
 
 Moxifloxacin
 
@@ -1754,7 +1737,7 @@ Pseudomonas spp.
 
 Staphylokokken (inkl. MRSA)</td>
 
-<td>Tigecyclin\*
+<td>Tigecyclin (* Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)\*
 
 Meropenem (+ Linezolid)
 
@@ -1832,7 +1815,7 @@ B</td>
 <tr>
 <td></td>
 <td></td>
-<td>Tigecyclin¹</td>
+<td>Tigecyclin (* Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)</td>
 <td>2x 0,05 g¹</td>
 <td></td>
 <td>B</td>
@@ -1913,7 +1896,7 @@ B</td>
 </tr>
 <tr>
 <td>MRSA</td>
-<td>Tigecyclin</td>
+<td>Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)</td>
 <td>A</td>
 </tr>
 <tr>
@@ -1928,7 +1911,7 @@ B</td>
 </tr>
 <tr>
 <td>VRE</td>
-<td>Tigecyclin</td>
+<td>Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)</td>
 <td>A</td>
 </tr>
 <tr>
@@ -1938,7 +1921,7 @@ B</td>
 </tr>
 <tr>
 <td>ESBL-Bildner</td>
-<td>Tigecyclin</td>
+<td>Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)</td>
 <td>A</td>
 </tr>
 <tr>
@@ -1978,7 +1961,7 @@ B</td>
 </tr>
 <tr>
 <td></td>
-<td>Tigecyclin</td>
+<td>Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)</td>
 <td>A</td>
 </tr>
 <tr>
@@ -1988,7 +1971,7 @@ B</td>
 </tr>
 <tr>
 <td>Carbapenem-resistente Enterobacteriaceae</td>
-<td>Tigecyclin</td>
+<td>Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)</td>
 <td>A</td>
 </tr>
 <tr>
@@ -2792,7 +2775,7 @@ B</td>
 
 # Tabelle 9.5: Tabellarische Therapieempfehlungen für Phlegmone (Teil 2)
 
-<table><tbody><tr><td>Diagnose</td><td>Häufige Erreger</td><td>Therapieempfehlung</td><td>Tagesdosis</td><td>Therapiedauer</td><td>EG</td><td></td></tr><tr><td>Schwere Phlegmone</td><td>V.a. Mischinfektion mit grampositiven, gramnegativen Erregern und auch Anaerobiern</td><td>Länger bestehende Infektion, kontaminiertes Areal oder erfolglos vorbehandelt:</td><td>Amoxicillin/Sulbactam</td><td>3x 1,5–3 g</td><td>7 Tage</td><td>A</td></tr><tr><td></td><td></td><td>ODER</td><td>Amoxicillin/Clavulansäure</td><td>3–4x 1,2 g</td><td></td><td>A</td></tr><tr><td></td><td></td><td>Bei Penicillin-Allergie:</td><td>Moxifloxacin</td><td>1x 0,4 g (initial ggf. 2x 0,4 g)</td><td></td><td>A</td></tr><tr><td></td><td></td><td>Länger bestehende Infektion, kontaminiertes Areal oder vorbehandelt UND relevante Komorbiditäten:</td><td>1) Piperacillin/Tazobactam</td><td>3–4x 4,5 g (bis 3x 9 g)</td><td>10 (7–14) Tage</td><td>A</td></tr><tr><td></td><td></td><td>(ggf. gefolgt von Amoxicillin/Clavulansäure oder Ampicillin/Sulbactam oral)</td><td>2) Imipenem/Cilastatin</td><td>3–4x 1 g</td><td>7–14 Tage</td><td>B</td></tr><tr><td></td><td></td><td>ODER</td><td>Meropenem</td><td>3x 1 g</td><td>7-14 Tage</td><td>B</td></tr><tr><td></td><td></td><td>ODER</td><td>Ertapenem</td><td>1x 1 g</td><td>7-14 Tage</td><td>B</td></tr><tr><td></td><td></td><td></td><td></td><td>(1x 2 g/d können erwogen werden)</td><td></td><td>C</td></tr><tr><td></td><td></td><td>3) Tigecyclin</td><td>Initial 0,1 g, danach 2x 0,05 g (50 mg)</td><td>5–14 Tage</td><td>B/C</td><td></td></tr><tr><td></td><td></td><td>Bei Penicillin-Allergie:</td><td>Carbapeneme (s.o.)</td><td></td><td></td><td></td></tr></tbody></table>
+<table><tbody><tr><td>Diagnose</td><td>Häufige Erreger</td><td>Therapieempfehlung</td><td>Tagesdosis</td><td>Therapiedauer</td><td>EG</td><td></td></tr><tr><td>Schwere Phlegmone</td><td>V.a. Mischinfektion mit grampositiven, gramnegativen Erregern und auch Anaerobiern</td><td>Länger bestehende Infektion, kontaminiertes Areal oder erfolglos vorbehandelt:</td><td>Amoxicillin/Sulbactam</td><td>3x 1,5–3 g</td><td>7 Tage</td><td>A</td></tr><tr><td></td><td></td><td>ODER</td><td>Amoxicillin/Clavulansäure</td><td>3–4x 1,2 g</td><td></td><td>A</td></tr><tr><td></td><td></td><td>Bei Penicillin-Allergie:</td><td>Moxifloxacin</td><td>1x 0,4 g (initial ggf. 2x 0,4 g)</td><td></td><td>A</td></tr><tr><td></td><td></td><td>Länger bestehende Infektion, kontaminiertes Areal oder vorbehandelt UND relevante Komorbiditäten:</td><td>1) Piperacillin/Tazobactam</td><td>3–4x 4,5 g (bis 3x 9 g)</td><td>10 (7–14) Tage</td><td>A</td></tr><tr><td></td><td></td><td>(ggf. gefolgt von Amoxicillin/Clavulansäure oder Ampicillin/Sulbactam oral)</td><td>2) Imipenem/Cilastatin</td><td>3–4x 1 g</td><td>7–14 Tage</td><td>B</td></tr><tr><td></td><td></td><td>ODER</td><td>Meropenem</td><td>3x 1 g</td><td>7-14 Tage</td><td>B</td></tr><tr><td></td><td></td><td>ODER</td><td>Ertapenem</td><td>1x 1 g</td><td>7-14 Tage</td><td>B</td></tr><tr><td></td><td></td><td></td><td></td><td>(1x 2 g/d können erwogen werden)</td><td></td><td>C</td></tr><tr><td></td><td></td><td>3) Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)</td><td>Initial 0,1 g, danach 2x 0,05 g (50 mg)</td><td>5–14 Tage</td><td>B/C</td><td></td></tr><tr><td></td><td></td><td>Bei Penicillin-Allergie:</td><td>Carbapeneme (s.o.)</td><td></td><td></td><td></td></tr></tbody></table>
 
 # Tabelle 9.6: Tabellarische Therapieempfehlungen für komplizierte schwere Weichgewebeinfektionen
 
@@ -3002,7 +2985,7 @@ B</td>
 <td></td>
 <td></td>
 <td>ODER</td>
-<td>1d) Tigecyclin</td>
+<td>1d) Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)</td>
 <td>Loading dose 0,1–0,2 g, dann 2x 0,05–0,1 g</td>
 <td>B</td>
 </tr>
@@ -3361,7 +3344,7 @@ B</td>
 <tr>
 <td></td>
 <td></td>
-<td>Tigecyclin</td>
+<td>Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)</td>
 <td>Initial 0,1 g, danach 2x 0,05 g (50 mg)</td>
 <td>7–14 Tage</td>
 <td>B</td>
@@ -3653,7 +3636,7 @@ B</td>
 </tr>
 <tr>
 <td>Atemwege (Streptococcus pneumoniae, Haemophilus influenzae, Staphylococcus aureus, Enterobacteriaceae, Anaerobier, Pseudomonas spp.)</td>
-<td>Ceftazidim* oder Cefepim + Ciprofloxacin oder Levofloxacin oder Fosfomycin</td>
+<td>Ceftazidim (nur in Kombination mit einer grampositiv wirksamen Substanz) oder Cefepim + Ciprofloxacin oder Levofloxacin oder Fosfomycin</td>
 <td>Cefuroxim oder Cefotaxim oder Ceftriaxon + Erythromycin oder Clarithromycin</td>
 </tr>
 <tr>
@@ -3664,7 +3647,7 @@ B</td>
 <tr>
 <td></td>
 <td>Imipenem oder Meropenem + Ciprofloxacin oder Levofloxacin oder Fosfomycin</td>
-<td>Levofloxacin oder Moxifloxacin (Differenzierung entsprechend Pseudomonas-Risiko)</td>
+<td>Levofloxacin oder Moxifloxacin, keine Monotherapie bei septischem Schock (Differenzierung entsprechend Pseudomonas-Risiko)</td>
 </tr>
 </tbody></table>
 
@@ -3789,7 +3772,7 @@ B</td>
 <tr>
 <td>VRE</td>
 <td>Daptomycin</td>
-<td>Tigecyclin (nur intraabdomineller Fokus)</td>
+<td>Tigecyclin (nur intraabdomineller Fokus) (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)</td>
 </tr>
 <tr>
 <td>Nicht ESBL-bildende Stämme</td>
@@ -5205,7 +5188,7 @@ Erhaltungsdosis: 4x 2–3g über jeweils
         <td>B</td>
     </tr>
     <tr>
-        <td>Tigecyclin
+        <td>Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)
 
 (Hochdosistherapie
 
@@ -5233,7 +5216,7 @@ Erhaltungsdosis: 4x 2–3 g über jeweils
 <td>B</td>
 </tr>
 <tr>
-<td>Tigecyclin
+<td>Tigecyclin (Aufladungsdosis erforderlich, keine Monotherapie im septischen Schock)
 
 (Hochdosistherapie
 

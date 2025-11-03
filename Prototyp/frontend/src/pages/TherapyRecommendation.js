@@ -30,7 +30,6 @@ function TherapyRecommendation() {
     try {
       console.log("Submitting therapy request:", formData);
 
-      // Use direct axios call like Admin frontend (no timeout restrictions)
       const response = await axios.post(
         `${API_BASE}/therapy/recommend`,
         formData
@@ -73,7 +72,6 @@ function TherapyRecommendation() {
     } catch (err) {
       console.error("Error generating therapy recommendation:", err);
 
-      // Handle error like Admin frontend
       let errorMessage = err.message;
       if (err.response?.data?.detail) {
         if (Array.isArray(err.response.data.detail)) {
@@ -88,7 +86,7 @@ function TherapyRecommendation() {
       } else if (err.response?.status === 503) {
         // Special handling for 503 Service Unavailable (Koyeb timeout)
         errorMessage =
-          "⏱️ Zeitüberschreitung: Die Therapie-Empfehlung wird noch verarbeitet. " +
+          "Zeitüberschreitung: Die Therapie-Empfehlung wird noch verarbeitet. " +
           "Dies ist normal bei komplexen Anfragen und dauert normalerweise 1-3 Minuten. " +
           "Bitte warten Sie einen Moment und versuchen Sie es dann erneut. " +
           "Die Verarbeitung läuft im Hintergrund weiter.";
@@ -123,7 +121,6 @@ function TherapyRecommendation() {
     } catch (err) {
       console.error("Error saving therapy recommendation:", err);
 
-      // Safely handle error response
       let errorMessage =
         "Fehler beim Speichern der Therapie-Empfehlung. Bitte versuchen Sie es erneut.";
 
@@ -180,8 +177,8 @@ function TherapyRecommendation() {
           color="text.secondary"
           sx={{ maxWidth: 600, mx: "auto" }}
         >
-          Erhalten Sie evidenzbasierte Antibiotikatherapie-Empfehlungen
-          basierend auf aktuellen Leitlinien
+          Geben Sie die Patientendaten und klinischen Parameter ein, um eine KI
+          generierte Therapie-Empfehlung zu erhalten.
         </Typography>
       </Box>
 

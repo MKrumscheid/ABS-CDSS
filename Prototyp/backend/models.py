@@ -372,7 +372,7 @@ class SourceCitation(BaseModel):
     guideline_title: Optional[str] = None  # Human-readable title
     page_number: Optional[int] = None  # Page number if available
     section: Optional[str] = None  # Section name if available
-    relevance_score: float = Field(..., ge=0.0, le=1.0)  # How relevant this source is to the recommendation
+    relevance_score: float = Field(..., ge=0.0, le=100.0)  # Relevance as percentage (0-100), higher = more relevant
 
 class TherapyRecommendation(BaseModel):
     """Model for complete therapy recommendation response"""

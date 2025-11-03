@@ -217,7 +217,7 @@ Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt im folgenden Format:
       "guideline_title": "Titel oder null",
       "page_number": Seitenzahl_oder_null,
       "section": "Abschnitt oder null",
-      "relevance_score": 0.95
+      "relevance_score": 95.0
     }
   ],
   "therapy_rationale": "Begründung für die Therapiewahl",
@@ -234,6 +234,12 @@ DOSIERUNGS-REGELN:
 - Berücksichtige patientenspezifische Faktoren für die Dauer (Alter, Schweregrad, Komorbidität)
 - Alle Zahlenfelder müssen Integer sein
 - confidence_level: Nur "Hoch", "Mittel", oder "Niedrig"
+
+QUELLEN-REGELN:
+- relevance_score ist ein PROZENTWERT zwischen 0.0 und 100.0 (höher = relevanter)
+- Nutze die angegebenen relevance_scores aus den Evidenzen, um die Qualität deiner Quellenlage zu bewerten
+- Scores > 80% = sehr gute Evidenz, 50-80% = gute Evidenz, < 50% = schwache Evidenz
+- Berücksichtige die Quellenlage bei deinem confidence_level (viele hochrelevante Quellen = "Hoch", wenige schwache Quellen = "Niedrig")
 """
 
     def _build_user_prompt(self, context_data: Dict[str, Any], max_options: int) -> str:
@@ -340,16 +346,24 @@ DOSIERUNGS-REGELN:
         # Parse source citations
         source_citations = []
         for citation_data in therapy_data.get("source_citations", []):
-            # Ensure relevance_score is between 0.0 and 1.0
-            raw_score = citation_data.get("relevance_score", 0.5)
+            # Ensure relevance_score is between 0.0 and 100.0 (percentage)
+            raw_score = citation_data.get("relevance_score", 50.0)
             if isinstance(raw_score, (int, float)):
-                # If score is > 1.0, normalize it (e.g., divide by 100 if it looks like a percentage)
-                if raw_score > 1.0:
-                    normalized_score = min(raw_score / 100.0, 1.0) if raw_score > 10 else min(raw_score, 1.0)
+                # Normalize to 0-100 range
+                if raw_score > 100.0:
+                    # Score > 100, cap at 100
+                    normalized_score = 100.0
+                elif raw_score < 0.0:
+                    # Score < 0, set to 0
+                    normalized_score = 0.0
+                elif raw_score <= 1.0:
+                    # Looks like old format (0.0-1.0), convert to percentage
+                    normalized_score = raw_score * 100.0
                 else:
-                    normalized_score = max(0.0, raw_score)
+                    # Already in 0-100 range
+                    normalized_score = raw_score
             else:
-                normalized_score = 0.5
+                normalized_score = 50.0  # Default to 50% if invalid
                 
             source_citations.append(SourceCitation(
                 guideline_id=citation_data.get("guideline_id", ""),

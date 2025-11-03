@@ -135,7 +135,7 @@ function TherapyRequestForm({ onSubmit, loading }) {
 
     // Create payload in the same format as Admin-Frontend
     const therapyPayload = {
-      indication: formData.indication, // Jetzt bereits im korrekten Backend-Format
+      indication: formData.indication, 
       severity: formData.severity,
       infection_site: formData.infection_site || null,
       risk_factors: formData.risk_factors.map((factor) => factor),
@@ -147,7 +147,7 @@ function TherapyRequestForm({ onSubmit, loading }) {
         : [],
       free_text: formData.free_text || null,
       patient_id: formData.patient_id || null,
-      max_therapy_options: 5, // Fest auf 5 setzen
+      max_therapy_options: 5, 
     };
 
     console.log("Submitting therapy payload:", therapyPayload);

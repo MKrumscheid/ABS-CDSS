@@ -201,9 +201,16 @@ class TherapyContextBuilder:
             sections.append("")
             
             for i, result in enumerate(rag_results, 1):
-                # Normalize score to 0-1 range for display
-                normalized_score = min(result.score, 1.0) if result.score > 1.0 else result.score
-                sections.append(f"EVIDENZ {i} [Relevanz: {normalized_score:.1%}]")
+                # Normalize score to 0-100 range (percentage) for better LLM interpretation
+                # Semantic scores can be > 1.0 due to lexical boosting
+                if result.score > 1.0:
+                    # Scores > 1.0 are already boosted, normalize to max 100
+                    normalized_score = min(result.score * 10, 100.0)  # Scale up but cap at 100
+                else:
+                    # Scores 0.0-1.0 are pure semantic similarity, convert to percentage
+                    normalized_score = result.score * 100.0
+                
+                sections.append(f"EVIDENZ {i} [Relevanz: {normalized_score:.1f}%]")
                 sections.append(f"📋 QUELLE: {result.guideline_id}")
                 if result.page:
                     sections.append(f"📄 SEITE: {result.page}")
@@ -214,13 +221,13 @@ class TherapyContextBuilder:
                 sections.append(result.snippet)
                 sections.append("")
                 sections.append("💡 ZITIERHILFE FÜR LLM:")
-                # Use the same normalized score as displayed above
+                # Provide score as 0-100 percentage for better LLM understanding
                 citation_example = f'{{\"guideline_id\": \"{result.guideline_id}\"'
                 if result.page:
                     citation_example += f', \"page_number\": {result.page}'
                 if result.section_path:
                     citation_example += f', \"section\": \"{result.section_path[:50]}...\"'
-                citation_example += f', \"relevance_score\": {normalized_score:.2f}}}'
+                citation_example += f', \"relevance_score\": {normalized_score:.1f}}}'
                 sections.append(citation_example)
                 sections.append("-" * 80)
                 sections.append("")
@@ -272,22 +279,30 @@ class TherapyContextBuilder:
         sections.append("Alle Empfehlungen MÜSSEN mit den oben angegebenen Quellen belegt werden.")
         sections.append("")
         sections.append("🔹 LEITLINIEN-EVIDENZ:")
-        sections.append("Format: {\"guideline_id\": \"ID\", \"page_number\": Zahl, \"section\": \"Abschnitt\", \"relevance_score\": 0.XX}")
+        sections.append("Format: {\"guideline_id\": \"ID\", \"page_number\": Zahl, \"section\": \"Abschnitt\", \"relevance_score\": XX.X}")
+        sections.append("WICHTIG: relevance_score ist ein Prozentwert zwischen 0.0 und 100.0 (höher = relevanter)")
         
         # Add dosing table source citations
         if dosing_tables:
             sections.append("")
             sections.append("🔹 DOSIERUNGSTABELLEN-QUELLEN:")
             for i, table in enumerate(dosing_tables, 1):
-                # Normalize dosing table score to 0.0-1.0 range for citation example
-                normalized_table_score = min(table.score / 100.0, 1.0) if table.score > 10 else min(table.score, 1.0)
-                normalized_table_score = max(0.0, normalized_table_score)
+                # Normalize dosing table score to 0-100 percentage range
+                # Table scores can be very high due to boosting (+1000/+100)
+                if table.score > 100:
+                    normalized_table_score = 100.0  # Cap at 100%
+                elif table.score > 10:
+                    normalized_table_score = min(table.score, 100.0)  # Already in reasonable range
+                else:
+                    normalized_table_score = table.score * 10.0  # Scale up small scores
+                normalized_table_score = max(0.0, min(normalized_table_score, 100.0))
                 
                 sections.append(f"Tabelle {i}: {table.table_name}")
                 sections.append(f"Quelle: {table.table_id}")
-                sections.append(f"Format: {{\"dosing_table_id\": \"{table.table_id}\", \"table_name\": \"{table.table_name}\", \"relevance_score\": {normalized_table_score:.2f}}}")
+                sections.append(f"Format: {{\"dosing_table_id\": \"{table.table_id}\", \"table_name\": \"{table.table_name}\", \"relevance_score\": {normalized_table_score:.1f}}}")
             sections.append("")
             sections.append("WICHTIG: Dosierungsempfehlungen müssen mit der entsprechenden Tabellennummer und Quelle zitiert werden.")
+            sections.append("WICHTIG: relevance_score ist ein Prozentwert zwischen 0.0 und 100.0 (höher = relevanter)")
         sections.append("")
         
         # Add metadata about available sources for easier LLM processing
