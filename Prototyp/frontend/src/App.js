@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
+import RagStatusBanner from "./components/RagStatusBanner/RagStatusBanner";
 
 const API_BASE =
   process.env.NODE_ENV === "production" ? "" : "http://localhost:8000";
@@ -828,6 +829,7 @@ function App() {
 
   return (
     <div className="App admin-surface">
+      <RagStatusBanner />
       <nav className="navbar navbar-expand-lg admin-navbar shadow-sm">
         <div className="container py-3">
           <div>
@@ -2031,12 +2033,9 @@ function App() {
                   {!therapyResults && !therapyLoading && (
                     <div className="text-muted text-center py-4">
                       <p>
-                        Füllen Sie die Parameter aus und generieren Sie
-                        Therapie-Empfehlungen
-                      </p>
-                      <p>
-                        Das System wird relevante Leitlinien durchsuchen und
-                        strukturierte Antibiotika-Empfehlungen erstellen.
+                        Zum generieren einer Therapie-Empfehlung bitte das
+                        Formular auf der linken Seite ausfüllen und auf
+                        "Therapie-Empfehlungen generieren" klicken.
                       </p>
                     </div>
                   )}
@@ -2721,16 +2720,6 @@ function App() {
                                   </div>
                                 </div>
                               )}
-
-                              <div className="text-muted">
-                                <small>
-                                  💡 Diese Informationen zeigen die exakten
-                                  Prompts, die an das LLM gesendet wurden, um
-                                  die Therapieempfehlungen zu generieren. Sie
-                                  können zur Qualitätskontrolle und Verbesserung
-                                  der Prompts verwendet werden.
-                                </small>
-                              </div>
                             </div>
                           )}
                         </div>

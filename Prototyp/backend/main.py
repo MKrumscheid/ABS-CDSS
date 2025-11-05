@@ -141,6 +141,15 @@ async def root():
 async def health_check():
     return {"status": "healthy", "service": "rag-test-pipeline"}
 
+@app.get("/rag-status")
+async def get_rag_status():
+    """Get current RAG configuration status"""
+    rag_enabled = os.getenv("ENABLE_RAG", "true").lower() == "true"
+    return {
+        "rag_enabled": rag_enabled,
+        "mode": "RAG Active" if rag_enabled else "Validation Mode (RAG Disabled)"
+    }
+
 @app.get("/health/detailed")
 async def detailed_health_check():
     """Detailed health check including service dependencies"""
@@ -553,8 +562,9 @@ async def generate_therapy_recommendation_stream(request: dict):
             context_msg = f"✅ Kontext erstellt ({context_time:.1f}s) - {rag_count} Leitlinien, {dosing_count} Dosierungstabellen"
             yield f"data: {json.dumps({'type': 'progress', 'message': context_msg, 'timestamp': time.time()})}\n\n"
             
-            # Check if we have sufficient context
-            if not context_data.get("rag_results") and not context_data.get("dosing_tables"):
+            # Check if we have sufficient context (only if RAG is enabled)
+            rag_enabled = os.getenv("ENABLE_RAG", "true").lower() == "true"
+            if rag_enabled and not context_data.get("rag_results") and not context_data.get("dosing_tables"):
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Keine relevanten Leitlinien oder Dosierungstabellen gefunden'})}\n\n"
                 return
             
@@ -746,8 +756,9 @@ async def generate_therapy_recommendation(request: dict):
         except ImportError:
             pass
         
-        # 2. Check if we have sufficient context
-        if not context_data.get("rag_results") and not context_data.get("dosing_tables"):
+        # 2. Check if we have sufficient context (only if RAG is enabled)
+        rag_enabled = os.getenv("ENABLE_RAG", "true").lower() == "true"
+        if rag_enabled and not context_data.get("rag_results") and not context_data.get("dosing_tables"):
             raise HTTPException(
                 status_code=404, 
                 detail="Keine relevanten Leitlinien oder Dosierungstabellen gefunden"

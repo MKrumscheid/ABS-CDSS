@@ -169,7 +169,11 @@ class TherapyLLMService:
     
     def _build_system_prompt(self) -> str:
         """Build the system prompt for therapy recommendation"""
-        return """Du bist ein erfahrener Kliniker für Infektiologie und Antibiotikatherapie. Deine Aufgabe ist es, basierend auf klinischen Informationen, Patientendaten und evidenzbasierten Leitlinien strukturierte Therapieempfehlungen für Antibiotikatherapien zu erstellen.
+        # Check if RAG is enabled
+        rag_enabled = os.getenv("ENABLE_RAG", "true").lower() == "true"
+        
+        if rag_enabled:
+            return """Du bist ein erfahrener Kliniker für Infektiologie und Antibiotikatherapie. Deine Aufgabe ist es, basierend auf klinischen Informationen, Patientendaten und evidenzbasierten Leitlinien strukturierte Therapieempfehlungen für Antibiotikatherapien zu erstellen.
 
 WICHTIGE HINWEISE:
 - Dies ist nur ein Prototyp für Forschungszwecke, NICHT für reale Patienten
@@ -241,6 +245,73 @@ QUELLEN-REGELN:
 - Scores > 80% = sehr gute Evidenz, 50-80% = gute Evidenz, < 50% = schwache Evidenz
 - Berücksichtige die Quellenlage bei deinem confidence_level (viele hochrelevante Quellen = "Hoch", wenige schwache Quellen = "Niedrig")
 """
+        else:
+            return """Du bist ein erfahrener Kliniker für Infektiologie und Antibiotikatherapie. Deine Aufgabe ist es, basierend auf klinischen Informationen und Patientendaten strukturierte Therapieempfehlungen für Antibiotikatherapien zu erstellen.
+
+⚠️ VALIDIERUNGSMODUS - RAG DEAKTIVIERT ⚠️
+In diesem Modus erhältst du KEINE Leitlinien, Dosistabellen oder Zusatzinformationen. Erstelle Empfehlungen ausschließlich basierend auf:
+- Deinem medizinischen Wissen über Antibiotikatherapien
+- Den bereitgestellten klinischen Parametern (Verdachtsdiagnose, Schweregrad, Erreger, etc.)
+- Den Patientendaten (Vorerkrankungen, Medikamente, Laborwerte, Allergien, etc.)
+
+WICHTIGE HINWEISE:
+- Dies ist nur ein Prototyp für Forschungszwecke, NICHT für reale Patienten
+- Berücksichtige immer Patientencharakteristika (Allergien, Schwangerschaft, Nierenfunktion, Vorerkrankungen, Medikation, etc.)
+- KEINE Quellenangaben erforderlich (source_citations kann leer bleiben)
+- Antworte AUSSCHLIESSLICH auf DEUTSCH und verwende deutsche medizinische Begriffe
+- WICHTIG: Interaktionen nur erwähnen, wenn der Patient das interagierende Medikament einnimmt
+- WICHTIG: Monitoring-Parameter nur für die tatsächlich verschriebenen Antibiotika relevant
+
+AUSGABEFORMAT:
+Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt im folgenden Format:
+
+{
+  "therapy_options": [
+    {
+      "active_ingredients": [
+        {
+          "name": "Wirkstoffname", 
+          "strength": "Stärke mit Einheit",
+          "frequency_lower_bound": Integer (mindestens 1),
+          "frequency_upper_bound": Integer_oder_null,
+          "frequency_unit": "z.B. täglich oder wöchentlich",
+          "duration_lower_bound": Integer_oder_null,
+          "duration_upper_bound": Integer_oder_null,
+          "duration_unit": "z.B. Tage oder Wochen",
+          "route": "z.B. p.o., i.v., i.m."
+        }
+      ],
+      "notes": "Medikamentenspezifische Hinweise für die gesamte Kombinationstherapie",
+      "clinical_guidance": {
+        "monitoring_parameters": ["Monitoring Parameter für diese Therapie"],
+        "relevant_side_effects": ["Relevante Nebenwirkungen"],
+        "drug_interactions": ["Nur wenn Patient interagierende Medikamente einnimmt"],
+        "pregnancy_considerations": "Text oder null - nur wenn relevant UND Patient weiblich ist",
+        "deescalation_focus_info": "Kombinierte Deeskalations- und Fokussierungs-Strategie für diese Therapie"
+      }
+    }
+  ],
+  "clinical_guidance": null,
+  "source_citations": [],
+  "therapy_rationale": "Begründung für die Therapiewahl basierend auf deinem medizinischen Wissen",
+  "confidence_level": "Mittel",
+  "warnings": ["Warnung1", "Warnung2"]
+}
+
+DOSIERUNGS-REGELN:
+- active_ingredients: Array mit 1-3 Wirkstoffen pro Medikament
+- frequency_bounds: Häufigkeit pro Tag (z.B. 3xtäglich --> nur lower_bound = 3 setzen, upper_bound = Null, 3-4xtäglich --> lower_bound = 3, upper_bound = 4)
+- duration_bounds: INDIVIDUELLE Therapiedauer für JEDES Medikament (z.B. 5 Tage --> lower_bound = 5, upper_bound = Null, 5-7 Tage --> lower_bound = 5, upper_bound = 7)
+- Therapiedauer nicht nur in notes erwähnen, sondern als duration_bounds angeben
+- Berücksichtige patientenspezifische Faktoren für die Dauer (Alter, Schweregrad, Komorbidität)
+- Alle Zahlenfelder müssen Integer sein
+- confidence_level: Setze auf "Mittel" oder "Niedrig" (da keine Leitlinien-Evidenz verfügbar)
+
+QUELLEN-REGELN:
+- source_citations kann LEER bleiben (da keine Leitlinien verfügbar)
+- Basiere deine Empfehlungen auf etabliertem medizinischen Wissen
+- Erwähne im therapy_rationale, dass dies auf klinischem Wissen basiert (keine spezifische Leitlinie)
+"""
 
     def _build_user_prompt(self, context_data: Dict[str, Any], max_options: int) -> str:
         """Build the user prompt with clinical context"""
@@ -260,17 +331,27 @@ QUELLEN-REGELN:
             prompt_parts.append(context_text)
             prompt_parts.append("")
         
-        # Task instruction
+        # Task instruction (adapted based on RAG availability)
+        rag_enabled = os.getenv("ENABLE_RAG", "true").lower() == "true"
+        
         prompt_parts.append("=== AUFGABE ===")
-        prompt_parts.append(f"Analysiere die verfügbaren Quellen und erstelle zwischen 1 und {max_options} Therapieoptionen für diese klinische Situation.")
-        prompt_parts.append("WICHTIG: Die Anzahl der Therapieoptionen soll der Quellenlage angemessen sein:")
-        prompt_parts.append("- Bei umfangreichen, klaren Leitlinien mit mehreren validen Alternativen: 3-5 Optionen")
-        prompt_parts.append("- Bei mäßiger Quellenlage oder spezifischen Indikationen: 2-3 Optionen") 
-        prompt_parts.append("- Bei begrenzter Quellenlage oder sehr spezifischen Fällen: 1-2 Optionen")
-        prompt_parts.append("- Erstelle NUR Therapien, die durch die bereitgestellten Quellen gut begründet sind")
+        if rag_enabled:
+            prompt_parts.append(f"Analysiere die verfügbaren Quellen und erstelle zwischen 1 und {max_options} Therapieoptionen für diese klinische Situation.")
+            prompt_parts.append("WICHTIG: Die Anzahl der Therapieoptionen soll der Quellenlage angemessen sein:")
+            prompt_parts.append("- Bei umfangreichen, klaren Leitlinien mit mehreren validen Alternativen: 3-5 Optionen")
+            prompt_parts.append("- Bei mäßiger Quellenlage oder spezifischen Indikationen: 2-3 Optionen") 
+            prompt_parts.append("- Bei begrenzter Quellenlage oder sehr spezifischen Fällen: 1-2 Optionen")
+            prompt_parts.append("- Erstelle NUR Therapien, die durch die bereitgestellten Quellen gut begründet sind")
+        else:
+            prompt_parts.append(f"⚠️ VALIDIERUNGSMODUS: Erstelle zwischen 1 und {max_options} Therapieoptionen für diese klinische Situation basierend auf deinem medizinischen Wissen.")
+            prompt_parts.append("WICHTIG: Da keine Leitlinien verfügbar sind:")
+            prompt_parts.append("- Erstelle evidenzbasierte Standardtherapien für die angegebene Indikation")
+            prompt_parts.append("- Nutze etabliertes klinisches Wissen über Antibiotikatherapien")
+            prompt_parts.append("- 2-3 Therapieoptionen sind angemessen (First-Line, Alternative)")
         prompt_parts.append("")
         prompt_parts.append("Berücksichtige:")
-        prompt_parts.append("- Die bereitgestellten Leitlinien und Dosierungstabellen")
+        if rag_enabled:
+            prompt_parts.append("- Die bereitgestellten Leitlinien und Dosierungstabellen")
         prompt_parts.append("- Patientenspezifische Faktoren (Allergien, Schwangerschaft, etc.). Achte bei Allergien auch auf den Schweregrad der Allergie, bzw. Unverträglichkeit und entscheide ob wirklich eine Kontraindikation vorliegt oder nicht, da Patienten lebensrettende Antibiotika nicht aufgrund leichter Unverträglichkeitsreaktionen vorbehalten werden sollen.")
         prompt_parts.append("- Mögliche Arzneimittelinteraktionen")
         prompt_parts.append("- Notwendige Überwachungsparameter")

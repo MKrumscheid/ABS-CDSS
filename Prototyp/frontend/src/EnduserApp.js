@@ -11,11 +11,13 @@ import medicalTheme from "./theme/medicalTheme";
 import Layout from "./components/Layout/Layout";
 import TherapyRecommendation from "./pages/TherapyRecommendation";
 import SavedRequests from "./pages/SavedRequests";
+import RagStatusBanner from "./components/RagStatusBanner/RagStatusBanner";
 
 function EnduserApp() {
   return (
     <ThemeProvider theme={medicalTheme}>
       <CssBaseline />
+      <RagStatusBanner />
       <Router>
         <Layout>
           <Box
