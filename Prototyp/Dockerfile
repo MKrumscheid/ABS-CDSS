@@ -8,14 +8,14 @@ FROM node:18-alpine AS frontend-builder
 WORKDIR /app
 
 # Copy frontend package files
-COPY Prototyp/frontend/package*.json ./frontend/
+COPY frontend/package*.json ./frontend/
 WORKDIR /app/frontend
 
 # Install dependencies
 RUN npm ci --only=production
 
 # Copy frontend source
-COPY Prototyp/frontend/ ./
+COPY frontend/ ./
 
 # Build Admin Frontend (port 3000 equivalent)
 ENV REACT_APP_MODE=admin
@@ -49,12 +49,12 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy and install Python requirements
-COPY Prototyp/backend/requirements-prod.txt ./requirements.txt
+COPY backend/requirements-prod.txt ./requirements.txt
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source code (includes data directories)
-COPY Prototyp/backend/ ./
+COPY backend/ ./
 
 # Copy built frontend applications
 COPY --from=frontend-builder /app/frontend/admin-build ./static/admin
