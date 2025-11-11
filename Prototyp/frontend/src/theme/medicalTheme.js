@@ -1,6 +1,5 @@
 import { createTheme } from "@mui/material/styles";
 
-// Medical-themed color palette
 export const medicalTheme = createTheme({
   palette: {
     mode: "light",

@@ -1,6 +1,3 @@
-"""
-LLM Service for Therapy Recommendations using Novita AI
-"""
 import os
 import json
 import logging
@@ -24,7 +21,7 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 class TherapyLLMService:
-    """Service for generating therapy recommendations using LLM"""
+    """Service for generating therapy recommendations using LLM via Novita AI API"""
     
     def __init__(self):
         self.endpoint = os.getenv("NOVITA_API_BASE_URL", "https://api.novita.ai/v3/openai/chat/completions")
@@ -64,9 +61,9 @@ class TherapyLLMService:
             
             # Build the user prompt with context
             user_prompt = self._build_user_prompt(context_data, max_options)
-            
-            logger.info(f"Generating therapy recommendation with {len(user_prompt)} chars of context")
-            
+
+            logger.info(f"Generiere Therapievorschläge mit {len(user_prompt)} Zeichen Kontext")
+
             # Call LLM
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -92,9 +89,9 @@ class TherapyLLMService:
             logger.info(f"Received LLM response: {len(llm_response)} characters")
             
             # Debug: Log the complete LLM response 
-            print(f"=== DEBUG COMPLETE LLM RESPONSE ===")
+            print(f"=== DEBUG Komplette LLM Antwort ===")
             print(llm_response)
-            print(f"=== END LLM RESPONSE ===")
+            print(f"=== Ende LLM Antwort ===")
             
             # Clean the response to handle potential control characters
             try:
@@ -248,7 +245,7 @@ QUELLEN-REGELN:
         else:
             return """Du bist ein erfahrener Kliniker für Infektiologie und Antibiotikatherapie. Deine Aufgabe ist es, basierend auf klinischen Informationen und Patientendaten strukturierte Therapieempfehlungen für Antibiotikatherapien zu erstellen.
 
-⚠️ VALIDIERUNGSMODUS - RAG DEAKTIVIERT ⚠️
+VALIDIERUNGSMODUS - RAG DEAKTIVIERT!
 In diesem Modus erhältst du KEINE Leitlinien, Dosistabellen oder Zusatzinformationen. Erstelle Empfehlungen ausschließlich basierend auf:
 - Deinem medizinischen Wissen über Antibiotikatherapien
 - Den bereitgestellten klinischen Parametern (Verdachtsdiagnose, Schweregrad, Erreger, etc.)
@@ -343,7 +340,7 @@ QUELLEN-REGELN:
             prompt_parts.append("- Bei begrenzter Quellenlage oder sehr spezifischen Fällen: 1-2 Optionen")
             prompt_parts.append("- Erstelle NUR Therapien, die durch die bereitgestellten Quellen gut begründet sind")
         else:
-            prompt_parts.append(f"⚠️ VALIDIERUNGSMODUS: Erstelle zwischen 1 und {max_options} Therapieoptionen für diese klinische Situation basierend auf deinem medizinischen Wissen.")
+            prompt_parts.append(f"VALIDIERUNGSMODUS: Erstelle zwischen 1 und {max_options} Therapieoptionen für diese klinische Situation basierend auf deinem medizinischen Wissen.")
             prompt_parts.append("WICHTIG: Da keine Leitlinien verfügbar sind:")
             prompt_parts.append("- Erstelle evidenzbasierte Standardtherapien für die angegebene Indikation")
             prompt_parts.append("- Nutze etabliertes klinisches Wissen über Antibiotikatherapien")

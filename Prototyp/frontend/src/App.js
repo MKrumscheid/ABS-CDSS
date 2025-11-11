@@ -1,3 +1,4 @@
+// Admin frontend
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
@@ -274,7 +275,7 @@ function App() {
   const [indicationSearch, setIndicationSearch] = useState("");
   const [indicationDropdownOpen, setIndicationDropdownOpen] = useState(false);
   const [searchForm, setSearchForm] = useState({
-    indication: "OTITIS_EXTERNA_MALIGNA", // Use a valid indication value from the backend
+    indication: "OTITIS_EXTERNA_MALIGNA",
     severity: "MITTELSCHWER",
     infection_site: "",
     risk_factors: [],
@@ -285,7 +286,7 @@ function App() {
   useEffect(() => {
     loadStats();
     loadGuidelines();
-    loadLlmConfig(); // Load current LLM configuration
+    loadLlmConfig();
 
     // Close dropdown when clicking outside
     const handleClickOutside = (event) => {
@@ -300,7 +301,6 @@ function App() {
     };
   }, []);
 
-  // Debug: Monitor selectedIndications changes
   useEffect(() => {
     console.log("selectedIndications changed:", selectedIndications);
   }, [selectedIndications]);
@@ -397,7 +397,7 @@ function App() {
 
     // Map form values to backend format
     const testPayload = {
-      indication: searchForm.indication, // Use the actual selected indication value
+      indication: searchForm.indication,
       severity: searchForm.severity,
       infection_site: searchForm.infection_site || null,
       risk_factors: searchForm.risk_factors.map((factor) => factor),
@@ -418,7 +418,7 @@ function App() {
       let errorMessage = error.message;
       if (error.response?.data?.detail) {
         if (Array.isArray(error.response.data.detail)) {
-          // Format validation errors nicely
+          // Format validation errors
           errorMessage = error.response.data.detail
             .map((err) => `${err.loc?.join(" -> ")}: ${err.msg}`)
             .join("; ");
@@ -453,9 +453,9 @@ function App() {
   const resetUploadForm = () => {
     setUploadFile(null);
     setGuidelineId("");
-    setSelectedIndications([]); // Keine Vorauswahl nach Reset
-    setIndicationSearch(""); // Auch die Suchleiste zurücksetzen
-    setIndicationDropdownOpen(false); // Dropdown schließen
+    setSelectedIndications([]);
+    setIndicationSearch("");
+    setIndicationDropdownOpen(false);
   };
 
   // Patient search functions
@@ -598,9 +598,9 @@ function App() {
         const fileType = response.data.file_type || "unbekannt";
         const message = `Erfolgreich verarbeitet (${fileType}): ${response.data.chunks_created} Chunks erstellt.`;
         setUploadStatus(createStatus("success", message));
-        resetUploadForm(); // Use new reset function
-        loadStats(); // Reload stats
-        loadGuidelines(); // Reload guidelines list
+        resetUploadForm();
+        loadStats();
+        loadGuidelines();
       } else {
         setUploadStatus(
           createStatus("error", `Fehler: ${response.data.message}`)
@@ -623,54 +623,12 @@ function App() {
     setLoading(true);
     setSearchResults(null);
 
-    // Map frontend values to backend enum values
-    const mapIndication = (indication) => {
-      // Most indications have the same value in frontend and backend
-      // Only special cases need explicit mapping
-      const mapping = {
-        CAP: "AMBULANT_ERWORBENE_PNEUMONIE",
-        HAP: "NOSOKOMIAL_ERWORBENE_PNEUMONIE",
-        AKUTE_EXAZERBATION_COPD: "AKUTE_EXAZERBATION_COPD", // Already matches
-      };
-      return mapping[indication] || indication; // Return as-is for new indications
-    };
-
-    const mapSeverity = (severity) => {
-      // Backend expects these exact values
-      return severity; // Already correct: LEICHT, MITTELSCHWER, SCHWER, SEPTISCH
-    };
-
-    const mapRiskFactors = (factors) => {
-      const mapping = {
-        ANTIBIOTISCHE_VORBEHANDLUNG: "ANTIBIOTISCHE_VORBEHANDLUNG",
-        MRGN_VERDACHT: "MRGN_VERDACHT",
-        MRSA_VERDACHT: "MRSA_VERDACHT",
-        BEATMUNG: "BEATMUNG",
-        KATHETER: "KATHETER",
-      };
-      return factors.map((factor) => mapping[factor] || factor);
-    };
-
-    const mapInfectionSite = (site) => {
-      if (!site) return null;
-      const mapping = {
-        LUNGE: "LUNGE",
-        BLUT: "BLUT",
-        HARNTRAKT: "HARNTRAKT",
-        ZNS: "ZNS",
-        HAUT_WEICHTEILE: "HAUT_WEICHTEILE",
-        GASTROINTESTINAL: "GASTROINTESTINAL",
-        SYSTEMISCH: "SYSTEMISCH",
-      };
-      return mapping[site] || site;
-    };
-
-    // Prepare search payload with correct backend enum values
+    // Prepare search payload - no mapping needed, enum values are already consistent
     const searchPayload = {
-      indication: mapIndication(searchForm.indication),
-      severity: mapSeverity(searchForm.severity),
-      infection_site: mapInfectionSite(searchForm.infection_site),
-      risk_factors: mapRiskFactors(searchForm.risk_factors),
+      indication: searchForm.indication,
+      severity: searchForm.severity,
+      infection_site: searchForm.infection_site || null,
+      risk_factors: searchForm.risk_factors,
       suspected_pathogens: searchForm.suspected_pathogens
         ? searchForm.suspected_pathogens
             .split(",")
@@ -681,14 +639,13 @@ function App() {
     };
 
     try {
-      console.log("Sending search payload:", searchPayload); // Debug log
+      console.log("Sende search payload:", searchPayload);
       const response = await axios.post(`${API_BASE}/search`, searchPayload);
       setSearchResults(response.data);
     } catch (error) {
-      console.error("Search error:", error);
-      console.error("Error response:", error.response?.data); // Debug log
+      console.error("Suchfehler:", error);
+      console.error("Fehler:", error.response?.data);
 
-      // Better error handling for validation errors
       let errorMessage = error.message;
       if (error.response?.data?.detail) {
         if (Array.isArray(error.response.data.detail)) {
@@ -733,24 +690,11 @@ function App() {
     setTherapyLoading(true);
     setTherapyResults(null);
 
-    // Map frontend values to backend enum values
-    const mapIndication = (indication) => {
-      // Most indications have the same value in frontend and backend
-      // Only special cases need explicit mapping
-      const mapping = {
-        CAP: "AMBULANT_ERWORBENE_PNEUMONIE",
-        HAP: "NOSOKOMIAL_ERWORBENE_PNEUMONIE",
-        AKUTE_EXAZERBATION_COPD: "AKUTE_EXAZERBATION_COPD", // Already matches
-      };
-      return mapping[indication] || indication; // Return as-is for new indications
-    };
-
-    // Map form values to backend format
     const therapyPayload = {
-      indication: mapIndication(therapyForm.indication), // Use the mapping function
+      indication: therapyForm.indication,
       severity: therapyForm.severity,
       infection_site: therapyForm.infection_site || null,
-      risk_factors: therapyForm.risk_factors.map((factor) => factor),
+      risk_factors: therapyForm.risk_factors,
       suspected_pathogens: therapyForm.suspected_pathogens
         ? therapyForm.suspected_pathogens
             .split(",")
@@ -762,7 +706,7 @@ function App() {
     };
 
     try {
-      console.log("Sending therapy recommendation payload:", therapyPayload);
+      console.log("Sende therapy recommendation payload:", therapyPayload);
       const response = await axios.post(
         `${API_BASE}/therapy/recommend`,
         therapyPayload
@@ -807,7 +751,7 @@ function App() {
       );
       console.log("LLM config saved:", response.data);
       setLlmConfigSaved(true);
-      setTimeout(() => setLlmConfigSaved(false), 3000); // Clear message after 3 seconds
+      setTimeout(() => setLlmConfigSaved(false), 3000);
     } catch (error) {
       console.error("Error saving LLM config:", error);
       alert("Fehler beim Speichern der LLM-Konfiguration: " + error.message);
@@ -823,12 +767,11 @@ function App() {
       }
     } catch (error) {
       console.error("Error loading LLM config:", error);
-      // Use default values if loading fails
     }
   };
 
   return (
-    <div className="App admin-surface">
+    <div className="ABS-CDSS Admin Konsole">
       <RagStatusBanner />
       <nav className="navbar navbar-expand-lg admin-navbar shadow-sm">
         <div className="container py-3">
@@ -2624,7 +2567,7 @@ function App() {
                       {/* General Clinical Notes */}
                       {therapyResults.general_notes && (
                         <div className="alert alert-info">
-                          <h6>ℹ️ Allgemeine Hinweise:</h6>
+                          <h6>Allgemeine Hinweise:</h6>
                           <p className="mb-0">{therapyResults.general_notes}</p>
                         </div>
                       )}
@@ -2660,7 +2603,7 @@ function App() {
                               {/* Model Information */}
                               {therapyResults.llm_debug.model && (
                                 <div className="mb-3">
-                                  <strong>🤖 Verwendetes Modell:</strong>
+                                  <strong>Verwendetes Modell:</strong>
                                   <div className="bg-light p-2 rounded mt-1">
                                     <code>
                                       {therapyResults.llm_debug.model}
@@ -2672,7 +2615,7 @@ function App() {
                               {/* System Prompt */}
                               {therapyResults.llm_debug.system_prompt && (
                                 <div className="mb-3">
-                                  <strong>📋 System Prompt:</strong>
+                                  <strong>System Prompt:</strong>
                                   <div
                                     className="bg-light p-3 rounded mt-1"
                                     style={{
@@ -2698,7 +2641,7 @@ function App() {
                               {therapyResults.llm_debug.user_prompt && (
                                 <div className="mb-3">
                                   <strong>
-                                    👤 User Prompt (Klinischer Kontext):
+                                    User Prompt (Klinischer Kontext):
                                   </strong>
                                   <div
                                     className="bg-light p-3 rounded mt-1"
@@ -2729,7 +2672,7 @@ function App() {
                       {therapyResults.processing_time_ms && (
                         <div className="text-muted text-center mt-3">
                           <small>
-                            ⏱️ Verarbeitung: {therapyResults.processing_time_ms}
+                            Verarbeitung: {therapyResults.processing_time_ms}
                             ms
                             {therapyResults.model_used &&
                               ` • Modell: ${therapyResults.model_used}`}
