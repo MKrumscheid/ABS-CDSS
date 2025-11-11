@@ -39,12 +39,9 @@ class RiskFactor(str, Enum):
     CATHETER = "KATHETER"
 
 class Indication(str, Enum):
-    # Existing diagnoses
     CAP = "AMBULANT_ERWORBENE_PNEUMONIE"
     HAP = "NOSOKOMIAL_ERWORBENE_PNEUMONIE"
     AECOPD = "AKUTE_EXAZERBATION_COPD"
-    
-    # New diagnoses - alphabetically organized
     ACUTE_EPIDIDYMITIS = "AKUTE_EPIDIDYMITIS"
     ACUTE_PROSTATITIS = "AKUTE_PROSTATITIS"
     ACUTE_UNCOMPLICATED_PYELONEPHRITIS = "AKUTE_UNKOMPLIZIERTE_PYELONEPHRITIS"
@@ -87,12 +84,9 @@ class Indication(str, Enum):
     def get_display_name(self) -> str:
         """Get human-readable display name for the indication"""
         display_names = {
-            # Existing
             "AMBULANT_ERWORBENE_PNEUMONIE": "CAP (Ambulant erworbene Pneumonie)",
             "NOSOKOMIAL_ERWORBENE_PNEUMONIE": "HAP (Nosokomial erworbene Pneumonie)", 
             "AKUTE_EXAZERBATION_COPD": "AECOPD (Akute Exazerbation der COPD)",
-            
-            # HNO-Infektionen
             "OTITIS_EXTERNA_MALIGNA": "Otitis externa maligna",
             "OSTEOMYELITIS_SCHAEDELBASIS": "Osteomyelitis der Schädelbasis",
             "MASTOIDITIS": "Mastoiditis",
@@ -104,17 +98,11 @@ class Indication(str, Enum):
             "BAKTERIELLE_SINUSITIDEN_UND_KOMPLIKATIONEN": "Bakterielle Sinusitiden und deren Komplikationen",
             "SIALADENITIS": "Sialadenitis",
             "ZERVIKOFAZIALE_AKTINOMYKOSE": "Zervikofaziale Aktinomykose",
-            
-            # Dental
             "ODONTOGENE_INFEKTIONEN_AUSBREITUNGSTENDENZ": "Odontogene Infektionen mit Ausbreitungstendenz",
             "OSTEOMYELITIS_KIEFER": "Osteomyelitis der Kiefer",
-            
-            # Abdominale Infektionen
             "PERITONITIS": "Peritonitis",
             "NEKROTISIERENDE_PANKREATITIS_INFIZIERTE_NEKROSEN": "Nekrotisierende Pankreatitis mit infizierten Nekrosen",
             "INVASIVE_INTRAABDOMINELLE_MYKOSEN": "Invasive intraabdominelle Mykosen",
-            
-            # Urogenitale Infektionen
             "AKUTE_UNKOMPLIZIERTE_PYELONEPHRITIS": "Akute unkomplizierte Pyelonephritis",
             "KOMPLIZIERTE_NOSOKOMIALE_HARNWEGSINFEKTION": "Komplizierte bzw. nosokomiale Harnwegsinfektion",
             "UROSEPSIS": "Urosepsis",
@@ -126,24 +114,16 @@ class Indication(str, Enum):
             "SALPINGITIS": "Salpingitis",
             "TUBOOVARIALABSZESS": "Tuboovarialabszess",
             "PELVEOPERITONITIS": "Pelveoperitonitis",
-            
-            # Haut und Weichteile
             "INFIZIERTE_BISSWUNDEN": "Infizierte Bisswunden",
-            
-            # Knochen und Gelenke
             "HAEMATOGENE_OSTEOMYELITIS": "Hämatogene Osteomyelitis",
             "SPONDYLODISCITIS": "Spondylodiscitis",
             "POSTTRAUMATISCHE_POSTOPERATIVE_OSTEOMYELITIS": "Posttraumatische/postoperative Osteomyelitis",
             "STERNUMOSTEOMYELITIS": "Sternumosteomyelitis",
             "BAKTERIELLE_ARTHRITIS": "Bakterielle Arthritis",
             "ENDOPROTHESEN_FREMDKOERPER_ASSOZIIERTE_INFEKTIONEN": "Endoprothesen-/Fremdkörper-assoziierte Infektionen",
-            
-            # Systemische Infektionen
             "SEPSIS": "Sepsis",
             "BAKTERIELLE_ENDOKARDITIS": "Bakterielle Endokarditis",
             "BAKTERIELLE_MENINGITIS": "Bakterielle Meningitis",
-            
-            # Gastrointestinale Infektionen
             "BAKTERIELLE_GASTROINTESTINALE_INFEKTIONEN": "Bakterielle gastrointestinale Infektionen"
         }
         return display_names.get(self.value, self.value)
@@ -156,12 +136,9 @@ class Indication(str, Enum):
     def get_category(self) -> str:
         """Get the medical category for this indication"""
         categories = {
-            # Respiratorische Infektionen
             "AMBULANT_ERWORBENE_PNEUMONIE": "Respiratorische Infektionen",
             "NOSOKOMIAL_ERWORBENE_PNEUMONIE": "Respiratorische Infektionen",
             "AKUTE_EXAZERBATION_COPD": "Respiratorische Infektionen",
-            
-            # HNO-Infektionen
             "OTITIS_EXTERNA_MALIGNA": "HNO-Infektionen",
             "OSTEOMYELITIS_SCHAEDELBASIS": "HNO-Infektionen",
             "MASTOIDITIS": "HNO-Infektionen",
@@ -173,17 +150,11 @@ class Indication(str, Enum):
             "BAKTERIELLE_SINUSITIDEN_UND_KOMPLIKATIONEN": "HNO-Infektionen",
             "SIALADENITIS": "HNO-Infektionen",
             "ZERVIKOFAZIALE_AKTINOMYKOSE": "HNO-Infektionen",
-            
-            # Dentale Infektionen
             "ODONTOGENE_INFEKTIONEN_AUSBREITUNGSTENDENZ": "Dentale Infektionen",
             "OSTEOMYELITIS_KIEFER": "Dentale Infektionen",
-            
-            # Abdominale Infektionen
             "PERITONITIS": "Abdominale Infektionen",
             "NEKROTISIERENDE_PANKREATITIS_INFIZIERTE_NEKROSEN": "Abdominale Infektionen",
             "INVASIVE_INTRAABDOMINELLE_MYKOSEN": "Abdominale Infektionen",
-            
-            # Urogenitale Infektionen
             "AKUTE_UNKOMPLIZIERTE_PYELONEPHRITIS": "Urogenitale Infektionen",
             "KOMPLIZIERTE_NOSOKOMIALE_HARNWEGSINFEKTION": "Urogenitale Infektionen",
             "UROSEPSIS": "Urogenitale Infektionen",
@@ -195,24 +166,16 @@ class Indication(str, Enum):
             "SALPINGITIS": "Urogenitale Infektionen",
             "TUBOOVARIALABSZESS": "Urogenitale Infektionen",
             "PELVEOPERITONITIS": "Urogenitale Infektionen",
-            
-            # Haut und Weichteile
             "INFIZIERTE_BISSWUNDEN": "Haut- und Weichteilinfektionen",
-            
-            # Knochen und Gelenke
             "HAEMATOGENE_OSTEOMYELITIS": "Knochen- und Gelenkinfektionen",
             "SPONDYLODISCITIS": "Knochen- und Gelenkinfektionen",
             "POSTTRAUMATISCHE_POSTOPERATIVE_OSTEOMYELITIS": "Knochen- und Gelenkinfektionen",
             "STERNUMOSTEOMYELITIS": "Knochen- und Gelenkinfektionen",
             "BAKTERIELLE_ARTHRITIS": "Knochen- und Gelenkinfektionen",
             "ENDOPROTHESEN_FREMDKOERPER_ASSOZIIERTE_INFEKTIONEN": "Knochen- und Gelenkinfektionen",
-            
-            # Systemische Infektionen
             "SEPSIS": "Systemische Infektionen",
             "BAKTERIELLE_ENDOKARDITIS": "Systemische Infektionen",
             "BAKTERIELLE_MENINGITIS": "Systemische Infektionen",
-            
-            # Gastrointestinale Infektionen
             "BAKTERIELLE_GASTROINTESTINALE_INFEKTIONEN": "Gastrointestinale Infektionen"
         }
         return categories.get(self.value, "Sonstige")
@@ -313,7 +276,7 @@ class PatientDetailData(BaseModel):
     weight: Optional[float] = None  # in kg
     bmi: Optional[float] = None
     pregnancy_status: str = "Nicht Schwanger"
-    conditions: List[str] = []  # Pre-existing conditions
+    conditions: List[str] = []  
     allergies: List[str] = []
     medications: List[str] = []
     lab_values: List[LabValue] = []
@@ -322,20 +285,18 @@ class PatientDetailData(BaseModel):
 
 class ActiveIngredient(BaseModel):
     """Model for active pharmaceutical ingredients in therapy recommendations with individual dosing"""
-    name: str  # e.g., "Amoxicillin", "Clavulansäure"
-    strength: str  # e.g., "1000mg", "125mg"
+    name: str 
+    strength: str 
     
-    # Individual dosing parameters for this specific ingredient
-    frequency_lower_bound: int = Field(..., ge=1)  # Minimum times per day
-    frequency_upper_bound: Optional[int] = Field(None, ge=1)  # Maximum times per day (if range)
-    frequency_unit: str = Field(default="täglich")  # "täglich", "alle 8h", etc.
+    frequency_lower_bound: int = Field(..., ge=1)  
+    frequency_upper_bound: Optional[int] = Field(None, ge=1) 
+    frequency_unit: str = Field(default="täglich") 
     
-    # Duration bounds for this ingredient
-    duration_lower_bound: Optional[int] = Field(None, ge=0)  # Minimum duration
-    duration_upper_bound: Optional[int] = Field(None, ge=0)  # Maximum duration
-    duration_unit: Optional[str] = Field(default="Tage")  # "Tage", "Wochen", etc. - Optional wenn keine Dauer
     
-    # Route of administration for this ingredient
+    duration_lower_bound: Optional[int] = Field(None, ge=0)  
+    duration_upper_bound: Optional[int] = Field(None, ge=0)  
+    duration_unit: Optional[str] = Field(default="Tage")  
+    
     route: str = Field(default="i.v.")  # "p.o.", "i.v.", "i.m.", etc.
 
 class MedicationRecommendation(BaseModel):
@@ -352,27 +313,27 @@ class MedicationRecommendation(BaseModel):
 class ClinicalGuidance(BaseModel):
     """Model for additional clinical guidance and safety information"""
     # Monitoring parameters
-    monitoring_parameters: List[str] = []  # e.g., ["Kreatinin", "Leberwerte", "Herzfrequenz"]
+    monitoring_parameters: List[str] = []  
     
     # Relevant side effects for this case
-    relevant_side_effects: List[str] = []  # e.g., ["Gastrointestinale Beschwerden", "Hautausschlag"]
+    relevant_side_effects: List[str] = []  
     
     # Drug interactions (only if patient takes interacting medications)
-    drug_interactions: List[str] = []  # e.g., ["Warfarin: INR-Kontrolle erforderlich"]
+    drug_interactions: List[str] = []  
     
-    # Pregnancy considerations (only if patient is pregnant)
-    pregnancy_considerations: Optional[str] = None  # e.g., "Kontraindiziert in der Schwangerschaft"
+    # Pregnancy considerations 
+    pregnancy_considerations: Optional[str] = None  
     
-    # De-escalation and therapy focus information (combined)
-    deescalation_focus_info: Optional[str] = None  # e.g., "Nach Erregernachweis auf gezieltes Antibiotikum umstellen. Bei Besserung auf orale Therapie umstellen"
+    # De-escalation and therapy focus information 
+    deescalation_focus_info: Optional[str] = None  
 
 class SourceCitation(BaseModel):
     """Model for source citations with guideline and page information"""
-    guideline_id: str  # e.g., "020-020l_S3_Behandlung-von-erwachsenen-Patienten-mit-ambulant-erworbener-Pneumonie"
-    guideline_title: Optional[str] = None  # Human-readable title
-    page_number: Optional[int] = None  # Page number if available
-    section: Optional[str] = None  # Section name if available
-    relevance_score: float = Field(..., ge=0.0, le=1.0)  # How relevant this source is to the recommendation
+    guideline_id: str  
+    guideline_title: Optional[str] = None 
+    page_number: Optional[int] = None 
+    section: Optional[str] = None 
+    relevance_score: float = Field(..., ge=0.0, le=100.0) 
 
 class TherapyRecommendation(BaseModel):
     """Model for complete therapy recommendation response"""
@@ -386,13 +347,13 @@ class TherapyRecommendation(BaseModel):
     source_citations: List[SourceCitation]
     
     # General reasoning for the therapy choice
-    therapy_rationale: str  # Explanation why these therapies were chosen
+    therapy_rationale: str  
     
     # Confidence level in recommendations
-    confidence_level: str = Field(..., pattern="^(Hoch|Mittel|Niedrig)$")  # "Hoch", "Mittel", "Niedrig"
+    confidence_level: str = Field(..., pattern="^(Hoch|Mittel|Niedrig)$")  
     
     # Warnings or special considerations
-    warnings: List[str] = []  # e.g., ["Niereninsuffizienz beachten", "Allergien berücksichtigt"]
+    warnings: List[str] = []  
     
     # LLM prompt information for debugging (optional fields)
     system_prompt: Optional[str] = None

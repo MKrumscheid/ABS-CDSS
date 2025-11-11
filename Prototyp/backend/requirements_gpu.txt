@@ -1,5 +1,4 @@
 # GPU-enhanced requirements for RAG service
-# Install these for GPU acceleration support
 
 # Core dependencies (same as requirements.txt)
 fastapi==0.104.1

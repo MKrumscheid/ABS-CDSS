@@ -58,7 +58,6 @@ function SavedRequests() {
       const recommendations = await therapyAPI.getSavedRecommendations();
       console.log("API response:", recommendations); // Debug log
 
-      // Ensure we have an array
       if (Array.isArray(recommendations)) {
         setSavedRecommendations(recommendations);
       } else {
@@ -217,8 +216,8 @@ function SavedRequests() {
                 Keine gespeicherten Empfehlungen
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Speichern Sie Ihre ersten Therapie-Empfehlungen, um sie hier
-                wiederzufinden.
+                Erstellen Sie eine Therapie-Empfehlung und speichern Sie diese,
+                um Sie hier wieder abrufen zu können.
               </Typography>
               <Button variant="contained" href="/therapy">
                 Neue Empfehlung erstellen

@@ -161,7 +161,7 @@ function Layout({ children }) {
         }}
       >
         <Typography variant="body2" color="text.secondary" align="center">
-          Antibiotika Clinical Decision Support System
+          Antibiotika Clinical Decision Support
         </Typography>
         <Typography
           variant="caption"
@@ -211,7 +211,7 @@ function Layout({ children }) {
               color: "white",
             }}
           >
-            Antibiotika Clinical Decision Support
+            EmpiriQ - Antibiotika Therapie-Empfehlungen
           </Typography>
         </Toolbar>
       </AppBar>

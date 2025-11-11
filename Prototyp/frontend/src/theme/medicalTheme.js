@@ -1,47 +1,46 @@
 import { createTheme } from "@mui/material/styles";
 
-// Medical-themed color palette
 export const medicalTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#1565c0", // Professional medical blue
+      main: "#1565c0",
       light: "#5e92f3",
       dark: "#003c8f",
       contrastText: "#ffffff",
     },
     secondary: {
-      main: "#2e7d32", // Medical green
+      main: "#2e7d32",
       light: "#60ad5e",
       dark: "#005005",
       contrastText: "#ffffff",
     },
     error: {
-      main: "#d32f2f", // Medical red for warnings
+      main: "#d32f2f",
       light: "#ff6659",
       dark: "#9a0007",
     },
     warning: {
-      main: "#f57c00", // Orange for attention
+      main: "#f57c00",
       light: "#ffad42",
       dark: "#bb4d00",
     },
     info: {
-      main: "#0288d1", // Light blue for information
+      main: "#0288d1",
       light: "#5eb8ff",
       dark: "#005b9f",
     },
     success: {
-      main: "#388e3c", // Green for success states
+      main: "#388e3c",
       light: "#6abf69",
       dark: "#00600f",
     },
     background: {
-      default: "#f8f9fa", // Light clean background
+      default: "#f8f9fa",
       paper: "#ffffff",
     },
     text: {
-      primary: "#212121", // Dark gray for good readability
+      primary: "#212121",
       secondary: "#757575",
     },
   },
@@ -104,14 +103,14 @@ export const medicalTheme = createTheme({
     },
     button: {
       fontWeight: 500,
-      textTransform: "none", // Keep normal case for better readability
+      textTransform: "none",
       fontSize: "0.875rem",
     },
   },
   shape: {
-    borderRadius: 8, // Rounded corners for modern look
+    borderRadius: 8,
   },
-  spacing: 8, // 8px base spacing
+  spacing: 8,
   components: {
     MuiButton: {
       styleOverrides: {

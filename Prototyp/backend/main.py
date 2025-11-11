@@ -14,7 +14,7 @@ from openai import OpenAI
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+
 load_dotenv()
 
 from models import (
@@ -49,12 +49,12 @@ def format_duration(option):
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="RAG Test Pipeline - Clinical Decision Support",
-    description="API for testing RAG retrieval with medical guidelines",
+    title="RAG Test Pipeline - ABS CDSS",
+    description="API zum testen von RAG-basierten CDSS Prototypen",
     version="1.0.0"
 )
 
-# Add CORS middleware - Updated for cloud deployment
+# Add CORS middleware 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -63,7 +63,7 @@ app.add_middleware(
         "http://localhost:4000", 
         "http://127.0.0.1:4000",
         "https://*.koyeb.app",  # Allow all Koyeb subdomains
-        "*"  # For development - should be restricted in production
+        "*"  # For development 
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -99,9 +99,9 @@ therapy_llm_service = TherapyLLMService()
 # Initialize database
 try:
     create_tables()
-    print("Database tables initialized successfully")
+    print("Datenbank erfolgreich initialisiert")
 except Exception as e:
-    print(f"Warning: Database initialization failed: {e}")
+    print(f"Warnung: Datenbankinitialisierung fehlgeschlagen: {e}")
 
 # Mount static files for frontend applications (production)
 static_admin_path = Path(__file__).parent / "static" / "admin"
@@ -141,12 +141,21 @@ async def root():
 async def health_check():
     return {"status": "healthy", "service": "rag-test-pipeline"}
 
+@app.get("/rag-status")
+async def get_rag_status():
+    """Get current RAG configuration status"""
+    rag_enabled = os.getenv("ENABLE_RAG", "true").lower() == "true"
+    return {
+        "rag_enabled": rag_enabled,
+        "mode": "RAG Active" if rag_enabled else "Validation Mode (RAG Disabled)"
+    }
+
 @app.get("/health/detailed")
 async def detailed_health_check():
     """Detailed health check including service dependencies"""
     health_status = {
         "status": "healthy",
-        "service": "rag-test-pipeline",
+        "service": "RAG Test Pipeline - ABS CDSS",
         "timestamp": time.time(),
         "checks": {}
     }
@@ -269,15 +278,13 @@ async def upload_guideline(
     guideline_id: str = Form(None),
     indications: str = Form("")  # Explicitly use Form() for multipart data
 ):
-    """Upload a guideline file (markdown or text) for processing"""
     
-    # Debug logging
-    print(f"🔍 DEBUG - Received indications parameter: '{indications}'")
-    print(f"🔍 DEBUG - Indications type: {type(indications)}")
-    print(f"🔍 DEBUG - Indications length: {len(indications) if indications else 'None'}")
-    print(f"🔍 DEBUG - Raw indications repr: {repr(indications)}")
+    print(f"🔍 DEBUG - Erhaltene Indikationen: '{indications}'")
+    print(f"🔍 DEBUG - Indikationstyp: {type(indications)}")
+    print(f"🔍 DEBUG - Indikationslänge: {len(indications) if indications else 'None'}")
+    print(f"🔍 DEBUG - Rohrepräsentation der Indikationen: {repr(indications)}")
     
-    # Validate file type - now supports both .txt and .md
+    # Validate file type 
     if not (file.filename.endswith('.txt') or file.filename.endswith('.md')):
         raise HTTPException(status_code=400, detail="Only .txt and .md files are supported")
     
@@ -291,7 +298,7 @@ async def upload_guideline(
                 break
         guideline_id = base_name.replace(' ', '_')
     
-    # Parse indications - require explicit selection
+    # Parse indications 
     indication_list = []
     if not indications or indications.strip() == "":
         raise HTTPException(status_code=400, detail="Mindestens eine Indikation muss ausgewählt werden")
@@ -349,9 +356,9 @@ async def upload_guideline(
         return result
         
     except UnicodeDecodeError:
-        raise HTTPException(status_code=400, detail="File must be UTF-8 encoded")
+        raise HTTPException(status_code=400, detail="Datei muss im UTF-8 Format sein")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Fehler bei der Verarbeitung der Datei: {str(e)}")
 
 @app.post("/search", response_model=RAGResponse)
 async def search_guidelines(query: ClinicalQuery):
@@ -374,7 +381,6 @@ async def get_indications():
     for indication_enum in Indication:
         # Get display name using the method from models.py
         display_name = indication_enum.get_display_name()
-        # Use the enum value (which the frontend expects) instead of the enum name
         enum_value = indication_enum.value if hasattr(indication_enum, 'value') else indication_enum.name
         indications.append({
             "value": enum_value,
@@ -485,9 +491,9 @@ async def get_processing_status():
                 "llm_service": "healthy" if llm_healthy else "unavailable"
             },
             "info": {
-                "expected_processing_time": "60-180 seconds for complex therapy recommendations",
-                "koyeb_timeout_info": "Cloud platform may show 503 after 60s, but processing continues",
-                "recommendation": "Wait 2-3 minutes then retry if 503 error occurs"
+                "Erwartete_Verarbeitungszeit": "60-180 Sekunden für komplexe Therapieempfehlungen",
+                "koyeb_timeout_info": "Cloud-Plattform kann nach 60 Sekunden 503 anzeigen, aber die Verarbeitung wird fortgesetzt",
+                "recommendation": "Warten Sie 2-3 Minuten und versuchen Sie es erneut, wenn der 503-Fehler auftritt"
             }
         }
     except Exception as e:
@@ -503,7 +509,7 @@ async def generate_therapy_recommendation_stream(request: dict):
     async def generate_progress_stream():
         try:
             start_time = time.time()
-            yield f"data: {json.dumps({'type': 'progress', 'message': '🏥 Starte Therapieempfehlung...', 'timestamp': time.time()})}\n\n"
+            yield f"data: {json.dumps({'type': 'progress', 'message': 'Starte Therapieempfehlung...', 'timestamp': time.time()})}\n\n"
             
             # Extract parameters from request dict
             indication = request.get("indication")
@@ -536,7 +542,7 @@ async def generate_therapy_recommendation_stream(request: dict):
             )
             
             # Step 1: Build context
-            yield f"data: {json.dumps({'type': 'progress', 'message': '🔍 Suche relevante Leitlinien und Dosierungstabellen...', 'timestamp': time.time()})}\n\n"
+            yield f"data: {json.dumps({'type': 'progress', 'message': 'Suche relevante Leitlinien und Dosierungstabellen...', 'timestamp': time.time()})}\n\n"
             
             context_start = time.time()
             context_data = therapy_context_builder.build_therapy_context(
@@ -553,13 +559,14 @@ async def generate_therapy_recommendation_stream(request: dict):
             context_msg = f"✅ Kontext erstellt ({context_time:.1f}s) - {rag_count} Leitlinien, {dosing_count} Dosierungstabellen"
             yield f"data: {json.dumps({'type': 'progress', 'message': context_msg, 'timestamp': time.time()})}\n\n"
             
-            # Check if we have sufficient context
-            if not context_data.get("rag_results") and not context_data.get("dosing_tables"):
+            # Check if we have sufficient context (only if RAG is enabled)
+            rag_enabled = os.getenv("ENABLE_RAG", "true").lower() == "true"
+            if rag_enabled and not context_data.get("rag_results") and not context_data.get("dosing_tables"):
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Keine relevanten Leitlinien oder Dosierungstabellen gefunden'})}\n\n"
                 return
             
             # Step 2: Generate LLM recommendation with progress updates
-            yield f"data: {json.dumps({'type': 'progress', 'message': '🤖 Generiere Therapieempfehlung mit KI...', 'timestamp': time.time()})}\n\n"
+            yield f"data: {json.dumps({'type': 'progress', 'message': 'Generiere Therapieempfehlung mit KI...', 'timestamp': time.time()})}\n\n"
             
             # Start LLM generation in background
             llm_start = time.time()
@@ -583,7 +590,7 @@ async def generate_therapy_recommendation_stream(request: dict):
                 except asyncio.TimeoutError:
                     # Send keep-alive message
                     elapsed = time.time() - llm_start
-                    elapsed_msg = f"⏱️ KI arbeitet noch... ({elapsed:.0f}s vergangen)"
+                    elapsed_msg = f"KI arbeitet noch... ({elapsed:.0f}s vergangen)"
                     yield f"data: {json.dumps({'type': 'progress', 'message': elapsed_msg, 'timestamp': time.time()})}\n\n"
                     continue
             
@@ -595,7 +602,7 @@ async def generate_therapy_recommendation_stream(request: dict):
             yield f"data: {json.dumps({'type': 'progress', 'message': llm_msg, 'timestamp': time.time()})}\n\n"
             
             # Step 3: Format response
-            yield f"data: {json.dumps({'type': 'progress', 'message': '📦 Formatiere Antwort...', 'timestamp': time.time()})}\n\n"
+            yield f"data: {json.dumps({'type': 'progress', 'message': 'Formatiere Antwort...', 'timestamp': time.time()})}\n\n"
             
             # Transform to match frontend expectations
             recommendations = []
@@ -655,13 +662,13 @@ async def generate_therapy_recommendation_stream(request: dict):
             # Send final result
             yield f"data: {json.dumps({'type': 'result', 'data': response_data, 'total_time': total_time})}\n\n"
             
-            final_msg = f"🎉 Therapieempfehlung abgeschlossen ({total_time:.1f}s)"
+            final_msg = f"Therapieempfehlung abgeschlossen ({total_time:.1f}s)"
             yield f"data: {json.dumps({'type': 'complete', 'message': final_msg})}\n\n"
             
         except Exception as e:
-            print(f"❌ Stream error: {str(e)}")
+            print(f"Stream error: {str(e)}")
             import traceback
-            print(f"📋 Traceback: {traceback.format_exc()}")
+            print(f"Traceback: {traceback.format_exc()}")
             error_msg = f"Fehler bei der Therapieempfehlung: {str(e)}"
             yield f"data: {json.dumps({'type': 'error', 'message': error_msg})}\n\n"
     
@@ -680,16 +687,16 @@ async def generate_therapy_recommendation_stream(request: dict):
 async def generate_therapy_recommendation(request: dict):
     """Generate therapy recommendations based on clinical parameters"""
     try:
-        print(f"🏥 Starting therapy recommendation generation...")
+        print(f"Starte Therapieempfehlung...")
         start_time = time.time()
         
         # Monitor system resources at start
         try:
             import psutil
             memory_before = psutil.virtual_memory()
-            print(f"💾 Memory before: {memory_before.percent:.1f}% used, {memory_before.available/(1024**3):.1f}GB available")
+            print(f"Memory before: {memory_before.percent:.1f}% used, {memory_before.available/(1024**3):.1f}GB available")
         except ImportError:
-            print("💾 psutil not available for memory monitoring")
+            print("psutil not available for memory monitoring")
         
         # Extract parameters from request dict
         indication = request.get("indication")
@@ -701,7 +708,7 @@ async def generate_therapy_recommendation(request: dict):
         patient_id = request.get("patient_id")
         max_therapy_options = request.get("max_therapy_options", 5)
         
-        print(f"📋 Request params: indication={indication}, severity={severity}, patient_id={patient_id}")
+        print(f"Request params: indication={indication}, severity={severity}, patient_id={patient_id}")
         
         # Validate required fields
         if not indication:
@@ -720,7 +727,7 @@ async def generate_therapy_recommendation(request: dict):
         )
         
         # 1. Build comprehensive context using TherapyContextBuilder
-        print(f"🔍 Building therapy context...")
+        print(f"Baue Kontext auf...")
         context_start = time.time()
         
         try:
@@ -731,30 +738,31 @@ async def generate_therapy_recommendation(request: dict):
                 max_dosing_tables=5  
             )
             context_time = time.time() - context_start
-            print(f"✅ Context built in {context_time:.2f}s")
+            print(f"Context gebaut in {context_time:.2f}s")
         except Exception as context_error:
-            print(f"❌ Context building failed: {str(context_error)}")
+            print(f"Context bauen fehlgeschlagen: {str(context_error)}")
             import traceback
-            print(f"📋 Context error traceback: {traceback.format_exc()}")
-            raise HTTPException(status_code=500, detail=f"Context building failed: {str(context_error)}")
+            print(f"Context error traceback: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"Context bauen fehlgeschlagen: {str(context_error)}")
         
         # Monitor memory after context building
         try:
             import psutil
             memory_after_context = psutil.virtual_memory()
-            print(f"💾 Memory after context: {memory_after_context.percent:.1f}% used, {memory_after_context.available/(1024**3):.1f}GB available")
+            print(f"Memory after context: {memory_after_context.percent:.1f}% used, {memory_after_context.available/(1024**3):.1f}GB available")
         except ImportError:
             pass
         
-        # 2. Check if we have sufficient context
-        if not context_data.get("rag_results") and not context_data.get("dosing_tables"):
+        # 2. Check if we have sufficient context (only if RAG is enabled)
+        rag_enabled = os.getenv("ENABLE_RAG", "true").lower() == "true"
+        if rag_enabled and not context_data.get("rag_results") and not context_data.get("dosing_tables"):
             raise HTTPException(
                 status_code=404, 
                 detail="Keine relevanten Leitlinien oder Dosierungstabellen gefunden"
             )
         
         # 3. Generate therapy recommendation using LLM
-        print(f"🤖 Generating LLM recommendation...")
+        print(f"Geneiriere LLM Therapieempfehlung...")
         llm_start = time.time()
         
         try:
@@ -763,23 +771,23 @@ async def generate_therapy_recommendation(request: dict):
                 max_options=max_therapy_options
             )
             llm_time = time.time() - llm_start
-            print(f"✅ LLM recommendation generated in {llm_time:.2f}s")
+            print(f"LLM recommendation generated in {llm_time:.2f}s")
         except Exception as llm_error:
-            print(f"❌ LLM generation failed: {str(llm_error)}")
+            print(f"LLM generation fehlgeschlagen: {str(llm_error)}")
             import traceback
-            print(f"📋 LLM error traceback: {traceback.format_exc()}")
-            raise HTTPException(status_code=500, detail=f"LLM generation failed: {str(llm_error)}")
-        
+            print(f"LLM error traceback: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"LLM generation fehlgeschlagen: {str(llm_error)}")
+
         # Monitor memory after LLM
         try:
             import psutil
             memory_after_llm = psutil.virtual_memory()
-            print(f"💾 Memory after LLM: {memory_after_llm.percent:.1f}% used, {memory_after_llm.available/(1024**3):.1f}GB available")
+            print(f"Memory nach LLM: {memory_after_llm.percent:.1f}% used, {memory_after_llm.available/(1024**3):.1f}GB available")
         except ImportError:
             pass
         
         # 4. Transform to match frontend expectations with new structure
-        print(f"📦 Formatting response...")
+        print(f"Formatiere Antwort...")
         recommendations = []
         for i, option in enumerate(therapy_recommendation.therapy_options):
             # Format active ingredients with their individual dosing parameters
@@ -838,13 +846,13 @@ async def generate_therapy_recommendation(request: dict):
         }
         
         total_time = time.time() - start_time
-        print(f"🎉 Therapy recommendation completed in {total_time:.2f}s (context: {context_time:.2f}s, LLM: {llm_time:.2f}s)")
+        print(f"Therapieempfehlung abgeschlossen in {total_time:.2f}s (Kontext: {context_time:.2f}s, LLM: {llm_time:.2f}s)")
         
         # Final memory check
         try:
             import psutil
             memory_final = psutil.virtual_memory()
-            print(f"💾 Memory final: {memory_final.percent:.1f}% used, {memory_final.available/(1024**3):.1f}GB available")
+            print(f"Memory final: {memory_final.percent:.1f}% used, {memory_final.available/(1024**3):.1f}GB available")
         except ImportError:
             pass
         
@@ -854,21 +862,21 @@ async def generate_therapy_recommendation(request: dict):
         raise
     except Exception as e:
         total_time = time.time() - start_time if 'start_time' in locals() else 0
-        print(f"❌ CRITICAL ERROR after {total_time:.2f}s: {str(e)}")
+        print(f"Kritischer Fehler nach {total_time:.2f}s: {str(e)}")
         import traceback
-        print(f"📋 FULL TRACEBACK: {traceback.format_exc()}")
+        print(f"FULL TRACEBACK: {traceback.format_exc()}")
         
         # Try to get memory info for debugging
         try:
             import psutil
             memory_error = psutil.virtual_memory()
-            print(f"💾 Memory at error: {memory_error.percent:.1f}% used, {memory_error.available/(1024**3):.1f}GB available")
+            print(f"Memory at error: {memory_error.percent:.1f}% used, {memory_error.available/(1024**3):.1f}GB available")
         except ImportError:
-            print("💾 Could not get memory info at error (psutil not available)")
+            print("Konnte psutil für Speicherüberwachung nicht importieren")
         
         raise HTTPException(
-            status_code=500, 
-            detail=f"CRITICAL: Therapy recommendation failed: {str(e)}"
+            status_code=500,
+            detail=f"Kritischer Fehler: Therapieempfehlung fehlgeschlagen: {str(e)}"
         )
 
 @app.post("/therapy/context")
@@ -903,8 +911,8 @@ async def get_therapy_context(request: dict):
         context_data = therapy_context_builder.build_therapy_context(
             clinical_query=clinical_query,
             patient_id=patient_id,
-            max_rag_results=5,  # Reduced from 10
-            max_dosing_tables=3  # Reduced from 5
+            max_rag_results=5,  
+            max_dosing_tables=3  
         )
         
         # Get context summary for debugging
@@ -937,7 +945,7 @@ async def test_llm_connection():
     except Exception as e:
         return {
             "status": "error",
-            "message": f"LLM test failed: {str(e)}"
+            "message": f"LLM test fehlgeschlagen: {str(e)}"
         }
 
 @app.post("/therapy/config")
@@ -1116,10 +1124,10 @@ async def get_patient_details(patient_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error retrieving patient details for {patient_id}: {str(e)}")
+        print(f"Fehler bei der Abfrage der Patientendaten für {patient_id}: {str(e)}")
         return {
             "success": False,
-            "message": f"Error retrieving patient details: {str(e)}"
+            "message": f"Fehler bei der Abfrage der Patientendaten: {str(e)}"
         }
 
 # ==== Saved Therapy Recommendations Endpoints ====
@@ -1153,8 +1161,8 @@ async def save_therapy_recommendation(
         )
         
     except Exception as e:
-        print(f"Error saving therapy recommendation: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to save therapy recommendation: {str(e)}")
+        print(f"Fehler beim Speichern der Therapieempfehlung: {e}")
+        raise HTTPException(status_code=500, detail=f"Fehler beim Speichern der Therapieempfehlung: {str(e)}")
 
 @app.get("/therapy/saved", response_model=List[SavedTherapyRecommendationListItem])
 async def get_saved_therapy_recommendations(db: Session = Depends(get_db)):
@@ -1198,8 +1206,8 @@ async def get_saved_therapy_recommendations(db: Session = Depends(get_db)):
         return result
         
     except Exception as e:
-        print(f"Error fetching saved therapy recommendations: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to fetch saved recommendations: {str(e)}")
+        print(f"Fehler beim Abrufen der gespeicherten Empfehlungen: {e}")
+        raise HTTPException(status_code=500, detail=f"Fehler beim Abrufen der gespeicherten Empfehlungen: {str(e)}")
 
 @app.get("/therapy/saved/{recommendation_id}", response_model=SavedTherapyRecommendationResponse)
 async def get_saved_therapy_recommendation(
@@ -1227,8 +1235,8 @@ async def get_saved_therapy_recommendation(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error fetching saved therapy recommendation: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to fetch saved recommendation: {str(e)}")
+        print(f"Fehler beim Abrufen der gespeicherten Therapieempfehlung: {e}")
+        raise HTTPException(status_code=500, detail=f"Fehler beim Abrufen der gespeicherten Empfehlung: {str(e)}")
 
 @app.delete("/therapy/saved/{recommendation_id}")
 async def delete_saved_therapy_recommendation(
@@ -1252,8 +1260,8 @@ async def delete_saved_therapy_recommendation(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error deleting saved therapy recommendation: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to delete saved recommendation: {str(e)}")
+        print(f"Fehler beim Löschen der gespeicherten Therapieempfehlung: {e}")
+        raise HTTPException(status_code=500, detail=f"Fehler beim Löschen der gespeicherten Empfehlung: {str(e)}")
 
 
 # Frontend routing for production deployment

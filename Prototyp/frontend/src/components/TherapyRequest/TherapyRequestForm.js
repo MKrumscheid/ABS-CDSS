@@ -43,7 +43,6 @@ function TherapyRequestForm({ onSubmit, loading }) {
     max_therapy_options: 5,
   });
 
-  // Patient search state
   const [patientSearch, setPatientSearch] = useState({
     searchType: "id",
     patient_id: "",
@@ -58,7 +57,6 @@ function TherapyRequestForm({ onSubmit, loading }) {
   const [patientSearchError, setPatientSearchError] = useState(null);
   const [selectedPatient, setSelectedPatient] = useState(null);
 
-  // Handlers
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -132,7 +130,6 @@ function TherapyRequestForm({ onSubmit, loading }) {
       console.error("Response data:", error.response?.data);
       console.error("Response status:", error.response?.status);
 
-      // Safely handle error response
       let errorMessage =
         "Fehler bei der Patientensuche. Bitte versuchen Sie es erneut.";
 

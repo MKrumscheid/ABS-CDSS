@@ -1,6 +1,3 @@
-"""
-FHIR Service for patient data retrieval from HAPI FHIR server
-"""
 import requests
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date
@@ -15,7 +12,6 @@ from pydantic import BaseModel
 
 
 class PatientData(BaseModel):
-    """Structured patient data for display"""
     patient_id: str
     name: str
     gender: str
@@ -24,12 +20,12 @@ class PatientData(BaseModel):
     height: Optional[float] = None  # in cm
     weight: Optional[float] = None  # in kg
     bmi: Optional[float] = None
-    pregnancy_status: str = "Nicht Schwanger"  # Default for male or not specified
-    conditions: List[str] = []  # Pre-existing conditions
+    pregnancy_status: str = "Nicht Schwanger"  
+    conditions: List[str] = [] 
     allergies: List[str] = []
     medications: List[str] = []
     lab_values: List[Dict[str, Any]] = []
-    gfr: Optional[float] = None  # GFR in ml/min/1.73m² for kidney function assessment
+    gfr: Optional[float] = None  # GFR in ml/min/1.73m² 
 
 
 class FHIRService:
@@ -44,7 +40,6 @@ class FHIRService:
         })
 
     def search_patients_by_id(self, patient_id: str) -> List[Dict[str, Any]]:
-        """Search for patients by ID"""
         try:
             url = f"{self.base_url}/Patient/{patient_id}"
             response = self.session.get(url)
@@ -56,15 +51,14 @@ class FHIRService:
             elif response.status_code == 404:
                 return []
             else:
-                print(f"Error searching patient by ID {patient_id}: {response.status_code}")
+                print(f"Fehler beim Suchen nach dem Patienten mit der ID: {patient_id}: {response.status_code}")
                 return []
                 
         except Exception as e:
-            print(f"Exception searching patient by ID {patient_id}: {str(e)}")
+            print(f"Fehler beim Suchen nach dem Patienten mit der ID: {patient_id}: {str(e)}")
             return []
 
     def search_patients_by_name_and_birthdate(self, given_name: str, family_name: str, birth_date: str) -> List[Dict[str, Any]]:
-        """Search for patients by given name, family name, and birth date"""
         try:
             params = {
                 'given': given_name,
@@ -81,11 +75,11 @@ class FHIRService:
                     return [entry['resource'] for entry in bundle_data['entry'] if entry.get('resource', {}).get('resourceType') == 'Patient']
                 return []
             else:
-                print(f"Error searching patients by name: {response.status_code}")
+                print(f"Fehler beim Suchen des Patienten: {response.status_code}")
                 return []
                 
         except Exception as e:
-            print(f"Exception searching patients by name: {str(e)}")
+            print(f"Fehler beim Suchen des Patienten: {str(e)}")
             return []
 
     def get_patient_bundle(self, patient_id: str) -> Optional[Bundle]:
@@ -122,7 +116,6 @@ class FHIRService:
                             for entry in bundle_data['entry']:
                                 resource = entry.get('resource', {})
                                 if resource.get('resourceType') == resource_type:
-                                    # Clean resource data to avoid validation issues
                                     resource = self._clean_resource_data(resource)
                                     all_entries.append({
                                         "fullUrl": entry.get('fullUrl', f"{self.base_url}/{resource_type}/{resource.get('id')}"),
@@ -154,21 +147,11 @@ class FHIRService:
                     "entry": all_entries
                 }
                 
-                # Try different Bundle creation methods for compatibility
+                
                 try:
-                    # Try Pydantic v2 method first
                     return Bundle.model_validate(bundle_dict)
                 except AttributeError:
-                    # Fallback to Pydantic v1 method
-                    try:
-                        return Bundle.parse_obj(bundle_dict)
-                    except AttributeError:
-                        # Fallback to direct constructor
-                        try:
-                            return Bundle(**bundle_dict)
-                        except Exception as constructor_error:
-                            print(f"All Bundle creation methods failed: {constructor_error}")
-                            return None
+                    print("Fehler bei der Validierung des Bundles mit Pydantic.)")
             
         except Exception as e:
             print(f"Exception getting patient bundle for {patient_id}: {str(e)}")
@@ -254,10 +237,10 @@ class FHIRService:
                 patient_data.birth_date = str(patient_resource.birthDate)
                 patient_data.age = self._calculate_age(patient_resource.birthDate)
 
-        # Parse observations (height, weight, lab values, pregnancy status)
+        # Parse observations 
         height_cm, weight_kg = self._parse_observations(observations, patient_data)
         
-        # Calculate BMI if both height and weight available
+        # Calculate BMI 
         if height_cm and weight_kg:
             patient_data.height = height_cm
             patient_data.weight = weight_kg
@@ -271,13 +254,13 @@ class FHIRService:
         
         # Parse medications
         try:
-            print(f"📋 Parsing medications: {len(medication_statements)} statements, {len(medications)} medication resources")
+            print(f"📋 Parse medications: {len(medication_statements)} statements, {len(medications)} medication resources")
             patient_data.medications = self._parse_medications(medication_statements, medications)
             print(f"✅ Parsed {len(patient_data.medications)} medications: {patient_data.medications}")
             if not patient_data.medications and (medication_statements or medications):
                 print(f"⚠️ WARNING: No medications parsed despite having {len(medication_statements)} statements and {len(medications)} medication resources")
         except Exception as e:
-            print(f"❌ ERROR in medication parsing: {str(e)}")
+            print(f"❌ Fehler beim parsen der Medikation: {str(e)}")
             import traceback
             print(f"📋 Medication parsing traceback: {traceback.format_exc()}")
             patient_data.medications = []

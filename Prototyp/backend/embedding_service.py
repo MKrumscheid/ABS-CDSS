@@ -1,6 +1,3 @@
-"""
-Embedding service that supports both local and online embeddings
-"""
 import os
 import requests
 import time
@@ -9,7 +6,6 @@ from typing import List, Optional, Union
 from abc import ABC, abstractmethod
 from dotenv import load_dotenv
 
-# Try to import SentenceTransformer, but make it optional
 try:
     from sentence_transformers import SentenceTransformer
     SENTENCE_TRANSFORMERS_AVAILABLE = True
@@ -38,7 +34,7 @@ class LocalEmbeddingService(EmbeddingServiceBase):
     
     def __init__(self, model_name: str, device: str = "cpu"):
         if not SENTENCE_TRANSFORMERS_AVAILABLE:
-            raise ImportError("sentence-transformers is not available. Install it or use online embeddings.")
+            raise ImportError("sentence-transformers ist nicht verfügbar. Bitte installieren Sie es oder verwenden Sie Online-Embeddings in der .env.")
         
         print(f"🔄 Loading local embedding model: {model_name} on {device}")
         self.model = SentenceTransformer(model_name, device=device)
@@ -73,23 +69,23 @@ class OnlineEmbeddingService(EmbeddingServiceBase):
         
         print(f"🌐 Initializing ONLINE embeddings (Novita API)")
         print(f"   Model: {self.embedding_model}")
-        print(f"   API Key: {self.api_key[:8]}...")  # Show only first 8 chars for security
+        print(f"   API Key: {self.api_key[:8]}...") 
         
         self.headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}"
         }
         
-        # Rate limiting configuration (configurable via environment)
-        self.requests_per_minute = int(os.getenv('EMBEDDING_REQUESTS_PER_MINUTE', '45'))  # Slightly below API limit
+        # Rate limiting configuration because API limits to 50 requests/minute
+        self.requests_per_minute = int(os.getenv('EMBEDDING_REQUESTS_PER_MINUTE', '45'))  
         self.request_interval = 60.0 / self.requests_per_minute  # Seconds between requests
         
         print(f"⏱️ Rate limiting: {self.requests_per_minute} requests/minute (interval: {self.request_interval:.2f}s)")
         self.last_request_time = 0
         
-        # Retry configuration (configurable via environment)
+        # Retry configuration 
         self.max_retries = int(os.getenv('EMBEDDING_MAX_RETRIES', '3'))
-        self.retry_delay = int(os.getenv('EMBEDDING_RETRY_DELAY', '2'))  # Initial retry delay in seconds
+        self.retry_delay = int(os.getenv('EMBEDDING_RETRY_DELAY', '2'))  
         
         # Test connection and get dimension
         self._dimension = None
@@ -171,10 +167,10 @@ class OnlineEmbeddingService(EmbeddingServiceBase):
         
         print(f"🔄 Processing {total_texts} texts with rate limiting...")
         
-        # Process texts one by one to respect rate limits
+        
         for i, text in enumerate(texts):
             try:
-                if i > 0:  # Show progress for multiple texts
+                if i > 0: 
                     progress = (i / total_texts) * 100
                     print(f"  Progress: {i}/{total_texts} ({progress:.1f}%)")
                 
@@ -217,7 +213,7 @@ class EmbeddingServiceFactory:
         """
         load_dotenv()
         
-        # Determine if we should use online embeddings
+        
         if use_online is None:
             use_online = os.getenv('USE_ONLINE_EMBEDDINGS', 'false').lower() == 'true'
         

@@ -5,7 +5,7 @@ const API_BASE =
 
 const api = axios.create({
   baseURL: API_BASE,
-  timeout: 120000, // 2 minutes timeout for LLM requests
+  timeout: 180000, // 3 minutes timeout for LLM requests
 });
 
 // Request interceptor for logging

@@ -16,33 +16,24 @@ class TherapyContextBuilder:
         self.rag_service = rag_service
         self.fhir_service = fhir_service
         self.additional_info_path = os.path.join(os.path.dirname(__file__), "data", "additional_info")
+        # Check if RAG is enabled via environment variable
+        self.rag_enabled = os.getenv("ENABLE_RAG", "true").lower() == "true"
+        if not self.rag_enabled:
+            logger.info("RAG functionality is DISABLED - Running in validation mode without RAG")
     
     def _format_indication(self, indication):
         """Format indication with human-readable description"""
         if hasattr(indication, 'get_display_name'):
             return indication.get_display_name()
-        # Fallback for string values
-        indication_map = {
-            "AMBULANT_ERWORBENE_PNEUMONIE": "CAP (Ambulant erworbene Pneumonie)",
-            "NOSOKOMIAL_ERWORBENE_PNEUMONIE": "HAP (Nosokomial erworbene Pneumonie)", 
-            "AKUTE_EXAZERBATION_COPD": "AECOPD (Akute Exazerbation der COPD)"
-        }
-        indication_str = str(indication).replace("Indication.", "")
-        return indication_map.get(indication_str, str(indication))
+        else:
+            print("Fehler bei der Indikationsformatierung in der Methode _format_indication im Skript therapy_context_builder.py")
     
     def _format_severity(self, severity):
         """Format severity with human-readable description"""
         if hasattr(severity, 'get_display_name'):
             return severity.get_display_name()
-        # Fallback for string values
-        severity_map = {
-            "LEICHT": "Leicht",
-            "MITTELSCHWER": "Mittelschwer",
-            "SCHWER": "Schwer", 
-            "SEPTISCH": "Septisch"
-        }
-        severity_str = str(severity).replace("Severity.", "")
-        return severity_map.get(severity_str, str(severity))
+        else:
+            print("Fehler bei der Schweregradformatierung in der Methode _format_severity im Skript therapy_context_builder.py")
     
     def build_therapy_context(
         self, 
@@ -79,35 +70,43 @@ class TherapyContextBuilder:
             patient_data = self._get_patient_data(patient_id)
             context_data["patient_data"] = patient_data
             
-            # 2. Perform RAG search
-            logger.info(f"Performing RAG search for {clinical_query.indication}")
-            rag_response = self.rag_service.search(clinical_query, top_k=max_rag_results)
-            context_data["rag_results"] = rag_response.results
-            context_data["dosing_tables"] = rag_response.dosing_tables[:max_dosing_tables]
+            # 2. Perform RAG search (only if enabled in .env)
+            if self.rag_enabled:
+                logger.info(f"Performing RAG search for {clinical_query.indication}")
+                rag_response = self.rag_service.search(clinical_query, top_k=max_rag_results)
+                context_data["rag_results"] = rag_response.results
+                context_data["dosing_tables"] = rag_response.dosing_tables[:max_dosing_tables]
+                context_data["sources_count"] = len(rag_response.results) + len(rag_response.dosing_tables)
+                
+                # Add warnings if needed
+                if not rag_response.results:
+                    context_data["warnings"].append("Keine relevanten Leitlinien-Chunks gefunden")
+                if not rag_response.dosing_tables:
+                    context_data["warnings"].append("Keine relevanten Dosierungstabellen gefunden")
+            else:
+                logger.info("RAG is disabled - Skipping guideline and dosing table retrieval")
+                context_data["warnings"].append("RAG deaktiviert: Keine Leitlinien oder Dosistabellen verfügbar")
             
             # 3. Build formatted context text
             context_text = self._build_context_text(
-                rag_results=rag_response.results,
-                dosing_tables=rag_response.dosing_tables[:max_dosing_tables],
+                rag_results=context_data["rag_results"],
+                dosing_tables=context_data["dosing_tables"],
                 clinical_query=clinical_query,
                 patient_data=patient_data
             )
             context_data["context_text"] = context_text
-            context_data["sources_count"] = len(rag_response.results) + len(rag_response.dosing_tables)
             
-            # 4. Add warnings if needed
-            if not rag_response.results:
-                context_data["warnings"].append("Keine relevanten Leitlinien-Chunks gefunden")
-            if not rag_response.dosing_tables:
-                context_data["warnings"].append("Keine relevanten Dosierungstabellen gefunden")
             if not patient_data:
                 context_data["warnings"].append("Keine Patientendaten verfügbar")
             
-            logger.info(f"Context built successfully: {len(rag_response.results)} RAG results, "
-                       f"{len(rag_response.dosing_tables)} dosing tables")
+            if self.rag_enabled:
+                logger.info(f"Kontext erfolgreich gebaut: {len(context_data['rag_results'])} RAG results, "
+                           f"{len(context_data['dosing_tables'])} dosing tables")
+            else:
+                logger.info(f"Kontext erfolgreich gebaut (RAG deaktiviert): Nur Patientendaten")
             
         except Exception as e:
-            logger.error(f"Error building therapy context: {e}")
+            logger.error(f"Fehler beim Bauen des Kontexts: {e}")
             context_data["warnings"].append(f"Fehler beim Erstellen des Kontexts: {str(e)}")
         
         return context_data
@@ -127,7 +126,7 @@ class TherapyContextBuilder:
                 return patient_data.model_dump() if patient_data else None
                 
         except Exception as e:
-            logger.error(f"Error retrieving patient data for {patient_id}: {e}")
+            logger.error(f"Fehler beim Abrufen der Patientendaten für {patient_id}: {e}")
             return None
     
     def _build_context_text(
@@ -161,13 +160,13 @@ class TherapyContextBuilder:
             sections.append(self._format_patient_summary(patient_data))
             sections.append("")
         
-        # 3. Additional Clinical Information (based on rules)
+        # 3. Additional Clinical Information (based on rules, only if RAG enabled)
         additional_context = self._get_additional_context(clinical_query, patient_data)
         if additional_context:
             sections.append(additional_context)
         
-        # 4. Enhanced Dosing Tables for LLM Processing
-        if dosing_tables:
+        # 4. Enhanced Dosing Tables for LLM Processing (only if RAG enabled)
+        if dosing_tables and self.rag_enabled:
             sections.append("=== DOSIERUNGSTABELLEN ===")
             sections.append("Die folgenden Tabellen enthalten spezifische Dosierungsempfehlungen (Wähle nur die für diesen Patienten relevante Tabellen aus):")
             sections.append("")
@@ -176,11 +175,11 @@ class TherapyContextBuilder:
                 # Normalize score to 0-1 range for display
                 normalized_score = min(table.score, 1.0) if table.score > 1.0 else table.score
                 sections.append(f"DOSIERUNGSTABELLE {i} [Relevanz: {normalized_score:.1%}]")
-                sections.append(f"📋 TABELLE: {table.table_name}")
+                sections.append(f"TABELLE: {table.table_name}")
                 
                 # Enhanced clinical context
                 if table.clinical_context:
-                    sections.append("🎯 KLINISCHER KONTEXT:")
+                    sections.append("KLINISCHER KONTEXT:")
                     if table.clinical_context.get("indication"):
                         sections.append(f"   • Indikation: {table.clinical_context['indication']}")
                     if table.clinical_context.get("severity"):
@@ -189,38 +188,45 @@ class TherapyContextBuilder:
                         sections.append(f"   • Infektionsort: {table.clinical_context['infection_site']}")
                     sections.append("")
                 
-                sections.append("📊 DOSIERUNGSDATEN:")
+                sections.append("DOSIERUNGSDATEN:")
                 sections.append(table.table_html)
                 sections.append("")
                 
         
-        # 5. Relevant Guideline Chunks with Enhanced Source Citations
-        if rag_results:
+        # 5. Relevant Guideline Chunks with Enhanced Source Citations (only if RAG enabled)
+        if rag_results and self.rag_enabled:
             sections.append("=== LEITLINIEN-EVIDENZ ===")
             sections.append("Die folgenden Informationen stammen aus medizinischen Leitlinien:")
             sections.append("")
             
             for i, result in enumerate(rag_results, 1):
-                # Normalize score to 0-1 range for display
-                normalized_score = min(result.score, 1.0) if result.score > 1.0 else result.score
-                sections.append(f"EVIDENZ {i} [Relevanz: {normalized_score:.1%}]")
-                sections.append(f"📋 QUELLE: {result.guideline_id}")
+                # Normalize score to 0-100 range (percentage) for better LLM interpretation
+                # Semantic scores can be > 1.0 due to lexical boosting
+                if result.score > 1.0:
+                    # Scores > 1.0 are already boosted, normalize to max 100
+                    normalized_score = min(result.score * 10, 100.0)  # Scale up but cap at 100
+                else:
+                    # Scores 0.0-1.0 are pure semantic similarity, convert to percentage
+                    normalized_score = result.score * 100.0
+                
+                sections.append(f"EVIDENZ {i} [Relevanz: {normalized_score:.1f}%]")
+                sections.append(f"QUELLE: {result.guideline_id}")
                 if result.page:
-                    sections.append(f"📄 SEITE: {result.page}")
+                    sections.append(f"SEITE: {result.page}")
                 if result.section_path:
-                    sections.append(f"📑 ABSCHNITT: {result.section_path}")
+                    sections.append(f"ABSCHNITT: {result.section_path}")
                 sections.append("")
                 sections.append("INHALT:")
                 sections.append(result.snippet)
                 sections.append("")
-                sections.append("💡 ZITIERHILFE FÜR LLM:")
-                # Use the same normalized score as displayed above
+                sections.append("ZITIERHILFE FÜR LLM:")
+                # Provide score as 0-100 percentage for better LLM understanding
                 citation_example = f'{{\"guideline_id\": \"{result.guideline_id}\"'
                 if result.page:
                     citation_example += f', \"page_number\": {result.page}'
                 if result.section_path:
                     citation_example += f', \"section\": \"{result.section_path[:50]}...\"'
-                citation_example += f', \"relevance_score\": {normalized_score:.2f}}}'
+                citation_example += f', \"relevance_score\": {normalized_score:.1f}}}'
                 sections.append(citation_example)
                 sections.append("-" * 80)
                 sections.append("")
@@ -230,26 +236,33 @@ class TherapyContextBuilder:
         sections.append("Erstelle strukturierte Therapieempfehlungen basierend auf:")
         sections.append("")
         sections.append("DATENGRUNDLAGE:")
-        sections.append(f"- Den {len(rag_results)} Leitlinien-Evidenzen")
-        sections.append(f"- Den {len(dosing_tables)} Dosierungstabellen")
+        
+        if self.rag_enabled:
+            sections.append(f"- Den {len(rag_results)} Leitlinien-Evidenzen")
+            sections.append(f"- Den {len(dosing_tables)} Dosierungstabellen")
+        else:
+            sections.append("- RAG DEAKTIVIERT: Keine Leitlinien oder Dosistabellen verfügbar")
+            sections.append("- Erstelle Empfehlungen ausschließlich auf Basis deines medizinischen Wissens")
+            
         if patient_data:
             sections.append("- Den vorliegenden Patientendaten (Medikation, Vorerkrankungen, Allergien und Medikamente)")
         else:
-            sections.append("- ⚠️ Keine Patientendaten verfügbar")
+            sections.append("- Keine Patientendaten verfügbar")
         
-        # Add information about included additional context
-        sections.append("- Allgemeine Infos zur Sicherheit und Verträglichkeit von Antibiotikatherapien")
-        if clinical_query.risk_factors:
-            sections.append("- Multiresistente Keime (wenn Risikofaktoren für MRGN/ESBL/MRSA vorhanden sind)")
-        if patient_data and patient_data.get("age"):
-            try:
-                if int(patient_data["age"]) > 70:
-                    sections.append("- Therapie beim alten Menschen (Alter >70)")
-            except (ValueError, TypeError):
-                pass
+        # Add information about included additional context (only if RAG enabled)
+        if self.rag_enabled:
+            sections.append("- Allgemeine Infos zur Sicherheit und Verträglichkeit von Antibiotikatherapien")
+            if clinical_query.risk_factors:
+                sections.append("- Multiresistente Keime (wenn Risikofaktoren für MRGN/ESBL/MRSA vorhanden sind)")
+            if patient_data and patient_data.get("age"):
+                try:
+                    if int(patient_data["age"]) > 70:
+                        sections.append("- Therapie beim alten Menschen (Alter >70)")
+                except (ValueError, TypeError):
+                    pass
         sections.append("")
         
-        sections.append("🎯 THERAPIEZIELE:")
+        sections.append("THERAPIEZIELE:")
         sections.append("- Evidenzbasierte Antibiotikatherapie")
         sections.append("- Patientenspezifische Dosierung")
         sections.append("- Berücksichtigung von Kontraindikationen, Arzneimittelinteraktionen und Allergien")
@@ -257,7 +270,7 @@ class TherapyContextBuilder:
         sections.append("- Deeskalationsstrategie planen")
         sections.append("")
         
-        sections.append("⚠️ WICHTIGE SICHERHEITSASPEKTE:")
+        sections.append("WICHTIGE SICHERHEITSASPEKTE:")
         if patient_data and patient_data.get("pregnancy_status") != "Nicht Schwanger":
             sections.append("- SCHWANGERSCHAFT: Schwangerschaftssichere Antibiotika wählen!")
         if patient_data and patient_data.get("allergies"):
@@ -268,30 +281,43 @@ class TherapyContextBuilder:
         sections.append("- DEESKALATION: Wenn Verdachtserreger angeben ist, gezielt therapieren, ansonsten empirisch (kalkuliert)")
         sections.append("")
         
-        sections.append("📚 QUELLENANGABEN:")
-        sections.append("Alle Empfehlungen MÜSSEN mit den oben angegebenen Quellen belegt werden.")
-        sections.append("")
-        sections.append("🔹 LEITLINIEN-EVIDENZ:")
-        sections.append("Format: {\"guideline_id\": \"ID\", \"page_number\": Zahl, \"section\": \"Abschnitt\", \"relevance_score\": 0.XX}")
-        
-        # Add dosing table source citations
-        if dosing_tables:
+        sections.append("QUELLENANGABEN:")
+        if self.rag_enabled:
+            sections.append("Alle Empfehlungen MÜSSEN mit den oben angegebenen Quellen belegt werden.")
             sections.append("")
-            sections.append("🔹 DOSIERUNGSTABELLEN-QUELLEN:")
+            sections.append("LEITLINIEN-EVIDENZ:")
+            sections.append("Format: {\"guideline_id\": \"ID\", \"page_number\": Zahl, \"section\": \"Abschnitt\", \"relevance_score\": XX.X}")
+            sections.append("WICHTIG: relevance_score ist ein Prozentwert zwischen 0.0 und 100.0 (höher = relevanter)")
+        else:
+            sections.append("RAG DEAKTIVIERT - Keine Quellenangaben erforderlich (Validierungsmodus)")
+            sections.append("Erstelle Empfehlungen basierend auf deinem medizinischen Wissen und den Patientendaten.")
+        sections.append("")
+        
+        # Add dosing table source citations (only if RAG enabled)
+        if dosing_tables and self.rag_enabled:
+            sections.append("")
+            sections.append("DOSIERUNGSTABELLEN-QUELLEN:")
             for i, table in enumerate(dosing_tables, 1):
-                # Normalize dosing table score to 0.0-1.0 range for citation example
-                normalized_table_score = min(table.score / 100.0, 1.0) if table.score > 10 else min(table.score, 1.0)
-                normalized_table_score = max(0.0, normalized_table_score)
+                # Normalize dosing table score to 0-100 percentage range
+                # Table scores can be very high due to boosting (+1000/+100)
+                if table.score > 100:
+                    normalized_table_score = 100.0  # Cap at 100%
+                elif table.score > 10:
+                    normalized_table_score = min(table.score, 100.0)  # Already in reasonable range
+                else:
+                    normalized_table_score = table.score * 10.0  # Scale up small scores
+                normalized_table_score = max(0.0, min(normalized_table_score, 100.0))
                 
                 sections.append(f"Tabelle {i}: {table.table_name}")
                 sections.append(f"Quelle: {table.table_id}")
-                sections.append(f"Format: {{\"dosing_table_id\": \"{table.table_id}\", \"table_name\": \"{table.table_name}\", \"relevance_score\": {normalized_table_score:.2f}}}")
+                sections.append(f"Format: {{\"dosing_table_id\": \"{table.table_id}\", \"table_name\": \"{table.table_name}\", \"relevance_score\": {normalized_table_score:.1f}}}")
             sections.append("")
             sections.append("WICHTIG: Dosierungsempfehlungen müssen mit der entsprechenden Tabellennummer und Quelle zitiert werden.")
+            sections.append("WICHTIG: relevance_score ist ein Prozentwert zwischen 0.0 und 100.0 (höher = relevanter)")
         sections.append("")
         
-        # Add metadata about available sources for easier LLM processing
-        if rag_results or dosing_tables:
+        # Add metadata about available sources for easier LLM processing (only if RAG enabled)
+        if self.rag_enabled and (rag_results or dosing_tables):
             sections.append("=== VERFÜGBARE QUELLEN (Übersicht) ===")
             unique_guidelines = set()
             if rag_results:
@@ -348,7 +374,7 @@ class TherapyContextBuilder:
         # Pregnancy status (important for drug selection)
         pregnancy_status = patient_data.get("pregnancy_status", "Nicht Schwanger")
         if pregnancy_status != "Nicht Schwanger":
-            summary_lines.append(f"🚨 SCHWANGERSCHAFT: {pregnancy_status}")
+            summary_lines.append(f"SCHWANGERSCHAFT: {pregnancy_status}")
         
         # Medical history (consolidated)
         conditions = patient_data.get("conditions", [])
@@ -418,7 +444,13 @@ class TherapyContextBuilder:
         - Always: Sicherheit und Verträglichkeit
         - If risk factors: Infektionen durch multiresistente Keime  
         - If patient age >70: Antibiotikatherapie beim alten Menschen
+        
+        NOTE: Only loads additional info if RAG is enabled
         """
+        # Skip additional context if RAG is disabled
+        if not self.rag_enabled:
+            return ""
+            
         additional_sections = []
         
         # Always include safety information
