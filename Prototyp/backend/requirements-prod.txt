@@ -22,12 +22,6 @@ fhir.resources>=7.0.0
 faiss-cpu==1.7.4
 numpy>=1.24.0,<2.0.0  # Pin to 1.x for FAISS compatibility
 
-# Local embedding stack
-torch==2.1.0
-torchvision==0.16.0
-torchaudio==2.1.0
-sentence-transformers==2.2.2
-
 # Database (PostgreSQL for cloud)
 sqlalchemy>=2.0.0
 psycopg2-binary>=2.9.0
