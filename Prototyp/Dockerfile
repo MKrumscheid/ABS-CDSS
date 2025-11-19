@@ -42,6 +42,7 @@ FROM python:3.11-slim AS production
 RUN apt-get update && apt-get install -y \
     gcc \
     libc6-dev \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -69,7 +70,7 @@ COPY --from=frontend-builder /app/frontend/enduser-build ./static/enduser
 RUN mkdir -p data/embeddings
 
 # Set environment variables for production
-ENV USE_ONLINE_EMBEDDINGS=true
+ENV USE_ONLINE_EMBEDDINGS=false
 ENV DATABASE_URL=sqlite:///./abs_cdss.db
 
 # Create non-root user for security

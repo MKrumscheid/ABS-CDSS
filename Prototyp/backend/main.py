@@ -367,6 +367,9 @@ async def search_guidelines(query: ClinicalQuery):
         result = rag_service.search(query)
         return result
     except Exception as e:
+        import traceback
+        print("❌ Search endpoint failed:", str(e))
+        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Search error: {str(e)}")
 
 @app.get("/stats")
