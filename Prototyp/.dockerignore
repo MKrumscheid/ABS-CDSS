@@ -43,8 +43,6 @@ frontend/build/
 
 # Backend development
 backend/*.db
-backend/data/embeddings/*.bin
-backend/data/embeddings/*.pkl
 backend/logs/
 backend/.pytest_cache/
 
@@ -63,6 +61,9 @@ sample_data/
 # Documentation
 docs/
 *.md
+!backend/data/dose_info/**
+!backend/data/embeddings/**
+!backend/data/guidelines/**
 
 # Local storage
 storage/
