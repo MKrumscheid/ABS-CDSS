@@ -53,8 +53,13 @@ COPY backend/requirements-prod.txt ./requirements.txt
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-# Copy backend source code (includes data directories)
+# Copy backend source code
 COPY backend/ ./
+
+# Ensure precomputed knowledge assets ship with the image
+COPY backend/data/embeddings/ ./data/embeddings/
+COPY backend/data/guidelines/ ./data/guidelines/
+COPY backend/data/dose_info/ ./data/dose_info/
 
 # Copy built frontend applications
 COPY --from=frontend-builder /app/frontend/admin-build ./static/admin
