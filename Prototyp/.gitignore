@@ -108,7 +108,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# RAG specific - only ignore generated files, not source data
+# RAG specific - only ignore generated files, not curated datasets
 data/embeddings/
 data/**/embeddings/
 *.faiss
@@ -127,3 +127,8 @@ frontend/dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Allow shipping curated embeddings and guideline metadata with the backend
+!backend/data/embeddings/**
+!backend/data/guidelines/**
+!backend/data/dose_info/**
