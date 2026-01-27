@@ -825,13 +825,3 @@ Prototyp/
         ├── pages/
         └── services/
 ```
-
----
-
-## Lizenz und Kontakt
-
-Dieses Projekt ist ein medizinisches Entscheidungsunterstützungssystem. Bitte verwenden Sie es verantwortungsvoll und in Übereinstimmung mit den geltenden medizinischen Richtlinien.
-
-**Viel Erfolg bei der Installation!** 🚀
-
-Bei Fragen oder Problemen erstellen Sie bitte ein Issue im GitHub-Repository.
