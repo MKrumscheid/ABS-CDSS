@@ -2,7 +2,6 @@
 
 ## Übersicht
 
-> **💡 Neu hier?** Schauen Sie sich die [Quick-Start Anleitung](QUICKSTART.md) für eine vereinfachte 7-Schritte-Installation an!
 
 Diese Anleitung führt Sie Schritt für Schritt durch die lokale Installation und den Start der ABS-CDSS (Antibiotic Stewardship - Clinical Decision Support System) Anwendung.
 
