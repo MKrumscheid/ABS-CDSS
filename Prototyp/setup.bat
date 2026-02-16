@@ -9,12 +9,13 @@ echo Dieses Script richtet die komplette Anwendung ein:
 echo - Erstellt Python Virtual Environment
 echo - Installiert Backend-Abhängigkeiten
 echo - Installiert Frontend-Abhängigkeiten
+echo - Erstellt PostgreSQL-Datenbank (falls nicht vorhanden)
 echo - Prüft PostgreSQL-Verbindung
 echo.
 echo Voraussetzungen:
 echo - Python 3.11+ installiert und im PATH
 echo - Node.js 18+ installiert und im PATH
-echo - PostgreSQL installiert und Datenbank 'abs_cdss' erstellt
+echo - PostgreSQL installiert und läuft
 echo - .env Datei im backend Ordner konfiguriert
 echo.
 pause
@@ -201,22 +202,27 @@ choice /C JN /M "Datenbankverbindung testen?"
 echo.
 
 if !ERRORLEVEL! EQU 1 (
-    echo Teste Datenbankverbindung...
+    echo Teste Datenbankverbindung und erstelle Datenbank falls nötig...
     call venv\Scripts\activate.bat
-    python -c "from sqlalchemy import create_engine; import os; from dotenv import load_dotenv; load_dotenv('backend/.env'); engine = create_engine(os.getenv('DATABASE_URL', 'postgresql://postgres:123@localhost:5432/abs_cdss')); conn = engine.connect(); print('✅ Datenbankverbindung erfolgreich'); conn.close()" 2>nul
+    python -c "from backend.database import init_database, create_tables; init_database(); create_tables(); print('✅ Datenbank initialisiert und Tabellen erstellt')" 2>nul
     if !ERRORLEVEL! NEQ 0 (
-        echo ⚠️  Datenbankverbindung fehlgeschlagen
+        echo ⚠️  Datenbankverbindung fehlgeschlagen oder Initialisierung nicht möglich
         echo.
         echo Bitte stellen Sie sicher, dass:
         echo - PostgreSQL läuft
-        echo - Die Datenbank 'abs_cdss' existiert
-        echo - Die DATABASE_URL in der .env korrekt ist
+        echo - Die Zugangsdaten in der .env korrekt sind:
+        echo   DB_HOST=%DB_HOST% (Standard: localhost)
+        echo   DB_PORT=%DB_PORT% (Standard: 5432)
+        echo   DB_USER=%DB_USER% (Standard: postgres)
+        echo   DB_PASSWORD=*** (wird aus .env gelesen)
+        echo   DB_NAME=%DB_NAME% (Standard: abs_cdss)
         echo.
+        echo Die Datenbank wird automatisch beim ersten Start erstellt.
         echo Sie können die Anwendung trotzdem starten, aber einige
         echo Funktionen (Speichern von Empfehlungen) funktionieren nicht.
         echo.
     ) else (
-        echo ✅ Datenbankverbindung erfolgreich
+        echo ✅ Datenbankverbindung erfolgreich, Datenbank bereit
         echo.
     )
 )

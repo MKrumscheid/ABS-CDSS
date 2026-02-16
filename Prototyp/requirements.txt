@@ -10,3 +10,6 @@ openai>=1.3.0
 requests>=2.31.0
 fhir.resources>=7.0.0
 psutil>=5.9.0
+sqlalchemy>=2.0.0
+sqlalchemy-utils>=0.41.0
+psycopg2-binary>=2.9.0
