@@ -190,22 +190,27 @@ echo ""
 echo ""
 
 if [[ $REPLY =~ ^[JjYy]$ ]]; then
-    echo "Teste Datenbankverbindung..."
+    echo "Teste Datenbankverbindung und erstelle Datenbank falls nötig..."
     source venv/bin/activate
-    python -c "from sqlalchemy import create_engine; import os; from dotenv import load_dotenv; load_dotenv('backend/.env'); engine = create_engine(os.getenv('DATABASE_URL', 'postgresql://postgres:123@localhost:5432/abs_cdss')); conn = engine.connect(); print('✅ Datenbankverbindung erfolgreich'); conn.close()" 2>/dev/null
+    python3 -c "from backend.database import init_database, create_tables; init_database(); create_tables(); print('✅ Datenbank initialisiert und Tabellen erstellt')" 2>/dev/null
     if [ $? -ne 0 ]; then
-        echo "⚠️  Datenbankverbindung fehlgeschlagen"
+        echo "⚠️  Datenbankverbindung fehlgeschlagen oder Initialisierung nicht möglich"
         echo ""
         echo "Bitte stellen Sie sicher, dass:"
         echo "- PostgreSQL läuft"
-        echo "- Die Datenbank 'abs_cdss' existiert"
-        echo "- Die DATABASE_URL in der .env korrekt ist"
+        echo "- Die Zugangsdaten in der .env korrekt sind:"
+        echo "  DB_HOST=\$DB_HOST (Standard: localhost)"
+        echo "  DB_PORT=\$DB_PORT (Standard: 5432)"
+        echo "  DB_USER=\$DB_USER (Standard: postgres)"
+        echo "  DB_PASSWORD=*** (wird aus .env gelesen)"
+        echo "  DB_NAME=\$DB_NAME (Standard: abs_cdss)"
         echo ""
+        echo "Die Datenbank wird automatisch beim ersten Start erstellt."
         echo "Sie können die Anwendung trotzdem starten, aber einige"
         echo "Funktionen (Speichern von Empfehlungen) funktionieren nicht."
         echo ""
     else
-        echo "✅ Datenbankverbindung erfolgreich"
+        echo "✅ Datenbankverbindung erfolgreich, Datenbank bereit"
         echo ""
     fi
 fi
@@ -218,6 +223,7 @@ echo ""
 echo "Nächste Schritte:"
 echo ""
 echo "1. Stellen Sie sicher, dass PostgreSQL läuft"
+echo "   (Die Datenbank wird automatisch erstellt)"
 echo "2. Starten Sie die Services:"
 echo ""
 echo "   Backend:"

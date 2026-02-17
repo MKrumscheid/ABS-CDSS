@@ -235,6 +235,7 @@ echo.
 echo Nächste Schritte:
 echo.
 echo 1. Stellen Sie sicher, dass PostgreSQL läuft
+echo    (Die Datenbank wird automatisch erstellt)
 echo 2. Führen Sie 'start_all_services.bat' aus, um alle Services zu starten
 echo.
 echo Oder starten Sie die Services einzeln:

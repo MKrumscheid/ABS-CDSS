@@ -2,8 +2,7 @@
 
 ## Übersicht
 
-
-Diese Anleitung führt Sie Schritt für Schritt durch die lokale Installation und den Start der ABS-CDSS (Antibiotic Stewardship - Clinical Decision Support System) Anwendung.
+Diese Anleitung führt Sie Schritt für Schritt durch die lokale Installation und den Start der Anwendung.
 
 Die Anwendung besteht aus:
 
@@ -164,21 +163,9 @@ psql --version
 sudo -u postgres psql
 ```
 
-**Erstellen Sie die Datenbank:**
-
-```sql
-CREATE DATABASE abs_cdss;
-\q
-```
-
-(Mit `\q` verlassen Sie die PostgreSQL-Konsole)
-
----
-
 ## Schritt 2: Code von GitHub herunterladen
 
 1. **Öffnen Sie ein Terminal/Command Prompt:**
-
    - **Windows**: Drücken Sie `Windows + R`, tippen Sie `cmd` und drücken Sie Enter
    - **macOS**: Öffnen Sie Terminal (Spotlight: `Cmd + Space`, dann "Terminal")
    - **Linux**: Öffnen Sie Ihr bevorzugtes Terminal
@@ -239,6 +226,13 @@ FAISS_INDEX_TYPE=IndexFlatIP
 # Logging
 LOG_LEVEL=INFO
 
+# PostgreSQL Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=123
+DB_NAME=abs_cdss
+
 # Novita AI LLM Configuration
 NOVITA_API_KEY=IHR_NOVITA_API_KEY_HIER
 NOVITA_API_BASE_URL=https://api.novita.ai/openai
@@ -256,14 +250,12 @@ EMBEDDING_REQUESTS_PER_MINUTE=45
 EMBEDDING_MAX_RETRIES=3
 EMBEDDING_RETRY_DELAY=2
 
-# Database Configuration
-DATABASE_URL=postgresql://postgres:IHR_POSTGRES_PASSWORT@localhost:5432/abs_cdss
 ```
 
 **WICHTIG - Ersetzen Sie folgende Werte:**
 
 - `IHR_NOVITA_API_KEY_HIER`: Ihr Novita AI API-Schlüssel (erhalten Sie von [https://novita.ai](https://novita.ai))
-- `IHR_POSTGRES_PASSWORT`: Das Passwort, das Sie bei der PostgreSQL-Installation festgelegt haben
+- `DB_PASSWORD`, `DB_NAME`, `DB_USER`, `DB_PORT`, `DB_HOST`: Falls von den Standardwertenabweichende Werte für die Dantenbank gewählt wurden, können diese hier geändert werden. Das Setup erstellt automatisch eine DB während des Setups mit diesen Werten.
 
 **Gehen Sie zurück zum Hauptverzeichnis:**
 
@@ -279,7 +271,7 @@ cd ..
 
 ### Option A: Automatisches Setup-Script (EMPFOHLEN)
 
-**Das Setup-Script installiert automatisch alle Abhängigkeiten!**
+**Das Setup-Skript installiert automatisch alle Abhängigkeiten!**
 
 **Windows:**
 
@@ -300,7 +292,7 @@ Das Script wird:
 - ✅ Python Virtual Environment erstellen
 - ✅ Alle Backend-Abhängigkeiten installieren (mit oder ohne GPU)
 - ✅ Alle Frontend-Abhängigkeiten installieren
-- ✅ Datenbankverbindung testen (optional)
+- ✅ Datenbankverbindung testen
 - ✅ Alle benötigten Verzeichnisse erstellen
 
 **Nach Abschluss des Scripts können Sie direkt mit [Schritt 5: Anwendung starten](#schritt-5-anwendung-starten) fortfahren!**
@@ -309,7 +301,7 @@ Das Script wird:
 
 ### Option B: Manuelle Installation (alle Plattformen)
 
-Falls Sie das automatische Script nicht verwenden möchten:
+Falls Sie das automatische Skript nicht verwenden möchten:
 
 #### 4.1 Python Virtual Environment erstellen
 
@@ -380,7 +372,7 @@ Dieser Vorgang kann einige Minuten dauern.
 start_all_services.bat
 ```
 
-Dieses Script öffnet automatisch drei separate Fenster für:
+Dieses Skript öffnet automatisch drei separate Fenster für:
 
 - ✅ Backend API-Server (Port 8000)
 - ✅ Admin-Frontend (Port 3000)
@@ -486,12 +478,10 @@ Dieses Script startet:
 ### Erste Schritte
 
 1. **Öffnen Sie Ihren Browser** und navigieren Sie zu:
-
    - Admin-Interface: `http://localhost:3000`
    - Endbenutzer-Interface: `http://localhost:4000`
 
 2. **API-Dokumentation** (Swagger UI):
-
    - Öffnen Sie `http://127.0.0.1:8000/docs` für die interaktive API-Dokumentation
 
 3. **Testen Sie die Verbindung**:
@@ -505,12 +495,11 @@ Dieses Script startet:
 Für die schnellste Installation:
 
 1. **Software installieren**: Git, Python 3.11+, Node.js 18+, PostgreSQL 14+
-2. **Datenbank erstellen**: `CREATE DATABASE abs_cdss;` in PostgreSQL
-3. **Code herunterladen**: `git clone ... && cd ABS-CDSS/Prototyp`
-4. **`.env` konfigurieren**: Datei im `backend`-Ordner mit API-Keys erstellen
-5. **Setup ausführen**: `setup.bat` (installiert alle Abhängigkeiten automatisch)
-6. **Starten**: `start_all_services.bat`
-7. **Fertig!** Browser öffnet sich unter `http://localhost:3000` oder `http://localhost:4000`
+2. **Code herunterladen**: `git clone ... && cd ABS-CDSS/Prototyp`
+3. **`.env` konfigurieren**: Datei im `backend`-Ordner mit API-Keys erstellen
+4. **Setup ausführen**: `setup.bat` (installiert alle Abhängigkeiten automatischin einer venv)
+5. **Starten**: `start_all_services.bat`
+6. **Fertig!** Browser öffnet sich unter `http://localhost:3000` oder `http://localhost:4000`
 
 ---
 
@@ -539,12 +528,10 @@ python3 -m pip install --upgrade pip
 **Lösung:**
 
 1. Überprüfen Sie, ob PostgreSQL läuft:
-
    - **Windows**: Öffnen Sie "Dienste" und suchen Sie nach "postgresql"
    - **macOS/Linux**: `sudo systemctl status postgresql`
 
 2. Überprüfen Sie die `DATABASE_URL` in der `.env` Datei:
-
    - Format: `postgresql://BENUTZER:PASSWORT@HOST:PORT/DATENBANKNAME`
    - Standardmäßig: `postgresql://postgres:IHR_PASSWORT@localhost:5432/abs_cdss`
 
@@ -826,13 +813,3 @@ Prototyp/
         ├── pages/
         └── services/
 ```
-
----
-
-## Lizenz und Kontakt
-
-Dieses Projekt ist ein medizinisches Entscheidungsunterstützungssystem. Bitte verwenden Sie es verantwortungsvoll und in Übereinstimmung mit den geltenden medizinischen Richtlinien.
-
-**Viel Erfolg bei der Installation!** 🚀
-
-Bei Fragen oder Problemen erstellen Sie bitte ein Issue im GitHub-Repository.
