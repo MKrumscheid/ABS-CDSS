@@ -5,16 +5,37 @@ import numpy as np
 from typing import List, Optional, Union
 from abc import ABC, abstractmethod
 from dotenv import load_dotenv
+import sys
+import traceback
 
 try:
     from sentence_transformers import SentenceTransformer
     SENTENCE_TRANSFORMERS_AVAILABLE = True
-    print("✅ SentenceTransformers successfully loaded - using LOCAL embeddings")
+    print("✅ SentenceTransformers successfully loaded - LOCAL embeddings available")
 except ImportError as e:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
     SentenceTransformer = None
-    print(f"⚠️ SentenceTransformers NOT available: {e}")
-    print("🔄 Will fall back to ONLINE embeddings")
+    print("=" * 60)
+    print("⚠️  SentenceTransformers NOT available!")
+    print("=" * 60)
+    print(f"Import error: {e}")
+    print(f"Python executable: {sys.executable}")
+    print(f"Python version: {sys.version}")
+    print("")
+    print("Possible causes:")
+    print("1. sentence-transformers not installed in current environment")
+    print("2. Missing dependencies (torch, transformers)")
+    print("3. Wrong virtual environment activated")
+    print("")
+    print("To fix, run in your virtual environment:")
+    print("  pip install sentence-transformers torch transformers")
+    print("")
+    print("📌 Detailed traceback:")
+    traceback.print_exc()
+    print("=" * 60)
+    print("🔄 Will fall back to ONLINE embeddings (Novita API)")
+    print("=" * 60)
+    print("")
 
 class EmbeddingServiceBase(ABC):
     """Abstract base class for embedding services"""

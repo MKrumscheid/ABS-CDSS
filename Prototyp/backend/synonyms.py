@@ -198,6 +198,10 @@ INDICATION_SYNONYMS: Dict[str, List[str]] = {
         "Bauchfellentzündung",
         "Peritonealentzündung"
     ],
+    "PERITONSILLITIS": [
+        "Peritonsilitis",
+        "Peritonsillarphlegmone",
+    ],
     "PERITONSILLARABSZESS": [
         "Peritonsillarabszess",
         "Quinsy",
