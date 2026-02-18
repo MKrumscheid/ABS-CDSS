@@ -117,6 +117,7 @@ class TherapyLLMService:
                 logger.error(f"Response length: {len(llm_response)}")
                 logger.error(f"Character at error position: '{llm_response[e.pos] if e.pos < len(llm_response) else 'EOF'}'")
                 logger.error(f"Context around error (±50 chars): '{llm_response[max(0,e.pos-50):e.pos+50]}'")
+                logger.error(f"Full LLM response: {llm_response}")
                 
                 # Try to extract JSON from response if it's embedded in text
                 try:
@@ -135,11 +136,15 @@ class TherapyLLMService:
                         
                 except (json.JSONDecodeError, ValueError) as inner_e:
                     logger.error(f"Failed to extract JSON: {inner_e}")
-                    raise ValueError(f"Invalid JSON response from LLM: {e}")
+                    # Truncate response for error message if too long
+                    response_preview = llm_response[:500] + "..." if len(llm_response) > 500 else llm_response
+                    raise ValueError(f"Invalid JSON response from LLM: {e}\n\nLLM Response:\n{response_preview}")
             
             except Exception as e:
                 logger.error(f"Unexpected error parsing LLM response: {e}")
-                raise ValueError(f"Error processing LLM response: {e}")
+                # Truncate response for error message if too long
+                response_preview = llm_response[:500] + "..." if len(llm_response) > 500 else llm_response
+                raise ValueError(f"Error processing LLM response: {e}\n\nLLM Response:\n{response_preview}")
             
             # Log the parsed therapy data for debugging
             logger.info(f"Parsed therapy data keys: {list(therapy_data.keys())}")
